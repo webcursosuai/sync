@@ -39,16 +39,26 @@
  */  
 defined('MOODLE_INTERNAL') || die();
 
+
 $capabilities = array(
-		/*
-		'local/paperattendance:print' => array(
-				'captype' => 'read',
-				'contextlevel' => CONTEXT_COURSE,
+		'local/sync:create' => array(
+				'riskbitmask' => RISK_MANAGETRUST,
+				'captype' => 'write', 'read',
+				'contextlevel' => CONTEXT_SYSTEM,
 				'archetypes' => array(
 						'student' => CAP_PROHIBIT,
-						'teacher' => CAP_ALLOW,
-						'editingteacher' => CAP_ALLOW,
+						'teacher' => CAP_PROHIBIT,
+						'editingteacher' => CAP_PROHIBIT,
 						'manager' => CAP_ALLOW
-				))		
-		*/
+				)),
+		'local/sync:record' => array(
+				'riskbitmask' => RISK_MANAGETRUST,
+				'captype' => 'write','read',
+				'contextlevel' => CONTEXT_SYSTEM,
+				'archetypes' => array(
+						'student' => CAP_PROHIBIT,
+						'teacher' => CAP_PROHIBIT,
+						'editingteacher' => CAP_PROHIBIT,
+						'manager' => CAP_ALLOW
+				)),
 );
