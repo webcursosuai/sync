@@ -49,7 +49,71 @@ function xmldb_local_sync_upgrade($oldversion) {
 
 	$dbman = $DB->get_manager();
 	
+	if ($oldversion < 2016122001) {
 	
+		// Define table sync_data to be created.
+		$table = new xmldb_table('sync_data');
+	
+		// Adding fields to table sync_data.
+		$table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+		$table->add_field('academicperiodid', XMLDB_TYPE_INTEGER, '20', null, XMLDB_NOTNULL, null, null);
+		$table->add_field('categoryid', XMLDB_TYPE_INTEGER, '20', null, XMLDB_NOTNULL, null, null);
+		$table->add_field('campus', XMLDB_TYPE_CHAR, '45', null, XMLDB_NOTNULL, null, null);
+		$table->add_field('campusshort', XMLDB_TYPE_CHAR, '45', null, XMLDB_NOTNULL, null, null);
+		$table->add_field('type', XMLDB_TYPE_CHAR, '45', null, XMLDB_NOTNULL, null, null);
+		$table->add_field('year', XMLDB_TYPE_INTEGER, '11', null, null, null, null);
+		$table->add_field('semester', XMLDB_TYPE_CHAR, '50', null, null, null, null);
+		$table->add_field('semesterlong', XMLDB_TYPE_CHAR, '50', null, null, null, null);
+		$table->add_field('timecreated', XMLDB_TYPE_INTEGER, '20', null, XMLDB_NOTNULL, null, null);
+		$table->add_field('timemodified', XMLDB_TYPE_INTEGER, '20', null, XMLDB_NOTNULL, null, null);
+	
+		// Adding keys to table sync_data.
+		$table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
+	
+		// Conditionally launch create table for sync_data.
+		if (!$dbman->table_exists($table)) {
+			$dbman->create_table($table);
+		}
+	
+		// Define table sync_enrol to be created.
+		$table = new xmldb_table('sync_enrol');
+	
+		// Adding fields to table sync_enrol.
+		$table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+		$table->add_field('shortname', XMLDB_TYPE_CHAR, '50', null, XMLDB_NOTNULL, null, null);
+		$table->add_field('role', XMLDB_TYPE_CHAR, '45', null, XMLDB_NOTNULL, null, 'student');
+		$table->add_field('user', XMLDB_TYPE_CHAR, '80', null, XMLDB_NOTNULL, null, null);
+	
+		// Adding keys to table sync_enrol.
+		$table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
+	
+		// Conditionally launch create table for sync_enrol.
+		if (!$dbman->table_exists($table)) {
+			$dbman->create_table($table);
+		}
+	
+		// Define table sync_course to be created.
+		$table = new xmldb_table('sync_course');
+	
+		// Adding fields to table sync_course.
+		$table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+		$table->add_field('syncid', XMLDB_TYPE_INTEGER, '20', null, XMLDB_NOTNULL, null, null);
+		$table->add_field('fullname', XMLDB_TYPE_CHAR, '150', null, XMLDB_NOTNULL, null, null);
+		$table->add_field('shortname', XMLDB_TYPE_CHAR, '50', null, XMLDB_NOTNULL, null, null);
+		$table->add_field('idnumber', XMLDB_TYPE_INTEGER, '12', null, XMLDB_NOTNULL, null, null);
+	
+		// Adding keys to table sync_course.
+		$table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
+		$table->add_key('sync_data_id', XMLDB_KEY_FOREIGN, array('syncid'), 'sync_data', array('id'));
+	
+		// Conditionally launch create table for sync_course.
+		if (!$dbman->table_exists($table)) {
+			$dbman->create_table($table);
+		}
+	
+		// Sync savepoint reached.
+		upgrade_plugin_savepoint(true, 2016122001, 'local', 'sync');
+	}
     
 	return true;
 }
