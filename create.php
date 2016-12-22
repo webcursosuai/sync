@@ -20,21 +20,22 @@
 *
 * @package    local
 * @subpackage sync
-* @copyright  2016 Joaquin Rivano (jrivano@alumnos.uai.cl) 					
+* @copyright  2016 Joaquin Rivano (jrivano@alumnos.uai.cl)
+* 			  2016 Mark Michaelsen (mmichaelsen678@gmail.com)
 * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
 */
 
 //Configuraciones globales
 require_once(dirname(dirname(dirname(__FILE__))) . '/config.php');
-require_once ($CFG->dirroot . '/local/sync/locallib.php');
+require_once ($CFG->dirroot . '/repository/lib.php');
 require_once($CFG->dirroot . '/local/sync/forms/sync_form.php');
-global $CFG, $DB, $OUTPUT,$COURSE, $USER, $PAGE;           
+global $CFG, $DB, $OUTPUT, $PAGE;
 
 
 // User must be logged in.
 require_login();
 if (isguestuser()) {
-    //die();
+    die();
 }
 
 //Pagina moodle basico
@@ -55,6 +56,5 @@ echo $OUTPUT->heading(get_string("sync_sub_heading", "local_sync"));
 //Agrego y muestro formulario
 $addform = new sync_form();
 $addform->display();
-
 
 echo $OUTPUT->footer();
