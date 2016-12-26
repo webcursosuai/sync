@@ -49,60 +49,49 @@ $PAGE->set_title(get_string("sync_page", "local_sync"));
 $PAGE->set_heading(get_string("sync_heading", "local_sync"));
 echo $OUTPUT->header();
 echo $OUTPUT->heading(get_string("sync_table", "local_sync"));
-/**
-if ($data = $addform->get_data()) {
-		
-			$selectedcourses= array();
-			foreach($data->courses as $key=>$course ){
-				if($course == 1){
-					$selectedcourses[] = $key;
-				}
-		}
-		
-		list ( $sqlin, $parametro ) = $DB->get_in_or_equal ( $selectedcourses );
-		$params= array("%$data->name%","%$data->name%");
-		$finalparams = array_merge($params,$parametro);
-		
-		$query = "SELECT * FROM mdl_course_categories
-                  
-                 
-		         
-		 
-		//resultados del query desplegados en una tabla
-		
-		$recordset = $DB->get_record_sql($query,$finalparams);
-		
-	*/		
 
-            $query = "SELECT * FROM mdl_course_categories";
+            $query = "SELECT s.id, s.academicperiodid , s.categoryid, s.campus, c.name  
+                      FROM mdl_sync_data as s
+                      INNER JOIN mdl_course_categories c ON (c.id = s.categoryid )
+                      ORDER BY s.id desc
+                      LIMIT 10            
+                      ";
+            
+            $datos = $DB->get_records_sql($query);
+            $data_table=array();
+            
+            foreach($datos as $dato){
+            $extra = array();
+            
+            $extra[]=$dato->academicperiodid;
+            $extra[]=$dato->name;
+            $extra[]=$dato->categoryid;
+            $extra[]=$dato->campus;
+            
+            $data_table[] = $extra;
+            
+            }
+            
+            
 			$synctable = new html_table();
 			$synctable->head = array(
-					get_string("acad_unid", "local_sync"),
-					get_string("academic_period", "local_sync"),  //omega
-					get_string("period_id","local_sync"),        //omega
+					get_string("acad_unid", "local_sync"),        //??
+					get_string("academic_period", "local_sync"),  //??
+					get_string("period_id","local_sync"),        //sync_data
 					get_string("category","local_sync"),        //course_category
-					get_string("category_id","local_sync"),    //course_category  
-					get_string("sede","local_sync"),          // ?? 
+					get_string("category_id","local_sync"),    //sync_data  
+					get_string("sede","local_sync"),          // sync_data
 					get_string("Activation","local_sync"),    //herramientas
 					get_string("manual_unsub","local_sync"), //herramientas
 					get_string("edit","local_sync"),        //herramientas
 							);
-				$synctable->data [] = array(
-					get_string("acad_unid", "local_sync"),
-					get_string("academic_period", "local_sync"),  //omega
-					get_string("period_id","local_sync"),        //omega
-					get_string("category","local_sync"),        //course_category
-					get_string("category_id","local_sync"),    //course_category  
-					get_string("sede","local_sync"),          // ?? 
 							
-				);	
+			$synctable->data = $data_table;					
+			
 		
 				
 			echo html_writer::table($synctable);
- 
 
-		 
-		
 			
 //fin de la pagina	
 echo $OUTPUT->footer();

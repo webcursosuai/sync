@@ -1,8 +1,8 @@
 <?php
 /**
- * Strings for component 'rivano', language 'en'
+ * Strings for component 'sync', language 'en'
  *
- * @package   rivano
+ * @package	sync
  */
 defined('MOODLE_INTERNAL') || die();
 
@@ -14,6 +14,15 @@ $string['sync_subtitle'] = "Syncronize Creation";
 $string['sync_page'] = "syncronize";
 $string['sync_heading'] ="Syncronize";
 $string['sync_sub_heading'] ="Syncronize Creation";
+$string['sync_title'] = "Synchronization";
+$string['sync_subtitle'] = "Create Synchronization";
+$string['sync_page'] = "Synchronization";
+$string['sync_heading'] ="Synchronization";
+$string['sync_sub_heading'] ="Create Synchronization";
+$string['sync_subtitle'] = "Create Synchronization";
+$string['sync_page'] = "Synchronization";
+$string['sync_heading'] ="Synchronization";
+$string['sync_sub_heading'] ="Create Synchronization";
 $string['omega'] = "Academic Period";
 $string['webc'] = "Categories";
 $string['in_charge'] = "Responsible";
