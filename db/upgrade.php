@@ -49,7 +49,7 @@ function xmldb_local_sync_upgrade($oldversion) {
 
 	$dbman = $DB->get_manager();
 	
-	if ($oldversion < 2016122001) {
+	if ($oldversion < 2016122601) {
 	
 		// Define table sync_data to be created.
 		$table = new xmldb_table('sync_data');
@@ -110,9 +110,17 @@ function xmldb_local_sync_upgrade($oldversion) {
 		if (!$dbman->table_exists($table)) {
 			$dbman->create_table($table);
 		}
+		
+		$table = new xmldb_table('sync_data');
+		$field = new xmldb_field('responsible', XMLDB_TYPE_CHAR, '80', null, null, null, null, 'timemodified');
+		
+		// Conditionally launch add field responsible.
+		if (!$dbman->field_exists($table, $field)) {
+			$dbman->add_field($table, $field);
+		}
 	
 		// Sync savepoint reached.
-		upgrade_plugin_savepoint(true, 2016122001, 'local', 'sync');
+		upgrade_plugin_savepoint(true, 2016122601, 'local', 'sync');
 	}
     
 	return true;
