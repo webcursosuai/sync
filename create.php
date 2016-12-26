@@ -27,7 +27,7 @@
 
 //Configuraciones globales
 require_once(dirname(dirname(dirname(__FILE__))) . '/config.php');
-require_once ($CFG->dirroot . '/repository/lib.php');
+require_once ($CFG->dirroot . '/local/sync/locallib.php');
 require_once($CFG->dirroot . '/local/sync/forms/sync_form.php');
 global $CFG, $DB, $OUTPUT, $PAGE;
 
@@ -52,6 +52,8 @@ $PAGE->set_title(get_string("sync_page", "local_sync"));
 $PAGE->set_heading(get_string("sync_heading", "local_sync"));
 echo $OUTPUT->header();
 echo $OUTPUT->heading(get_string("sync_sub_heading", "local_sync"));
+echo $OUTPUT->tabtree(sync_tabs(), "create");
+
 
 //Agrego y muestro formulario
 $addform = new sync_form();

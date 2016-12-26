@@ -26,6 +26,7 @@
 
 //Configuraciones globales
 require_once(dirname(dirname(dirname(__FILE__))) . '/config.php');
+require_once ($CFG->dirroot . '/local/sync/locallib.php');
 global $CFG, $DB, $OUTPUT,$COURSE, $USER, $PAGE;           
 
 
@@ -49,6 +50,89 @@ $PAGE->set_title(get_string("sync_page", "local_sync"));
 $PAGE->set_heading(get_string("sync_heading", "local_sync"));
 echo $OUTPUT->header();
 echo $OUTPUT->heading(get_string("sync_table", "local_sync"));
+echo $OUTPUT->tabtree(sync_tabs(), "record");
+
+/*
+        // Edits an existent record
+           if($action == "edit"){
+	          if($syncid == null){
+		         print_error(get_string("sync_notselected", "local_sync"));
+		         $action = "view";
+	       }else{
+		    if($sync = $DB->get_record("pluginboletas_boletas", array("id" => $idboleta))){
+			 $editform = new editboleta_form(null, array(
+					"idboleta" => $idboleta
+			));
+			
+			     $defaultdata = new stdClass();
+			     $defaultdata->usuarios_id = $boleta->usuarios_id;
+			     $defaultdata->sedes_id = $boleta->sedes_id;
+			     $defaultdata->monto = $boleta->monto;
+			     $editform->set_data($defaultdata);
+			
+			 if($editform->is_cancelled()){
+				$action = "view";
+			    }else if($editform->get_data()){
+				$record = new stdClass();
+				$record->id = $idboleta;
+				$record->usuarios_id = $editform->get_data()->usuarios_id;
+				$record->sedes_id = $editform->get_data()->sedes_id;
+				$record->monto = $editform->get_data()->monto;
+				
+				$DB->update_record("pluginboletas_boletas", $record);
+				$action = "view";
+			}
+		}else{
+			print_error(get_string("receipt_doesntexist", "local_pluginboletas"));
+			$action = "view";
+		}
+	}
+}
+           // Delete the selected record
+              if ($action == "delete"){
+	              if ($idboleta == null){
+		      print_error(get_string("receipt_notselected", "local_pluginboletas"));
+		$action = "view";
+	}else{
+		if ($boleta = $DB->get_record("pluginboletas_boletas", array("id" => $idboleta))){
+			$DB->delete_records("pluginboletas_boletas", array("id" => $boleta->id));
+			$action = "view";
+		}else{
+			print_error(get_string("receipt_doesntexist", "local_pluginboletas"));
+			$action = "view";
+		}
+	}
+}
+			
+			
+			
+			
+			// Define deletion icon and url
+			$deleteurl_sync= new moodle_url("/local/sync/record.php", array(
+					"action" => "delete",
+					"syncid" => $sync->id,
+			));
+			$deleteicon_sync = new pix_icon("t/delete", "Borrar");
+			$deleteaction_sync = $OUTPUT->action_icon(
+					$deleteurl_sync,
+					$deleteicon_sync,
+					new confirm_action(get_string("delete_sync", "local_sync"))
+			);
+			
+			// Define edition icon and url
+			$editurl_sync = new moodle_url("/local/sync/create.php", array(
+					"action" => "edit",
+					"syncid" => $sync->id
+			));
+			$editicon_sync = new pix_icon("i/edit", "Editar");
+			$editaction_sync = $OUTPUT->action_icon(
+					$editurl_sync,
+					$editicon_sync,
+					new confirm_action(get_string("edit", "local_sync"))
+			);
+ 
+
+*/
 
             $query = "SELECT s.id, s.academicperiodid , s.categoryid, s.campus, c.name  
                       FROM mdl_sync_data as s

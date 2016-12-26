@@ -32,3 +32,4 @@ $string['sede'] = "Sede";
 $string['Activation'] = "Activar/Desactivar";
 $string['manual_unsub'] = "Desincripcion Manual";
 $string['edit'] = "Editar";
+$string['delete_sync'] = "Borrar";

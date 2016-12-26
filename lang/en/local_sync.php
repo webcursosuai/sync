@@ -41,4 +41,5 @@ $string['sede'] = "Location";
 $string['Activation'] = "Activate/Desactivate";
 $string['manual_unsub'] = "Manual de-enrollment";
 $string['edit'] = "Edit";
+$string['delete_sync'] = "Delete";
 					
