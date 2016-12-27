@@ -26,9 +26,9 @@
 */
 
 //Configuraciones globales
-require_once(dirname(dirname(dirname(__FILE__))) . '/config.php');
-require_once ($CFG->dirroot . '/repository/lib.php');
-require_once($CFG->dirroot . '/local/sync/forms/sync_form.php');
+require_once(dirname(dirname(dirname(__FILE__))) . "/config.php");
+require_once ($CFG->dirroot . "/repository/lib.php");
+require_once($CFG->dirroot . "/local/sync/forms/sync_form.php");
 global $CFG, $DB, $OUTPUT, $PAGE;
 
 
@@ -41,20 +41,55 @@ if (isguestuser()) {
 //Pagina moodle basico
 $context = context_system::instance();
 
-$url = new moodle_url('/local/sync/create.php');
+$url = new moodle_url("/local/sync/create.php");
 
-$PAGE->navbar->add(get_string('sync_title', 'local_sync'));
-$PAGE->navbar->add(get_string('sync_subtitle', 'local_sync'),$url);
+$PAGE->navbar->add(get_string("sync_title", "local_sync"));
+$PAGE->navbar->add(get_string("sync_subtitle", "local_sync"),$url);
 $PAGE->set_context($context);
 $PAGE->set_url($url);
-$PAGE->set_pagelayout('standard');
+$PAGE->set_pagelayout("standard");
 $PAGE->set_title(get_string("sync_page", "local_sync"));
 $PAGE->set_heading(get_string("sync_heading", "local_sync"));
-echo $OUTPUT->header();
-echo $OUTPUT->heading(get_string("sync_sub_heading", "local_sync"));
+
+$insert = optional_param("insert", "", PARAM_TEXT);
 
 //Agrego y muestro formulario
 $addform = new sync_form();
-$addform->display();
+echo $OUTPUT->header();
+echo $OUTPUT->heading(get_string("sync_sub_heading", "local_sync"));
+
+if($addform->is_cancelled()) {
+	$formurl = new moodle_url("/local/sync/create.php");
+	redirect($formurl);
+}
+
+else if($creationdata = $addform->get_data()) {
+	$record = new stdClass();
+	$perioddata = explode("|", $creationdata->period);
+	
+	$record->academicperiodid = $perioddata[0];
+	$record->academicperiodname = $perioddata[4];
+	$record->categoryid = $creationdata->category;
+	$record->campus = $perioddata[1];
+	$record->campusshort = explode("-", $perioddata[1])[1];
+	$record->type = $perioddata[2];
+	$record->year = $perioddata[3];
+	$record->semester = $perioddata[5];
+	$record->timecreated = time();
+	$record->timemodified = $record->timecreated;
+	$record->responsible = $creationdata->responsible;
+	
+	$DB->insert_record("sync_data", $record);
+	
+	$formurl = new moodle_url("/local/sync/create.php", array("insert" => "success"));
+	redirect($formurl);
+}
+
+else {
+	if($insert == "success") {
+		echo $OUTPUT->notification(get_string("sync_success", "local_sync"), "notifysuccess");
+	}
+	$addform->display();
+}
 
 echo $OUTPUT->footer();
