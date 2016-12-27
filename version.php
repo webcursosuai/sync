@@ -28,6 +28,6 @@ defined('MOODLE_INTERNAL') || die();
 
 $plugin->pluginname = "local_sync";
 $plugin->component = 'local_sync';
-$plugin->version   = '2016122601';
+$plugin->version   = '2016122701';
 $plugin->requires = 2015111600;
 
