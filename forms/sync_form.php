@@ -112,6 +112,14 @@ class sync_form extends moodleform {
 		$mform->addElement("select", "category", get_string("webc", "local_sync"), $categories);
 		$mform->setType("category" , PARAM_TEXT);
 		
+		$statusoptions = array(
+				get_string("inactive", "local_sync"),
+				get_string("active", "local_sync")
+		);
+		
+		$mform->addElement("select", "status", get_string("status", "local_sync"), $statusoptions);
+		$mform->setType("status", PARAM_INT);
+		
 		//text area encargado
 		$mform->addElement("text", "responsible", get_string("in_charge", "local_sync")); 
         $mform->setType("responsible", PARAM_NOTAGS);

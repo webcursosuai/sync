@@ -25,3 +25,6 @@ $string["error_omega"] = "Select a category";
 $string["error_responsible_invalid"] = "Invalid email (must be @uai.cl)";
 $string["error_responsible_nonexistent"] = "Email does not exist in the database";
 $string["sync_success"] = "Synchronization saved successfully";
+$string["status"] = "Status";
+$string["active"] = "Active";
+$string["inactive"] = "Inactive";
