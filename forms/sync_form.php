@@ -19,26 +19,25 @@
  *
 *
 * @package    local
-* @subpackage rivano
+* @subpackage sync
 * @copyright  2016 Joaquin Rivano (jrivano@alumnos.uai.cl)
 * 			  2016 Mark Michaelsen (mmichaelsen678@gmail.com)
 * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
 */
 
-defined('MOODLE_INTERNAL') || die();
-require_once(dirname(dirname(dirname(dirname(__FILE__)))) . '/config.php');
+defined("MOODLE_INTERNAL") || die();
+require_once(dirname(dirname(dirname(dirname(__FILE__)))) . "/config.php");
 require_once($CFG->libdir . "/formslib.php");
 
 // Form definition for synchronization creation
 class sync_form extends moodleform {
-	function definition() {
-		global $DB;
+	public function definition() {
+		global $CFG, $DB;
 		
 		$mform = $this->_form;
 		
 		// Select academic period
 		$periods = array();
-		$periods[0] = "";
 		
 		$curl = curl_init();
 		$url = "http://webapitest.uai.cl/webcursos/getperiodosacademicos";
@@ -63,12 +62,16 @@ class sync_form extends moodleform {
 			$periodcampus = $period->sede;
 			$periodtype = $period->tipo;
 			
-			$periods[$period->periodoAcademicoId] = $id." | ".$periodname." | ".$periodcampus." | ".$periodtype;
+			$periods[$id."|".$periodcampus."|".$periodtype."|".$period->AnoPeriodo."|".$periodname."|".$period->NumeroPeriodo] = $id." | ".$periodname." | ".$periodcampus." | ".$periodtype;
 		}
-		ksort($periods);
 		
-		$mform->addElement('select', 'omega', get_string('omega','local_sync'), $periods);
-		$mform->setType('omega' , PARAM_TEXT);
+		krsort($periods);
+		
+		$beginning = array("");
+		$options = $beginning + $periods;
+		
+		$mform->addElement("select", "period", get_string("omega","local_sync"), $options);
+		$mform->setType("period" , PARAM_TEXT);
 		
 		//Link Periodos
 		
@@ -94,6 +97,8 @@ class sync_form extends moodleform {
 			$path[$category->id] = explode("/", $category->path);
 		}
 		
+		$categoriesset->close();
+		
 		foreach($unpathedcategories as $id => $name) {
 			$finalpath = "$id";
 			foreach($path[$id] as $pathid) {
@@ -104,36 +109,39 @@ class sync_form extends moodleform {
 			$categories[$id] = $finalpath;
 		}
 		
-		$categoriesset->close();
-		
-		$mform->addElement('select', 'webc', get_string('webc','local_sync'), $categories);
-		$mform->setType('webc' , PARAM_TEXT);
+		$mform->addElement("select", "category", get_string("webc", "local_sync"), $categories);
+		$mform->setType("category" , PARAM_TEXT);
 		
 		//text area encargado
-		$mform->addElement('text', 'in_charge', get_string('in_charge','local_sync')); 
-        $mform->setType('in_charge', PARAM_NOTAGS);
+		$mform->addElement("text", "responsible", get_string("in_charge", "local_sync")); 
+        $mform->setType("responsible", PARAM_NOTAGS);
 		
-		$this->add_action_buttons($cancel = true, $submitlabel= get_string('buttons','local_sync'));
+		$this->add_action_buttons($cancel = true, $submitlabel= get_string("buttons", "local_sync"));
 		
 	}
 	
-	function validation($data, $files){
+	public function validation($data, $files) {
+		global $DB;
 		$errors = array();
 		
-		$academicperiod = $data["omega"];
-		$category = $data["webc"];
-		$responsible = $data["in_charge"];
+		$academicperiod = $data["period"];
+		$category = $data["category"];
+		$responsible = $data["responsible"];
 		
 		if (!isset($academicperiod) || empty($academicperiod) || $academicperiod == 0 || $academicperiod == null) {
-			$errors["omega"] = get_string('error_omega','local_sync');
+			$errors["period"] = get_string("error_period", "local_sync");
 		}
 		
 		if (!isset($category) || empty($category) || $category == 0 || $category == null) {
-			$errors["webc"] = get_string('error_omega','local_sync');
+			$errors["category"] = get_string("error_omega", "local_sync");
 		}
 		
-		if (!isset($responsible) || empty($responsible) || $responsible == "" || $responsible == null) {
-			$errors["in_charge"] = get_string('error_omega','local_sync');
+		if($responsible != "") {
+			if(explode("@", $responsible)[1] != "uai.cl") {
+				$errors["responsible"] = get_string("error_responsible_invalid", "local_sync");
+			} else if(!$DB->record_exists("user", array("email" => $responsible))) {
+				$errors["responsible"] = get_string("error_responsible_nonexistent", "local_sync");
+			}
 		}
 		
 		return $errors;

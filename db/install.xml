@@ -8,17 +8,17 @@
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
         <FIELD NAME="academicperiodid" TYPE="int" LENGTH="20" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="academicperiodname" TYPE="char" LENGTH="200" NOTNULL="false" SEQUENCE="false"/>
         <FIELD NAME="categoryid" TYPE="int" LENGTH="20" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="campus" TYPE="char" LENGTH="45" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="campusshort" TYPE="char" LENGTH="45" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="type" TYPE="char" LENGTH="45" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="year" TYPE="int" LENGTH="11" NOTNULL="false" SEQUENCE="false"/>
         <FIELD NAME="semester" TYPE="char" LENGTH="50" NOTNULL="false" SEQUENCE="false"/>
-        <FIELD NAME="semesterlong" TYPE="char" LENGTH="50" NOTNULL="false" SEQUENCE="false"/>
         <FIELD NAME="timecreated" TYPE="int" LENGTH="20" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="timemodified" TYPE="int" LENGTH="20" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="responsible" TYPE="char" LENGTH="80" NOTNULL="false" SEQUENCE="false" COMMENT="email to notify"/>
-        <FIELD NAME="status" TYPE="int" LENGTH="1" NOTNULL="true" SEQUENCE="false" COMMENT="Describes if the sync is active"/>
+        <FIELD NAME="status" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Describes if the sync is active"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
@@ -27,14 +27,14 @@
     <TABLE NAME="sync_course" COMMENT="Information needed to sync Omega courses">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
-        <FIELD NAME="syncid" TYPE="int" LENGTH="20" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="dataid" TYPE="int" LENGTH="20" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="fullname" TYPE="char" LENGTH="150" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="shortname" TYPE="char" LENGTH="50" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="idnumber" TYPE="int" LENGTH="12" NOTNULL="true" SEQUENCE="false"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
-        <KEY NAME="sync_data_id" TYPE="foreign" FIELDS="syncid" REFTABLE="sync_data" REFFIELDS="id"/>
+        <KEY NAME="sync_data_id" TYPE="foreign" FIELDS="dataid" REFTABLE="sync_data" REFFIELDS="id"/>
       </KEYS>
     </TABLE>
     <TABLE NAME="sync_enrol" COMMENT="Relates synced omega users with their respective courses">
