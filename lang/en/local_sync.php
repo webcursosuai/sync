@@ -7,6 +7,7 @@
 
 defined("MOODLE_INTERNAL") || die();
 
+$string["pluginname"] = "Omega Synchronizations";
 $string["sync_title"] = "Synchronization";
 $string["sync_subtitle"] = "Create Synchronization";
 $string["sync_page"] = "Synchronization";
@@ -24,4 +25,9 @@ $string["error_period"] = "Select an academic period to be synchronized";
 $string["error_omega"] = "Select a category";
 $string["error_responsible_invalid"] = "Invalid email (must be @uai.cl)";
 $string["error_responsible_nonexistent"] = "Email does not exist in the database";
+$string["error_communication"] = "Failed to retrieve the academic period list from Omega. Try again later.";
 $string["sync_success"] = "Synchronization saved successfully";
+$string["status"] = "Status";
+$string["active"] = "Active";
+$string["inactive"] = "Inactive";
+$string["task_courses"] = "Omega courses synchronization";

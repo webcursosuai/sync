@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="local/sync/db" VERSION="20161227" COMMENT="Saves useful information for synchronizations with Omega"
+<XMLDB PATH="local/sync/db" VERSION="20161228" COMMENT="Saves useful information for synchronizations with Omega"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
 >
@@ -30,7 +30,8 @@
         <FIELD NAME="dataid" TYPE="int" LENGTH="20" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="fullname" TYPE="char" LENGTH="150" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="shortname" TYPE="char" LENGTH="50" NOTNULL="true" SEQUENCE="false"/>
-        <FIELD NAME="idnumber" TYPE="int" LENGTH="12" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="idnumber" TYPE="int" LENGTH="12" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="categoryid" TYPE="int" LENGTH="12" NOTNULL="true" SEQUENCE="false"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>

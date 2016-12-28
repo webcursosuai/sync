@@ -21,7 +21,7 @@
 * @package    local
 * @subpackage sync
 * @copyright  2016 Joaquin Rivano (jrivano@alumnos.uai.cl)
-* 			  2016 Mark Michaelsen (mmichaelsen678@gmail.com)
+* @copyright  2016 Mark Michaelsen (mmichaelsen678@gmail.com)
 * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
 */
 
@@ -32,7 +32,7 @@ require_once($CFG->libdir . "/formslib.php");
 // Form definition for synchronization creation
 class sync_form extends moodleform {
 	public function definition() {
-		global $CFG, $DB;
+		global $CFG, $DB, $OUTPUT;
 		
 		$mform = $this->_form;
 		
@@ -56,67 +56,79 @@ class sync_form extends moodleform {
 		$result = json_decode(curl_exec($curl));
 		curl_close($curl);
 		
-		foreach($result as $period) {
-			$id = $period->periodoAcademicoId;
-			$periodname = $period->periodoAcademico;
-			$periodcampus = $period->sede;
-			$periodtype = $period->tipo;
-			
-			$periods[$id."|".$periodcampus."|".$periodtype."|".$period->AnoPeriodo."|".$periodname."|".$period->NumeroPeriodo] = $id." | ".$periodname." | ".$periodcampus." | ".$periodtype;
-		}
-		
-		krsort($periods);
-		
-		$beginning = array("");
-		$options = $beginning + $periods;
-		
-		$mform->addElement("select", "period", get_string("omega","local_sync"), $options);
-		$mform->setType("period" , PARAM_TEXT);
-		
-		//Link Periodos
-		
-		//select Webcursos
-		$categoriessql = "SELECT cc.id AS id,
-				cc.name AS name,
-				cc.path AS path
-				FROM {course_categories} AS cc
-				WHERE visible = ?";
-		
-		$params = array(1);
-		
-		$categoriesset = $DB->get_recordset_sql($categoriessql, $params);
-		
-		$categories = array();
-		$categories[0] = "";
-		
-		$unpathedcategories = array();
-		$path = array();
-		
-		foreach($categoriesset as $category) {
-			$unpathedcategories[$category->id] = $category->name;
-			$path[$category->id] = explode("/", $category->path);
-		}
-		
-		$categoriesset->close();
-		
-		foreach($unpathedcategories as $id => $name) {
-			$finalpath = "$id";
-			foreach($path[$id] as $pathid) {
-				if($pathid != "") {
-					$finalpath .= " | ".$unpathedcategories[$pathid];
-				}
+		if(count($result) == 0) {
+			echo $OUTPUT->notification(get_string("error_communication", "local_sync"));
+		} else {
+			foreach($result as $period) {
+				$id = $period->periodoAcademicoId;
+				$periodname = $period->periodoAcademico;
+				$periodcampus = $period->sede;
+				$periodtype = $period->tipo;
+				
+				$periods[$id."|".$periodcampus."|".$periodtype."|".$period->AnoPeriodo."|".$periodname."|".$period->NumeroPeriodo] = $id." | ".$periodname." | ".$periodcampus." | ".$periodtype;
 			}
-			$categories[$id] = $finalpath;
+			
+			krsort($periods);
+			
+			$beginning = array("");
+			$options = $beginning + $periods;
+			
+			$mform->addElement("select", "period", get_string("omega","local_sync"), $options);
+			$mform->setType("period" , PARAM_TEXT);
+			
+			//Link Periodos
+			
+			//select Webcursos
+			$categoriessql = "SELECT cc.id AS id,
+					cc.name AS name,
+					cc.path AS path
+					FROM {course_categories} AS cc
+					WHERE visible = ?";
+			
+			$params = array(1);
+			
+			$categoriesset = $DB->get_recordset_sql($categoriessql, $params);
+			
+			$categories = array();
+			$categories[0] = "";
+			
+			$unpathedcategories = array();
+			$path = array();
+			
+			foreach($categoriesset as $category) {
+				$unpathedcategories[$category->id] = $category->name;
+				$path[$category->id] = explode("/", $category->path);
+			}
+			
+			$categoriesset->close();
+			
+			foreach($unpathedcategories as $id => $name) {
+				$finalpath = "$id";
+				foreach($path[$id] as $pathid) {
+					if($pathid != "") {
+						$finalpath .= " | ".$unpathedcategories[$pathid];
+					}
+				}
+				$categories[$id] = $finalpath;
+			}
+			
+			$mform->addElement("select", "category", get_string("webc", "local_sync"), $categories);
+			$mform->setType("category" , PARAM_TEXT);
+			
+			$statusoptions = array(
+					get_string("inactive", "local_sync"),
+					get_string("active", "local_sync")
+			);
+			
+			$mform->addElement("select", "status", get_string("status", "local_sync"), $statusoptions);
+			$mform->setType("status", PARAM_INT);
+			
+			//text area encargado
+			$mform->addElement("text", "responsible", get_string("in_charge", "local_sync")); 
+	        $mform->setType("responsible", PARAM_NOTAGS);
+			
+			$this->add_action_buttons($cancel = true, $submitlabel= get_string("buttons", "local_sync"));
 		}
-		
-		$mform->addElement("select", "category", get_string("webc", "local_sync"), $categories);
-		$mform->setType("category" , PARAM_TEXT);
-		
-		//text area encargado
-		$mform->addElement("text", "responsible", get_string("in_charge", "local_sync")); 
-        $mform->setType("responsible", PARAM_NOTAGS);
-		
-		$this->add_action_buttons($cancel = true, $submitlabel= get_string("buttons", "local_sync"));
 		
 	}
 	
