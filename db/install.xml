@@ -48,5 +48,18 @@
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
       </KEYS>
     </TABLE>
+    <TABLE NAME="sync_history" COMMENT="Registers the synchronization process, storing the execution date and counts the courses and enrols">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="dataid" TYPE="int" LENGTH="20" NOTNULL="true" SEQUENCE="false" COMMENT="foreign key from the sync_data table"/>
+        <FIELD NAME="executiondate" TYPE="char" LENGTH="20" NOTNULL="true" SEQUENCE="false" COMMENT="Date in which the execution was done"/>
+        <FIELD NAME="countcourses" TYPE="int" LENGTH="20" NOTNULL="true" SEQUENCE="false" COMMENT="Number of courses in the synchronization"/>
+        <FIELD NAME="countenrols" TYPE="int" LENGTH="20" NOTNULL="true" SEQUENCE="false" COMMENT="Number of enrols in the synchronization process"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="dataid" TYPE="foreign" FIELDS="dataid" REFTABLE="sync_data" REFFIELDS="id" COMMENT="foreign key from the sync_data table"/>
+      </KEYS>
+    </TABLE>
   </TABLES>
 </XMLDB>

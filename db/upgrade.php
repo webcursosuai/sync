@@ -175,6 +175,32 @@ function xmldb_local_sync_upgrade($oldversion) {
 		// Sync savepoint reached.
 		upgrade_plugin_savepoint(true, 2016122703, 'local', 'sync');
 	}
+	if ($oldversion < 2016122704) {
+	
+		// Define table sync_history to be created.
+		$table = new xmldb_table('sync_history');
+	
+		// Adding fields to table sync_history.
+		$table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+		$table->add_field('dataid', XMLDB_TYPE_INTEGER, '20', null, XMLDB_NOTNULL, null, null);
+		$table->add_field('executiondate', XMLDB_TYPE_CHAR, '20', null, XMLDB_NOTNULL, null, null);
+		$table->add_field('countcourses', XMLDB_TYPE_INTEGER, '20', null, XMLDB_NOTNULL, null, null);
+		$table->add_field('countenrols', XMLDB_TYPE_INTEGER, '20', null, XMLDB_NOTNULL, null, null);
+	
+		// Adding keys to table sync_history.
+		$table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
+		$table->add_key('dataid', XMLDB_KEY_FOREIGN, array('dataid'), 'sync_data', array('id'));
+	
+		// Conditionally launch create table for sync_history.
+		if (!$dbman->table_exists($table)) {
+			$dbman->create_table($table);
+		}
+	
+		// Sync savepoint reached.
+		upgrade_plugin_savepoint(true, 2016122704, 'local', 'sync');
+	}
+	
+	
     
 	return true;
 }
