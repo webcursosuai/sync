@@ -175,6 +175,28 @@ function xmldb_local_sync_upgrade($oldversion) {
 		// Sync savepoint reached.
 		upgrade_plugin_savepoint(true, 2016122703, 'local', 'sync');
 	}
+	
+	if ($oldversion < 2016122801) {
+	
+		// Define field categoryid to be added to sync_course.
+		$table = new xmldb_table('sync_course');
+		$field = new xmldb_field('categoryid', XMLDB_TYPE_INTEGER, '12', null, XMLDB_NOTNULL, null, null, 'idnumber');
+	
+		// Conditionally launch add field categoryid.
+		if (!$dbman->field_exists($table, $field)) {
+			$dbman->add_field($table, $field);
+		}
+		
+		// Changing nullability of field idnumber on table sync_course to null.
+		$table = new xmldb_table('sync_course');
+		$field = new xmldb_field('idnumber', XMLDB_TYPE_INTEGER, '12', null, null, null, null, 'shortname');
+		
+		// Launch change of nullability for field idnumber.
+		$dbman->change_field_notnull($table, $field);
+	
+		// Sync savepoint reached.
+		upgrade_plugin_savepoint(true, 2016122801, 'local', 'sync');
+	}
     
 	return true;
 }

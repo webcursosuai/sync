@@ -30,3 +30,4 @@ $string["sync_success"] = "Sincronización guardada satisfactoriamente";
 $string["status"] = "Estado";
 $string["active"] = "Activo";
 $string["inactive"] = "Inactivo";
+$string["task_courses"] = "Sincronización de cursos de Omega";
