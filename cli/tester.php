@@ -45,26 +45,45 @@ $PAGE->set_heading(get_string("sync_heading", "local_sync"));
 $periods = $DB->get_records("sync_data", array("status" => 1));
 
 $ids = array();
+$categories = array();
 foreach($periods as $period) {
 	$ids[] = $period->academicperiodid;
+	$categories[$period->academicperiodid] = $period->categoryid;
 }
 
-$curl = curl_init();
-$url = "http://webapitest.uai.cl/webcursos/GetCursos";
-$token = "webisis54521kJusm32ADDddiiIsdksndQoQ01";
 
-$fields = array(
-		"token" => $token,
-		"PeriodosAcademicos" => $ids
-);
+if(!$DB->execute("TRUNCATE TABLE {sync_course}")) {
+	print_error("Truncate Failed");
+} else {
+	$curl = curl_init();
+	$url = "http://webapitest.uai.cl/webcursos/GetCursos";
+	$token = "webisis54521kJusm32ADDddiiIsdksndQoQ01";
 	
-curl_setopt($curl, CURLOPT_URL, $url);
-curl_setopt($curl, CURLOPT_RETURNTRANSFER, TRUE);
-curl_setopt($curl, CURLOPT_POST, TRUE);
-curl_setopt($curl, CURLOPT_POSTFIELDS,json_encode($fields));
-curl_setopt($curl, CURLOPT_HTTPHEADER, array("Content-Type: application/json"));
-
-$result = json_decode(curl_exec($curl));
-curl_close($curl);
-
-var_dump($result);
+	$fields = array(
+			"token" => $token,
+			"PeriodosAcademicos" => $ids
+	);
+	
+	curl_setopt($curl, CURLOPT_URL, $url);
+	curl_setopt($curl, CURLOPT_RETURNTRANSFER, TRUE);
+	curl_setopt($curl, CURLOPT_POST, TRUE);
+	curl_setopt($curl, CURLOPT_POSTFIELDS,json_encode($fields));
+	curl_setopt($curl, CURLOPT_HTTPHEADER, array("Content-Type: application/json"));
+	
+	$result = json_decode(curl_exec($curl));
+	curl_close($curl);
+	
+	$courses = array();
+	foreach($result as $course) {
+		$insertdata = new stdClass();
+		$insertdata->dataid = $course->PeriodoAcademicoId;
+		$insertdata->fullname = $course->PeriodoAcademicoId; // Temporal
+		$insertdata->shortname = $course->ShortName;
+		$insertdata->idnumber = $course->SeccionId;
+		$insertdata->categoryid = $categories[$course->PeriodoAcademicoId];
+		
+		$courses[] = $insertdata;
+	}
+	
+	$DB->insert_records("sync_course", $courses);
+}
