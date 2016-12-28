@@ -13,25 +13,23 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
-
 /**
-*
+ *
 *
 * @package    local
 * @subpackage sync
-* @copyright  2016 Hans Jeria <hansjeria@gmail.com>				
+* @copyright  2016 Mark Michaelsen <mmichaelsen678@gmail.com>				
 * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
 */
 
-/*
-$tasks = array(
-	array(
-			'classname' => 'local_paperattendance\task\processpdf',
-			'blocking' => 0,
-			'minute' => '*',
-			'hour' => '6-8',
-			'day' => '*',
-			'dayofweek' => '*',
-			'month' => '*'
-));
-*/
+namespace local_sync\task;
+
+class sync_getcourses extends \core\task\scheduled_task {
+	public function get_name() {
+		return get_string("task_courses", "local_sync");
+	}
+	
+	public function execute() {
+		require_once($CFG->dirroot."local/sync/locallib.php");
+	}
+}
