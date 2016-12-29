@@ -48,4 +48,6 @@ $string["tokendesc"] = "Token de autorización para Webapi Omega.";
 $string["urlgetalumnos"] = "Url Servicio GetAlumnos";
 $string["urlgetalumnosdesc"] = "Url de Webapi Omega para obtener los estudiantes y profesores a sincronizar.";
 $string["urlgetcursos"] = "Url Servicio GetCursos";
-$string["urlgetcursosdesc"] = "Url de Webapi Omega para obetener los cursos a sincronizar.";
+$string["urlgetcursosdesc"] = "Url de Webapi Omega para obtener los cursos a sincronizar.";
+$string["urlgetacademicperiods"] = "Url servicio GetPeriodosAcademicos";
+$string["urlgetacademicperiodsdesc"] = "Url de Webapi Omega para obtener los ids de períodos académicos a sincronizar.";

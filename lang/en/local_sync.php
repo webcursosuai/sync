@@ -49,3 +49,5 @@ $string["urlgetalumnos"] = "Url GetAlumnos Service";
 $string["urlgetalumnosdesc"] = "Url Omega Webapi to get students and teachers to sync.";
 $string["urlgetcursos"] = "Url GetCursos Service";
 $string["urlgetcursosdesc"] = "Url Omega Webapi to get courses to sync.";
+$string["urlgetacademicperiods"] = "Url GetPeriodosAcademicos service";
+$string["urlgetacademicperiodsdesc"] = "Url Omega Webapi to get academic periods to sync.";

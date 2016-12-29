@@ -58,11 +58,19 @@ if ($hassiteconfig) {
 	
 	$settings->add(
 			new admin_setting_configtext(
-					"sync_urlgetcursos",
-					get_string("urlgetcursos", "local_sync"),
-					get_string("urlgetcursosdesc", "local_sync"),
-					"",
-					PARAM_URL
-			));
+				"sync_urlgetcursos",
+				get_string("urlgetcursos", "local_sync"),
+				get_string("urlgetcursosdesc", "local_sync"),
+				"",
+				PARAM_URL
+	));
 	
+	$settings->add(
+			new admin_setting_configtext(
+				"sync_urlgetacademicperiods",
+				get_string("urlgetacademicperiods", "local_sync"),
+				get_string("urlgetacademicperiodsdesc", "local_sync"),
+				"",
+				PARAM_URL
+	));
 }

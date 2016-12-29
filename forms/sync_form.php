@@ -39,22 +39,7 @@ class sync_form extends moodleform {
 		// Select academic period
 		$periods = array();
 		
-		$curl = curl_init();
-		$url = "http://webapitest.uai.cl/webcursos/getperiodosacademicos";
-		$token = "webisis54521kJusm32ADDddiiIsdksndQoQ01";
-		
-		$fields = array(
-				"token" => $token
-		);
-		 
-		curl_setopt($curl, CURLOPT_URL, $url);
-		curl_setopt($curl, CURLOPT_RETURNTRANSFER, TRUE);
-		curl_setopt($curl, CURLOPT_POST, TRUE);
-		curl_setopt($curl, CURLOPT_POSTFIELDS,json_encode($fields));
-		curl_setopt($curl, CURLOPT_HTTPHEADER, array("Content-Type: application/json"));
-		
-		$result = json_decode(curl_exec($curl));
-		curl_close($curl);
+		$result = sync_getacademicperiodids_fromomega();
 		
 		if(count($result) == 0) {
 			echo $OUTPUT->notification(get_string("error_communication", "local_sync"));
