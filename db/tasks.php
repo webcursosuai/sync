@@ -26,7 +26,7 @@
 
 $tasks = array(
 	array(
-			'classname' => 'local_sync\task\sync_getcourses',
+			'classname' => 'local_sync\task\sync_corsesandusers_from_omega',
 			'blocking' => 0,
 			'minute' => '*',
 			'hour' => '3-5',

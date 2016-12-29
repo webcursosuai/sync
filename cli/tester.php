@@ -20,70 +20,87 @@
 *
 * @package    local
 * @subpackage sync
-* @copyright  2016 Joaquin Rivano (jrivano@alumnos.uai.cl)
 * @copyright  2016 Mark Michaelsen (mmichaelsen678@gmail.com)
+* @copyright  2016 Hans Jeria (hansjeria@gmail.com)
 * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
 */
 
+define('CLI_SCRIPT', true);
 require_once(dirname(dirname(dirname(dirname(__FILE__)))) . "/config.php");
-require_once ($CFG->dirroot . "/repository/lib.php");
-require_once($CFG->dirroot . "/local/sync/forms/sync_form.php");
-global $CFG, $DB, $OUTPUT, $PAGE;
+require_once($CFG->dirroot . "/local/sync/locallib.php");
+require_once ($CFG->libdir . '/clilib.php');
 
-$url = new moodle_url("/local/sync/create.php");
+global $DB, $CFG;
 
-$context = context_system::instance();
-
-$PAGE->navbar->add(get_string("sync_title", "local_sync"));
-$PAGE->navbar->add(get_string("sync_subtitle", "local_sync"),$url);
-$PAGE->set_context($context);
-$PAGE->set_url($url);
-$PAGE->set_pagelayout("standard");
-$PAGE->set_title(get_string("sync_page", "local_sync"));
-$PAGE->set_heading(get_string("sync_heading", "local_sync"));
-
-$periods = $DB->get_records("sync_data", array("status" => 1));
-
-$ids = array();
-$categories = array();
-foreach($periods as $period) {
-	$ids[] = $period->academicperiodid;
-	$categories[$period->academicperiodid] = $period->categoryid;
+// Now get cli options
+list($options, $unrecognized) = cli_get_params(
+		array('help'=>false),
+		array('h'=>'help')
+);
+if($unrecognized) {
+	$unrecognized = implode("\n  ", $unrecognized);
+	cli_error(get_string('cliunknowoption', 'admin', $unrecognized));
 }
+// Text to the sync console
+if($options['help']) {
+	$help =
+	// Todo: localize - to be translated later when everything is finished
+	"Sync Omega to get the courses and users (students and teachers).
+	Options:
+	-h, --help            Print out this help
+	Example:
+	\$sudo /usr/bin/php /local/sync/cli/tester.php";
+	echo $help;
+	die();
+}
+//heading
+cli_heading('Omega Sync'); // TODO: localize
+echo "\nStarting at ".date("F j, Y, G:i:s")."\n";
 
 
-if(!$DB->execute("TRUNCATE TABLE {sync_course}")) {
-	print_error("Truncate Failed");
-} else {
-	$curl = curl_init();
-	$url = "http://webapitest.uai.cl/webcursos/GetCursos";
-	$token = "webisis54521kJusm32ADDddiiIsdksndQoQ01";
-	
-	$fields = array(
-			"token" => $token,
-			"PeriodosAcademicos" => $ids
-	);
-	
-	curl_setopt($curl, CURLOPT_URL, $url);
-	curl_setopt($curl, CURLOPT_RETURNTRANSFER, TRUE);
-	curl_setopt($curl, CURLOPT_POST, TRUE);
-	curl_setopt($curl, CURLOPT_POSTFIELDS,json_encode($fields));
-	curl_setopt($curl, CURLOPT_HTTPHEADER, array("Content-Type: application/json"));
-	
-	$result = json_decode(curl_exec($curl));
-	curl_close($curl);
-	
-	$courses = array();
-	foreach($result as $course) {
-		$insertdata = new stdClass();
-		$insertdata->dataid = $course->PeriodoAcademicoId;
-		$insertdata->fullname = $course->PeriodoAcademicoId; // Temporal
-		$insertdata->shortname = $course->ShortName;
-		$insertdata->idnumber = $course->SeccionId;
-		$insertdata->categoryid = $categories[$course->PeriodoAcademicoId];
+// Get all ID from each academic period with status is active
+list($academicids, $syncinfo) = sync_getacademicperiod();
+
+// Check we have
+if($academicids){
 		
-		$courses[] = $insertdata;
+	// Courses from Omega
+	list($courses, $syncinfo) = sync_getcourses_fromomega($academicids, $syncinfo);
+	// Delete previous courses
+	if(!$DB->execute("TRUNCATE TABLE {sync_course}")) {
+		mtrace("Truncate Table sync_course Failed");
+	} else {
+		// Insert the  courses
+		$DB->insert_records("sync_course", $courses);
 	}
-	
-	$DB->insert_records("sync_course", $courses);
+		
+	// Users from Omega
+	list($users, $syncinfo) = sync_getusers_fromomega($academicids, $syncinfo);
+	// Delete previous enrol
+	if(!$DB->execute("TRUNCATE TABLE {sync_enrol}")){
+		mtrace("Truncate Table sync_enrol Failed");
+	}else{
+		$DB->insert_records("sync_enrol", $users);
+	}
+		
+	// insert records in sync_history
+	$historyrecords = array();
+	$time = time();
+	foreach ($syncinfo as $rowinfo){
+		$insert = new stdClass();
+		$insert->dataid = $rowinfo["dataid"];
+		$insert->executiondate = $time;
+		$insert->countcourses = $rowinfo["course"];
+		$insert->countenrols = $rowinfo["enrol"];
+
+		$historyrecords[] = $insert;
+		mtrace("Academic Period ".", Total courses ".$rowinfo["course"].", Total enrol ".$rowinfo["enrol"]."\n");
+	}
+		
+	$DB->insert_records("sync_history", $historyrecords);
+
+}else{
+	mtrace("No se encontraron Periodos académicos activos para sincronizar.");
 }
+
+exit(0);

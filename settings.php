@@ -26,7 +26,7 @@
 defined('MOODLE_INTERNAL') || die;
 if ($hassiteconfig) {
 
-	$settings = new admin_settingpage('local_sync', 'sync');
+	$settings = new admin_settingpage('local_sync', 'Sync Omega');
 
 	$ADMIN->add('localplugins', $settings);
 	/*
@@ -38,6 +38,31 @@ if ($hassiteconfig) {
 	 	Type value - example PARAM_TEXT
 	 ));
 	 */
-
+	$settings->add(
+			new admin_setting_configtext(
+				"sync_token",
+				get_string("token", "local_sync"),
+				get_string("tokendesc", "local_sync"),
+				"",
+				PARAM_ALPHANUM
+	));
+	
+	$settings->add(
+			new admin_setting_configtext(
+				"sync_urlgetalumnos",
+				get_string("urlgetalumnos", "local_sync"),
+				get_string("urlgetalumnosdesc", "local_sync"),
+				"",
+				PARAM_URL
+	));
+	
+	$settings->add(
+			new admin_setting_configtext(
+					"sync_urlgetcursos",
+					get_string("urlgetcursos", "local_sync"),
+					get_string("urlgetcursosdesc", "local_sync"),
+					"",
+					PARAM_URL
+			));
 	
 }

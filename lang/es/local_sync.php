@@ -31,3 +31,11 @@ $string["status"] = "Estado";
 $string["active"] = "Activo";
 $string["inactive"] = "Inactivo";
 $string["task_courses"] = "Sincronización de cursos de Omega";
+
+//Settings
+$string["token"] = "Token Omega";
+$string["tokendesc"] = "Token de autorización para Webapi Omega.";
+$string["urlgetalumnos"] = "Url Servicio GetAlumnos";
+$string["urlgetalumnosdesc"] = "Url de Webapi Omega para obtener los estudiantes y profesores a sincronizar.";
+$string["urlgetcursos"] = "Url Servicio GetCursos";
+$string["urlgetcursosdesc"] = "Url de Webapi Omega para obetener los cursos a sincronizar.";
