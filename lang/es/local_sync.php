@@ -31,6 +31,16 @@ $string["status"] = "Estado";
 $string["active"] = "Activo";
 $string["inactive"] = "Inactivo";
 $string["task_courses"] = "Sincronización de cursos de Omega";
+$string["h_title"] = "Historial de sincronizaciones";
+$string["h_id"] = "ID";
+$string["h_catid"] = "ID de la categoría";
+$string["h_catname"] = "Nombre de la categoría";
+$string["h_academicperiodid"] = "ID del periódo académico";
+$string["h_academicperiodname"] = "Nombre del periódo académico";
+$string["h_executiontime"] = "Hora de ejecución";
+$string["h_synccourses"] = "Cursos sincronizados";
+$string["h_syncenrols"] = "Matriculados sincronizados";
+$string["h_emptytable"] = "La tabla está vacía";
 
 //Settings
 $string["token"] = "Token Omega";

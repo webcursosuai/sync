@@ -31,6 +31,16 @@ $string["status"] = "Status";
 $string["active"] = "Active";
 $string["inactive"] = "Inactive";
 $string["task_courses"] = "Omega courses synchronization";
+$string["h_title"] = "Sync History";
+$string["h_id"] = "ID";
+$string["h_catid"] = "Category ID";
+$string["h_catname"] = "Category name";
+$string["h_academicperiodid"] = "Academic period ID";
+$string["h_academicperiodname"] = "Academic period name";
+$string["h_executiontime"] = "Execution time";
+$string["h_synccourses"] = "Synchronized courses";
+$string["h_syncenrols"] = "Synchronized enrols";
+$string["h_emptytable"] = "The table is empty";
 
 //Settings
 $string["token"] = "Token Omega";
