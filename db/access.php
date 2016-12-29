@@ -62,4 +62,14 @@ $capabilities = array(
 						"editingteacher" => CAP_PROHIBIT,
 						"manager" => CAP_ALLOW
 				)),
+		"local/sync:history" => array(
+				"riskbitmask" => RISK_MANAGETRUST,
+				"captype" => "read",
+				"contextlevel" => CONTEXT_SYSTEM,
+				"archetypes" => array(
+						"student" => CAP_PROHIBIT,
+						"teacher" => CAP_PROHIBIT,
+						"editingteacher" => CAP_PROHIBIT,
+						"manager" => CAP_ALLOW
+				))
 );
