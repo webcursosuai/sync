@@ -91,12 +91,7 @@ function sync_getcourses_fromomega($academicids, $syncinfo){
 	foreach($result as $course) {
 		$insertdata = new stdClass();
 		$insertdata->dataid = $syncinfo[$course->PeriodoAcademicoId]["dataid"];
-		//TODO: temporal hasta actualización de servicio OMEGA
-		if(isset($course->Fullname)){
-			$insertdata->fullname = utf8_encode($course->ShortName);
-		}else{
-			$insertdata->fullname = utf8_encode($course->ShortName);
-		}
+		$insertdata->fullname = utf8_encode($course->FullName);
 		$insertdata->shortname = utf8_encode($course->ShortName);
 		$insertdata->idnumber = $course->SeccionId;
 		$insertdata->categoryid = $syncinfo[$course->PeriodoAcademicoId]["categoryid"];

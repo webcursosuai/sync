@@ -62,13 +62,13 @@ class sync_corsesandusers_from_omega extends \core\task\scheduled_task {
 			$time = time();
 			foreach ($syncinfo as $rowinfo){
 				$insert = new stdClass();
-				$insert->dataid = rowinfo["dataid"];
+				$insert->dataid = $rowinfo["dataid"];
 				$insert->executiondate = $time;
-				$insert->countcourses = rowinfo["course"];
-				$insert->countenrols = rowinfo["enrol"];
+				$insert->countcourses = $rowinfo["course"];
+				$insert->countenrols = $rowinfo["enrol"];
 				
 				$historyrecords[] = $insert;
-				mtrace("Academic Period ".rowinfo["dataid"].", Total courses ".rowinfo["course"].", Total enrol ".rowinfo["enrol"]."\n");
+				mtrace("Academic Period ".$rowinfo["dataid"].", Total courses ".$rowinfo["course"].", Total enrol ".$rowinfo["enrol"]."\n");
 			}
 			
 			$DB->insert_records("sync_history", $historyrecords);
