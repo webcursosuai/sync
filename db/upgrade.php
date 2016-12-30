@@ -118,7 +118,7 @@ function xmldb_local_sync_upgrade($oldversion) {
 		if (!$dbman->field_exists($table, $field)) {
 			$dbman->add_field($table, $field);
 		}
-		
+				
 		// Define field status to be added to sync_data.
 		$table = new xmldb_table('sync_data');
 		$field = new xmldb_field('status', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '1', 'responsible');
@@ -175,6 +175,115 @@ function xmldb_local_sync_upgrade($oldversion) {
 		// Sync savepoint reached.
 		upgrade_plugin_savepoint(true, 2016122703, 'local', 'sync');
 	}
+	
+	if ($oldversion < 2016122801) {
+	
+		// Define field categoryid to be added to sync_course.
+		$table = new xmldb_table('sync_course');
+		$field = new xmldb_field('categoryid', XMLDB_TYPE_INTEGER, '12', null, XMLDB_NOTNULL, null, null, 'idnumber');
+	
+		// Conditionally launch add field categoryid.
+		if (!$dbman->field_exists($table, $field)) {
+			$dbman->add_field($table, $field);
+		}
+		
+		// Changing nullability of field idnumber on table sync_course to null.
+		$table = new xmldb_table('sync_course');
+		$field = new xmldb_field('idnumber', XMLDB_TYPE_INTEGER, '12', null, null, null, null, 'shortname');
+		
+		// Launch change of nullability for field idnumber.
+		$dbman->change_field_notnull($table, $field);
+// Sync savepoint reached.
+		upgrade_plugin_savepoint(true, 2016122801, 'local', 'sync');
+	}
+	
+	if ($oldversion < 2016122802) {
+		
+		// Define table sync_history to be created.
+		$table = new xmldb_table('sync_history');
+		
+		// Adding fields to table sync_history.
+		$table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+		$table->add_field('dataid', XMLDB_TYPE_INTEGER, '20', null, XMLDB_NOTNULL, null, null);
+		$table->add_field('executiondate', XMLDB_TYPE_CHAR, '20', null, XMLDB_NOTNULL, null, null);
+		$table->add_field('countcourses', XMLDB_TYPE_INTEGER, '20', null, XMLDB_NOTNULL, null, null);
+		$table->add_field('countenrols', XMLDB_TYPE_INTEGER, '20', null, XMLDB_NOTNULL, null, null);
+		
+		// Adding keys to table sync_history.
+		$table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
+		$table->add_key('dataid', XMLDB_KEY_FOREIGN, array('dataid'), 'sync_data', array('id'));
+		
+		// Conditionally launch create table for sync_history.
+		if (!$dbman->table_exists($table)) {
+			$dbman->create_table($table);
+		}
+			
+		// Sync savepoint reached.
+		upgrade_plugin_savepoint(true, 2016122802, 'local', 'sync');
+	}
+	
+	if ($oldversion < 2016122803) {
+	
+		// Rename field course on table sync_enrol to NEWNAMEGOESHERE.
+		$table = new xmldb_table('sync_enrol');
+		$field = new xmldb_field('shortname', XMLDB_TYPE_CHAR, '50', null, XMLDB_NOTNULL, null, null, 'id');
+	
+		// Launch rename field course.
+		$dbman->rename_field($table, $field, 'course');
+	
+		// Changing precision of field course on table sync_enrol to (200).
+		$table = new xmldb_table('sync_enrol');
+		$field = new xmldb_field('course', XMLDB_TYPE_CHAR, '200', null, XMLDB_NOTNULL, null, null, 'id');
+		
+		// Launch change of precision for field course.
+		$dbman->change_field_precision($table, $field);
+		
+		// Changing precision of field course on table sync_enrol to (200).
+		$table = new xmldb_table('sync_enrol');
+		$field = new xmldb_field('user', XMLDB_TYPE_CHAR, '200', null, XMLDB_NOTNULL, null, null, 'id');
+		
+		// Launch change of precision for field course.
+		$dbman->change_field_precision($table, $field);
+			
+		// Sync savepoint reached.
+		upgrade_plugin_savepoint(true, 2016122803, 'local', 'sync');
+	}
+	
+	if ($oldversion < 2016122804) {
+	
+		// Changing precision of field fullname on table sync_course to (400).
+		$table = new xmldb_table('sync_course');
+		$field = new xmldb_field('fullname', XMLDB_TYPE_CHAR, '400', null, XMLDB_NOTNULL, null, null, 'dataid');
+	
+		// Launch change of precision for field fullname.
+		$dbman->change_field_precision($table, $field);
+		
+		// Changing precision of field shortname on table sync_course to (200).
+		$table = new xmldb_table('sync_course');
+		$field = new xmldb_field('shortname', XMLDB_TYPE_CHAR, '200', null, XMLDB_NOTNULL, null, null, 'fullname');
+		
+		// Launch change of precision for field shortname.
+		$dbman->change_field_precision($table, $field);
+		
+		// Changing precision of field idnumber on table sync_course to (20).
+		$table = new xmldb_table('sync_course');
+		$field = new xmldb_field('idnumber', XMLDB_TYPE_INTEGER, '20', null, null, null, null, 'shortname');
+		
+		// Launch change of precision for field idnumber.
+		$dbman->change_field_precision($table, $field);
+		
+		// Changing precision of field categoryid on table sync_course to (20).
+		$table = new xmldb_table('sync_course');
+		$field = new xmldb_field('categoryid', XMLDB_TYPE_INTEGER, '20', null, XMLDB_NOTNULL, null, null, 'idnumber');
+		
+		// Launch change of precision for field categoryid.
+		$dbman->change_field_precision($table, $field);
+	
+		// Sync savepoint reached.
+		upgrade_plugin_savepoint(true, 2016122804, 'local', 'sync');
+	}
+	
+	
     
 	return true;
-}
+}	

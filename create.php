@@ -27,6 +27,7 @@
 
 //Configuraciones globales
 require_once(dirname(dirname(dirname(__FILE__))) . "/config.php");
+require_once ($CFG->dirroot . "/repository/lib.php");
 require_once($CFG->dirroot . "/local/sync/forms/sync_form.php");
 require_once ($CFG->dirroot . "/local/sync/locallib.php");
 global $CFG, $DB, $OUTPUT, $PAGE;
@@ -41,6 +42,11 @@ if (isguestuser()) {
 //Pagina moodle basico
 $context = context_system::instance();
 
+// Blocks access if user doesn't have capability to create synchronizations
+if(!has_capability("local/sync:create", $context)) {
+	print_error("ACCESS DENIED");
+}
+
 $url = new moodle_url("/local/sync/create.php");
 
 $PAGE->navbar->add(get_string("sync_title", "local_sync"));
@@ -50,15 +56,14 @@ $PAGE->set_url($url);
 $PAGE->set_pagelayout("standard");
 $PAGE->set_title(get_string("sync_page", "local_sync"));
 $PAGE->set_heading(get_string("sync_heading", "local_sync"));
+echo $OUTPUT->tabtree(sync_tabs(), "create");
 
 $insert = optional_param("insert", "", PARAM_TEXT);
 
 //Agrego y muestro formulario
-$addform = new sync_form();
 echo $OUTPUT->header();
 echo $OUTPUT->heading(get_string("sync_sub_heading", "local_sync"));
-echo $OUTPUT->tabtree(sync_tabs(), "create");
-
+$addform = new sync_form();
 
 if($addform->is_cancelled()) {
 	$formurl = new moodle_url("/local/sync/create.php");
@@ -80,18 +85,13 @@ else if($creationdata = $addform->get_data()) {
 	$record->timecreated = time();
 	$record->timemodified = $record->timecreated;
 	$record->responsible = $creationdata->responsible;
+	$record->status = $creationdata->status;
 	
 	$DB->insert_record("sync_data", $record);
 	
-	$formurl = new moodle_url("/local/sync/create.php", array("insert" => "success"));
+	$formurl = new moodle_url("/local/sync/record.php", array("insert" => "success"));
 	redirect($formurl);
 }
-
-else {
-	if($insert == "success") {
-		echo $OUTPUT->notification(get_string("sync_success", "local_sync"), "notifysuccess");
-	}
-	$addform->display();
+$addform->display();
 }
-
 echo $OUTPUT->footer();

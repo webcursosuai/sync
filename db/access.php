@@ -32,33 +32,44 @@
  * moodle/site:deleteuser
  * The variable name for the capability definitions array is $capabilities
  *
- * @package local
- * @subpackage sync
- * @copyright 2016 Hans Jeria <hansjeria@gmail.com>
- * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package		local
+ * @subpackage	sync
+ * @copyright	2016 Hans Jeria <hansjeria@gmail.com>
+ * @license		http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */  
-defined('MOODLE_INTERNAL') || die();
+
+defined("MOODLE_INTERNAL") || die();
 
 
 $capabilities = array(
-		'local/sync:create' => array(
-				'riskbitmask' => RISK_MANAGETRUST,
-				'captype' => 'write', 'read',
-				'contextlevel' => CONTEXT_SYSTEM,
-				'archetypes' => array(
-						'student' => CAP_PROHIBIT,
-						'teacher' => CAP_PROHIBIT,
-						'editingteacher' => CAP_PROHIBIT,
-						'manager' => CAP_ALLOW
+		"local/sync:create" => array(
+				"riskbitmask" => RISK_MANAGETRUST,
+				"captype" => "write", "read",
+				"contextlevel" => CONTEXT_SYSTEM,
+				"archetypes" => array(
+						"student" => CAP_PROHIBIT,
+						"teacher" => CAP_PROHIBIT,
+						"editingteacher" => CAP_PROHIBIT,
+						"manager" => CAP_ALLOW
 				)),
-		'local/sync:record' => array(
-				'riskbitmask' => RISK_MANAGETRUST,
-				'captype' => 'write','read',
-				'contextlevel' => CONTEXT_SYSTEM,
-				'archetypes' => array(
-						'student' => CAP_PROHIBIT,
-						'teacher' => CAP_PROHIBIT,
-						'editingteacher' => CAP_PROHIBIT,
-						'manager' => CAP_ALLOW
+		"local/sync:record" => array(
+				"riskbitmask" => RISK_MANAGETRUST,
+				"captype" => "write","read",
+				"contextlevel" => CONTEXT_SYSTEM,
+				"archetypes" => array(
+						"student" => CAP_PROHIBIT,
+						"teacher" => CAP_PROHIBIT,
+						"editingteacher" => CAP_PROHIBIT,
+						"manager" => CAP_ALLOW
 				)),
+		"local/sync:history" => array(
+				"riskbitmask" => RISK_MANAGETRUST,
+				"captype" => "read",
+				"contextlevel" => CONTEXT_SYSTEM,
+				"archetypes" => array(
+						"student" => CAP_PROHIBIT,
+						"teacher" => CAP_PROHIBIT,
+						"editingteacher" => CAP_PROHIBIT,
+						"manager" => CAP_ALLOW
+				))
 );

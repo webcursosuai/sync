@@ -19,19 +19,19 @@
 *
 * @package    local
 * @subpackage sync
-* @copyright  2016 Hans Jeria <hansjeria@gmail.com>				
+* @copyright  2016 Hans Jeria <hansjeria@gmail.com>
+* @copyright  2016 Mark Michaelsen <mmichaelsen678@gmail.com>
 * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
 */
 
-/*
 $tasks = array(
 	array(
-			'classname' => 'local_paperattendance\task\processpdf',
+			'classname' => 'local_sync\task\sync_corsesandusers_from_omega',
 			'blocking' => 0,
 			'minute' => '*',
-			'hour' => '6-8',
+			'hour' => '3-5',
 			'day' => '*',
 			'dayofweek' => '*',
 			'month' => '*'
-));
-*/
+	)
+);

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="local/sync/db" VERSION="20161227" COMMENT="Saves useful information for synchronizations with Omega"
+<XMLDB PATH="local/sync/db" VERSION="20161228" COMMENT="Saves useful information for synchronizations with Omega"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
 >
@@ -28,9 +28,10 @@
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
         <FIELD NAME="dataid" TYPE="int" LENGTH="20" NOTNULL="true" SEQUENCE="false"/>
-        <FIELD NAME="fullname" TYPE="char" LENGTH="150" NOTNULL="true" SEQUENCE="false"/>
-        <FIELD NAME="shortname" TYPE="char" LENGTH="50" NOTNULL="true" SEQUENCE="false"/>
-        <FIELD NAME="idnumber" TYPE="int" LENGTH="12" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="fullname" TYPE="char" LENGTH="400" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="shortname" TYPE="char" LENGTH="200" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="idnumber" TYPE="int" LENGTH="20" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="categoryid" TYPE="int" LENGTH="20" NOTNULL="true" SEQUENCE="false"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
@@ -40,12 +41,25 @@
     <TABLE NAME="sync_enrol" COMMENT="Relates synced omega users with their respective courses">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
-        <FIELD NAME="shortname" TYPE="char" LENGTH="50" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="course" TYPE="char" LENGTH="200" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="role" TYPE="char" LENGTH="45" NOTNULL="true" DEFAULT="student" SEQUENCE="false"/>
-        <FIELD NAME="user" TYPE="char" LENGTH="80" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="user" TYPE="char" LENGTH="200" NOTNULL="true" SEQUENCE="false"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+    </TABLE>
+    <TABLE NAME="sync_history" COMMENT="Registers the synchronization process, storing the execution date and counts the courses and enrols">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="dataid" TYPE="int" LENGTH="20" NOTNULL="true" SEQUENCE="false" COMMENT="foreign key from the sync_data table"/>
+        <FIELD NAME="executiondate" TYPE="int" LENGTH="20" NOTNULL="true" SEQUENCE="false" COMMENT="Date in which the execution was done"/>
+        <FIELD NAME="countcourses" TYPE="int" LENGTH="20" NOTNULL="true" SEQUENCE="false" COMMENT="Number of courses in the synchronization"/>
+        <FIELD NAME="countenrols" TYPE="int" LENGTH="20" NOTNULL="true" SEQUENCE="false" COMMENT="Number of enrols in the synchronization process"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="dataid" TYPE="foreign" FIELDS="dataid" REFTABLE="sync_data" REFFIELDS="id" COMMENT="foreign key from the sync_data table"/>
       </KEYS>
     </TABLE>
   </TABLES>

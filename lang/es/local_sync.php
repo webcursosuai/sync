@@ -7,24 +7,40 @@
 
 defined("MOODLE_INTERNAL") || die();
 
-$string["sync_title"] = "Sincronizaci髇";
-$string["sync_subtitle"] = "Creaci髇 de Sincronizaci髇";
-$string["sync_page"] = "Sincronizaci髇";
-$string["sync_heading"] ="Sincronizaci髇";
-$string["sync_sub_heading"] ="Crear Sincronizaci髇";
-$string["omega"] = "Per韔do Acad閙ico";
-$string["webc"] = "Categor韆s";
+$string["pluginname"] = "Sincronizaciones Omega";
+$string["sync_title"] = "Sincronizaci贸n";
+$string["sync_subtitle"] = "Creaci贸n de Sincronizaci贸n";
+$string["sync_page"] = "Sincronizaci贸n";
+$string["sync_heading"] ="Sincronizaci贸n";
+$string["sync_sub_heading"] ="Crear Sincronizaci贸n";
+$string["omega"] = "Per铆odo Acad茅mico";
+$string["webc"] = "Categor铆as";
 $string["in_charge"] = "Responsable";
 $string["in_charge_default"] ="Agregue un responsable";
 $string["buttons"] = "Crear";
-$string["optional"]= "Si busca un per韔do distinto por favor haga";
-$string["create"] = "Crear Sincronizaci韓";
+$string["optional"]= "Si busca un per铆odo distinto por favor haga";
+$string["create"] = "Crear Sincronizaci铆n";
 $string["record"] = "Historial";
-$string["error_period"] = "Seleccione un per韔do acad閙ico a sincronizar";
-$string["error_omega"] = "Seleccione una categor韆";
-$string["error_responsible_invalid"] = "Email inv醠ido (debe ser @uai.cl)";
+$string["error_period"] = "Seleccione un per铆odo acad茅mico a sincronizar";
+$string["error_omega"] = "Seleccione una categor铆a";
+$string["error_responsible_invalid"] = "Email inv谩lido (debe ser @uai.cl)";
 $string["error_responsible_nonexistent"] = "Email no existe en la base de datos";
-$string["sync_success"] = "Sincronizaci髇 guardada satisfactoriamente";
+$string["error_communication"] = "Fall贸 la obtenci贸n de la lista de per铆odos acad茅micos de Omega. Int茅ntelo m谩s tarde.";
+$string["sync_success"] = "Sincronizaci贸n guardada satisfactoriamente";
+$string["status"] = "Estado";
+$string["active"] = "Activo";
+$string["inactive"] = "Inactivo";
+$string["task_courses"] = "Sincronizaci贸n de cursos de Omega";
+$string["h_title"] = "Historial de sincronizaciones";
+$string["h_id"] = "ID";
+$string["h_catid"] = "ID de la categor铆a";
+$string["h_catname"] = "Nombre de la categor铆a";
+$string["h_academicperiodid"] = "ID del peri贸do acad茅mico";
+$string["h_academicperiodname"] = "Nombre del peri贸do acad茅mico";
+$string["h_executiontime"] = "Hora de ejecuci贸n";
+$string["h_synccourses"] = "Cursos sincronizados";
+$string["h_syncenrols"] = "Matriculados sincronizados";
+$string["h_emptytable"] = "La tabla est谩 vac铆a";
 $string["academic_period"] = "Periodo Academico";
 $string["period_id"] = "ID Periodo";
 $string["category"]	= "Categoria";
@@ -40,5 +56,12 @@ $string["error_period"] = "Error";
 
 
 
-
-
+//Settings
+$string["token"] = "Token Omega";
+$string["tokendesc"] = "Token de autorizaci贸n para Webapi Omega.";
+$string["urlgetalumnos"] = "Url Servicio GetAlumnos";
+$string["urlgetalumnosdesc"] = "Url de Webapi Omega para obtener los estudiantes y profesores a sincronizar.";
+$string["urlgetcursos"] = "Url Servicio GetCursos";
+$string["urlgetcursosdesc"] = "Url de Webapi Omega para obtener los cursos a sincronizar.";
+$string["urlgetacademicperiods"] = "Url servicio GetPeriodosAcademicos";
+$string["urlgetacademicperiodsdesc"] = "Url de Webapi Omega para obtener los ids de per铆odos acad茅micos a sincronizar.";
