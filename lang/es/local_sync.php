@@ -49,11 +49,13 @@ $string["sede"] = "Campus";
 $string["Activation"] = "Activar/Desactivar";
 $string["manual_unsub"] = "Desincripcion Manual";
 $string["edit"] = "Editar";
-$string["delete_sync"] = "Borrar";
+$string["delete_sync"] = "Esta sincronizacion sera borrada permanentemente ¿Esta seguro de continuar?";
 $string["sync_record_title"] = "Historial De Sincronizaciones";
 $string["sync_table"] = "Historial";
 $string["error_period"] = "Error";
-
+$string["edit_form"] = "¿Esta seguro de querer editar esta sincronizacion?";
+$string["button_edit"] = "Guardar Cambios";
+$string["syncdoesnotexist"] = "Porfavor seleccione una sincronizacion";
 
 
 //Settings

@@ -50,10 +50,14 @@ $string["sede"] = "Campus";
 $string["Activation"] = "Activate/Desactivate";
 $string["manual_unsub"] = "Manual de-enrollment";
 $string["edit"] = "Edit";
-$string["delete_sync"] = "Delete";
+$string["delete_sync"] = "This synchronization will be erased permanently Are you sure to continue?";
 $string["sync_record_title"] = "Syncronization Records";
 $string["sync_table"] = "Records";
 $string["error_period"] = "Error";
+$string["edit_form"] = "¿Are you sure you want to edit this sync?";
+$string["button_edit"] = "Save Changes";
+$string["syncdoesnotexist"] = "please select at least a sync";
+
 
 //Settings
 $string["token"] = "Token Omega";

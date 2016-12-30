@@ -70,7 +70,7 @@ if($insert == "success") {
 if ($action == "view") {
 	$synctable = new flexible_table("sync");
 	$synctable->define_baseurl(new moodle_url("/local/sync/record.php"));
-	$synctable->define_columns(array('academicperiodname', 'academicperiodid' , 'category',"categoryid","campus","Activation","manual_unsub","edit" ));
+	$synctable->define_columns(array('academicperiodname', 'academicperiodid' , 'category',"categoryid","campus","1","2","3" ));
 	$synctable->define_headers(array(
 	get_string("academic_period", "local_sync"),
 	get_string("period_id","local_sync"),
@@ -82,7 +82,7 @@ if ($action == "view") {
 	get_string("edit","local_sync"),
 	));
 	$synctable->sortable(true,"academicperiodname",SORT_DESC);
-	$synctable->no_sorting("Activation","manual_unsub","edit" );
+	$synctable->no_sorting("1","2","3");
 	$synctable->setup();
 
 	if ($synctable->get_sql_sort()) {
@@ -108,7 +108,7 @@ if ($action == "view") {
                       	//Define activation icon and url
                       	$activateurl_sync= new moodle_url("/local/sync/record.php", array(
 					"action" => "activate",
-					"syncid" => $syncid->id,
+					"syncid" => $dato->id,
                       	));
                       	$activateicon_sync = new pix_icon("i/edit", "Borrar");
                       	$activatection_sync = $OUTPUT->action_icon(
@@ -120,7 +120,7 @@ if ($action == "view") {
                       	//Define manual_unsub icon and url
                       	$manualurl_sync= new moodle_url("/local/sync/record.php", array(
 					"action" => "manual",
-					"syncid" => $syncid->id,
+					"syncid" => $dato->id,
                       	));
                       	$manualicon_sync = new pix_icon("t/delete", "Borrar");
                       	$manualaction_sync = $OUTPUT->action_icon(
@@ -132,7 +132,7 @@ if ($action == "view") {
                       	// Define delete icon and url
                       	$deleteurl_sync= new moodle_url("/local/sync/record.php", array(
 					"action" => "delete",
-					"syncid" => $syncid->id,
+					"syncid" => $dato->id,
                       	));
                       	$deleteicon_sync = new pix_icon("t/delete", "Borrar");
                       	$deleteaction_sync = $OUTPUT->action_icon(
@@ -144,13 +144,13 @@ if ($action == "view") {
                       	// Define edition icon and url
                       	$editurl_sync = new moodle_url("/local/sync/record.php", array(
 					"action" => "edit",
-					"syncid" => $syncid->id
+					"syncid" => $dato->id
                       	));
                       	$editicon_sync = new pix_icon("i/edit", "Editar");
                       	$editaction_sync = $OUTPUT->action_icon(
                       	$editurl_sync,
                       	$editicon_sync,
-                      	new confirm_action(get_string("edit", "local_sync"))
+                      	new confirm_action(get_string("edit_form", "local_sync"))
                       	);
 
 
@@ -180,72 +180,55 @@ if ($action == "edit") {
 	}
 	else {
 		if ($module = $DB->get_record("sync_data", array("id" => $syncid))){
-			$editform = new sync_editmodule_form(null, array("idmodule" => $syncid));
-			$defaultdata = new stdClass();
-			$defaultdata->academicperiodname = $dato->academicperiodname;
-			$defaultdata->academicperiodid = $dato->academicperiodid;
-			$defaultdata->category = $dato->category;
-			$defaultdata->categoryid = $dato->categoryid;
-			$defaultdata->campus = $dato->campus;
-			$editform->set_data($defaultdata);
+			$editform = new sync_editmodule_form(null, array("datossync" => $module));
+			$editform->display();
+
 
 			if ($editform->is_cancelled()) {
 				$action = "view";
 
-				$url = new moodle_url('/local/paperattendance/modules.php');
+				$url = new moodle_url('/local/sync/record.php');
 				redirect($url);
 
 			}
-			else if ($editform->get_data() && $sesskey == $USER->sesskey) {
-				$record = new stdClass();
-				$record->id = $editform->get_data()->idmodule;
-				$record->name = $editform->get_data()->name;
-				$record->initialtime = $editform->get_data()->initialtime;
-				$record->endtime = $editform->get_data()->endtime;
-				$DB->update_record("paperattendance_module", $record);
+			elseif ($formdata = $editform->get_data()){
+				$defaultdata = new stdClass();
+				$defaultdata->id = $syncid;
+				$defaultdata->academicperiodname = $formdata->academicperiodname;
+				$defaultdata->academicperiodid = $formdata->academicperiodid;
+				$defaultdata->category = $formdata->category;
+				$defaultdata->categoryid = $formdata->categoryid;
+				$defaultdata->campus = $formdata->campus;
+				
+				$DB->update_record("sync_data",$defaultdata);
+				
 				$action = "view";
 
-				$url = new moodle_url('/local/paperattendance/modules.php');
+				$url = new moodle_url('/local/sync/record.php');
 				redirect($url);
 			}
-		}
-		else {
-			print_error(get_string("moduledoesnotexist", "local_paperattendance"));
-			$action = "view";
-			$url = new moodle_url('/local/paperattendance/modules.php');
-			redirect($url);
 		}
 	}
 }
 //action delete
 if ($action == "delete") {
-	if ($idmodule == null) {
-		print_error(get_string("moduledoesnotexist", "local_paperattendance"));
+	if ($syncid == null) {
+		print_error(get_string("syncdoesnotexist", "local_sync"));
 		$action = "view";
 	}
 	else {
-		if ($module = $DB->get_record("paperattendance_module", array("id" => $idmodule))) {
-			if ($sesskey == $USER->sesskey) {
-				$DB->delete_records("paperattendance_module", array("id" => $module->id));
-				$action = "view";
-			}
-			else {
-				print_error(get_string("usernotloggedin", "local_paperattendance"));
-			}
-		}
-		else {
-			print_error(get_string("moduledoesnotexist", "local_paperattendance"));
+		if ($module = $DB->get_record("sync_data", array("id" => $syncid))) {
+				
+			$DB->delete_records("sync_data", array("id" => $syncid->id));
 			$action = "view";
 		}
 	}
-	$url = new moodle_url('/local/paperattendance/modules.php');
+	$url = new moodle_url('/local/sync/record.php');
 	redirect($url);
 }
-
-
-			
+		
 if($action == "activate") {}
+if($action == "manual_unsub") {}
 
 //fin de la pagina
-
 echo $OUTPUT->footer();
