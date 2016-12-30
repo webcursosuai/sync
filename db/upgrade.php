@@ -49,7 +49,7 @@ function xmldb_local_sync_upgrade($oldversion) {
 
 	$dbman = $DB->get_manager();
 	
-	if ($oldversion < 2016122601) {
+	if ($oldversion < 2016122701) {
 	
 		// Define table sync_data to be created.
 		$table = new xmldb_table('sync_data');
@@ -118,9 +118,62 @@ function xmldb_local_sync_upgrade($oldversion) {
 		if (!$dbman->field_exists($table, $field)) {
 			$dbman->add_field($table, $field);
 		}
+		
+		// Define field status to be added to sync_data.
+		$table = new xmldb_table('sync_data');
+		$field = new xmldb_field('status', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '1', 'responsible');
+		
+		// Conditionally launch add field status.
+		if (!$dbman->field_exists($table, $field)) {
+			$dbman->add_field($table, $field);
+		}
 	
 		// Sync savepoint reached.
-		upgrade_plugin_savepoint(true, 2016122601, 'local', 'sync');
+		upgrade_plugin_savepoint(true, 2016122701, 'local', 'sync');
+	}
+	
+	if ($oldversion < 2016122702) {
+	
+		// Define field academicperiodname to be added to sync_data.
+		$table = new xmldb_table('sync_data');
+		$field = new xmldb_field('academicperiodname', XMLDB_TYPE_CHAR, '200', null, null, null, null, 'academicperiodid');
+	
+		// Conditionally launch add field academicperiodname.
+		if (!$dbman->field_exists($table, $field)) {
+			$dbman->add_field($table, $field);
+		}
+		
+		// Define field academicperiodid to be dropped from sync_data.
+		$table = new xmldb_table('sync_data');
+		$field = new xmldb_field('semesterlong');
+		
+		// Conditionally launch drop field academicperiodid.
+		if ($dbman->field_exists($table, $field)) {
+			$dbman->drop_field($table, $field);
+		}
+		
+		// Rename field dataid on table sync_course to 'dataid'.
+		$table = new xmldb_table('sync_course');
+		$field = new xmldb_field('syncid', XMLDB_TYPE_INTEGER, '20', null, XMLDB_NOTNULL, null, null, 'id');
+		
+		// Launch rename field dataid.
+		$dbman->rename_field($table, $field, 'dataid');
+			
+		// Sync savepoint reached.
+		upgrade_plugin_savepoint(true, 2016122702, 'local', 'sync');
+	}
+	
+	if ($oldversion < 2016122703) {
+	
+		// Changing the default of field status on table sync_data to 0.
+		$table = new xmldb_table('sync_data');
+		$field = new xmldb_field('status', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0', 'responsible');
+	
+		// Launch change of default for field status.
+		$dbman->change_field_default($table, $field);
+	
+		// Sync savepoint reached.
+		upgrade_plugin_savepoint(true, 2016122703, 'local', 'sync');
 	}
     
 	return true;
