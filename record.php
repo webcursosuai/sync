@@ -17,165 +17,235 @@
 
 /**
  *
-*
-* @package    local
-* @subpackage sync
-* @copyright  2016 Joaquin Rivano (jrivano@alumnos.uai.cl) 					
-* @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
-*/
+ *
+ * @package    local
+ * @subpackage sync
+ * @copyright  2016 Joaquin Rivano (jrivano@alumnos.uai.cl)
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 
 //Configuraciones globales
-require_once(dirname(dirname(dirname(__FILE__))) . '/config.php');
-require_once ($CFG->dirroot . '/local/sync/locallib.php');
-global $CFG, $DB, $OUTPUT,$COURSE, $USER, $PAGE;           
+require_once(dirname(dirname(dirname(__FILE__))) . "/config.php");
+require_once ($CFG->dirroot . "/local/sync/locallib.php");
+require_once($CFG->libdir . '/tablelib.php');
+require_once($CFG->dirroot . "/local/sync/forms/edit_form.php");
+global $CFG, $DB, $OUTPUT,$COURSE, $USER, $PAGE;
+
+$page = optional_param('page', 0, PARAM_INT);
+$perpage = 10;
 
 
 // User must be logged in.
 require_login();
 if (isguestuser()) {
-    //die();
+	//die();
 }
+
+$insert = optional_param("insert", "", PARAM_TEXT);
 
 //Pagina moodle basico
 $context = context_system::instance();
 
-$url = new moodle_url('/local/sync/record.php');
+$url = new moodle_url("/local/sync/record.php");
 
-$PAGE->navbar->add(get_string('sync_title', 'local_sync'));
-$PAGE->navbar->add(get_string('sync_record_title', 'local_sync'),$url);
+$PAGE->navbar->add(get_string("sync_title", "local_sync"));
+$PAGE->navbar->add(get_string("sync_record_title", "local_sync"),$url);
 $PAGE->set_context($context);
 $PAGE->set_url($url);
-$PAGE->set_pagelayout('standard');
+$PAGE->set_pagelayout("standard");
 $PAGE->set_title(get_string("sync_page", "local_sync"));
 $PAGE->set_heading(get_string("sync_heading", "local_sync"));
 echo $OUTPUT->header();
 echo $OUTPUT->heading(get_string("sync_table", "local_sync"));
 echo $OUTPUT->tabtree(sync_tabs(), "record");
 
-/*
-        // Edits an existent record
-           if($action == "edit"){
-	          if($syncid == null){
-		         print_error(get_string("sync_notselected", "local_sync"));
-		         $action = "view";
-	       }else{
-		    if($sync = $DB->get_record("pluginboletas_boletas", array("id" => $idboleta))){
-			 $editform = new editboleta_form(null, array(
-					"idboleta" => $idboleta
-			));
-			
-			     $defaultdata = new stdClass();
-			     $defaultdata->usuarios_id = $boleta->usuarios_id;
-			     $defaultdata->sedes_id = $boleta->sedes_id;
-			     $defaultdata->monto = $boleta->monto;
-			     $editform->set_data($defaultdata);
-			
-			 if($editform->is_cancelled()){
-				$action = "view";
-			    }else if($editform->get_data()){
-				$record = new stdClass();
-				$record->id = $idboleta;
-				$record->usuarios_id = $editform->get_data()->usuarios_id;
-				$record->sedes_id = $editform->get_data()->sedes_id;
-				$record->monto = $editform->get_data()->monto;
-				
-				$DB->update_record("pluginboletas_boletas", $record);
-				$action = "view";
-			}
-		}else{
-			print_error(get_string("receipt_doesntexist", "local_pluginboletas"));
-			$action = "view";
-		}
-	}
-}
-           // Delete the selected record
-              if ($action == "delete"){
-	              if ($idboleta == null){
-		      print_error(get_string("receipt_notselected", "local_pluginboletas"));
-		$action = "view";
-	}else{
-		if ($boleta = $DB->get_record("pluginboletas_boletas", array("id" => $idboleta))){
-			$DB->delete_records("pluginboletas_boletas", array("id" => $boleta->id));
-			$action = "view";
-		}else{
-			print_error(get_string("receipt_doesntexist", "local_pluginboletas"));
-			$action = "view";
-		}
-	}
-}
-			
-			
-			
-			
-			// Define deletion icon and url
-			$deleteurl_sync= new moodle_url("/local/sync/record.php", array(
-					"action" => "delete",
-					"syncid" => $sync->id,
-			));
-			$deleteicon_sync = new pix_icon("t/delete", "Borrar");
-			$deleteaction_sync = $OUTPUT->action_icon(
-					$deleteurl_sync,
-					$deleteicon_sync,
-					new confirm_action(get_string("delete_sync", "local_sync"))
-			);
-			
-			// Define edition icon and url
-			$editurl_sync = new moodle_url("/local/sync/create.php", array(
-					"action" => "edit",
-					"syncid" => $sync->id
-			));
-			$editicon_sync = new pix_icon("i/edit", "Editar");
-			$editaction_sync = $OUTPUT->action_icon(
-					$editurl_sync,
-					$editicon_sync,
-					new confirm_action(get_string("edit", "local_sync"))
-			);
- 
+// Action = { view, edit, delete}, all page options.
+$action = optional_param("action", "view", PARAM_TEXT);
+$syncid = optional_param("syncid", null, PARAM_INT);
 
-*/
+if($insert == "success") {
+	echo $OUTPUT->notification(get_string("sync_success", "local_sync"), "notifysuccess");
+}
 
-            $query = "SELECT s.id, s.academicperiodid , s.categoryid, s.campus, c.name  
+if ($action == "view") {
+	$synctable = new flexible_table("sync");
+	$synctable->define_baseurl(new moodle_url("/local/sync/record.php"));
+	$synctable->define_columns(array('academicperiodname', 'academicperiodid' , 'category',"categoryid","campus","Activation","manual_unsub","edit" ));
+	$synctable->define_headers(array(
+	get_string("academic_period", "local_sync"),
+	get_string("period_id","local_sync"),
+	get_string("category","local_sync"),
+	get_string("category_id","local_sync"),
+	get_string("sede","local_sync"),
+	get_string("Activation","local_sync"),
+	get_string("manual_unsub","local_sync"),
+	get_string("edit","local_sync"),
+	));
+	$synctable->sortable(true,"academicperiodname",SORT_DESC);
+	$synctable->no_sorting("Activation","manual_unsub","edit" );
+	$synctable->setup();
+
+	if ($synctable->get_sql_sort()) {
+		$sort = 'ORDER BY '. $synctable->get_sql_sort();
+	} else {
+		$sort = '';
+	}
+	list($where, $params) = $synctable->get_sql_where();
+	if ($where) {
+		$where = 'WHERE '. $where;
+	}
+
+	$query = "SELECT s.id as id, s.academicperiodid , s.academicperiodname, s.categoryid, s.campus, c.name as category
                       FROM mdl_sync_data as s
                       INNER JOIN mdl_course_categories c ON (c.id = s.categoryid )
-                      ORDER BY s.id desc
-                      LIMIT 10            
+                      $where
+                      $sort
                       ";
-            
-            $datos = $DB->get_records_sql($query);
-            $data_table=array();
-            
-            foreach($datos as $dato){
-            $extra = array();
-            
-            $extra[]=$dato->academicperiodid;
-            $extra[]=$dato->name;
-            $extra[]=$dato->categoryid;
-            $extra[]=$dato->campus;
-            
-            $data_table[] = $extra;
-            
-            }
-            
-            
-			$synctable = new html_table();
-			$synctable->head = array(
-					get_string("acad_unid", "local_sync"),        //??
-					get_string("academic_period", "local_sync"),  //??
-					get_string("period_id","local_sync"),        //sync_data
-					get_string("category","local_sync"),        //course_category
-					get_string("category_id","local_sync"),    //sync_data  
-					get_string("sede","local_sync"),          // sync_data
-					get_string("Activation","local_sync"),    //herramientas
-					get_string("manual_unsub","local_sync"), //herramientas
-					get_string("edit","local_sync"),        //herramientas
-							);
-							
-			$synctable->data = $data_table;					
-			
-		
-				
-			echo html_writer::table($synctable);
+
+                      $datos = $DB->get_records_sql($query,$params,$synctable->get_page_start(),$synctable->get_page_size(),$page * $perpage, ($page + 1) * $perpage);
+                      foreach($datos as $dato){
+
+                      	//Define activation icon and url
+                      	$activateurl_sync= new moodle_url("/local/sync/record.php", array(
+					"action" => "activate",
+					"syncid" => $syncid->id,
+                      	));
+                      	$activateicon_sync = new pix_icon("i/edit", "Borrar");
+                      	$activatection_sync = $OUTPUT->action_icon(
+                      	$activateurl_sync,
+                      	$activateicon_sync,
+                      	new confirm_action(get_string("delete_sync", "local_sync"))
+                      	);
+
+                      	//Define manual_unsub icon and url
+                      	$manualurl_sync= new moodle_url("/local/sync/record.php", array(
+					"action" => "manual",
+					"syncid" => $syncid->id,
+                      	));
+                      	$manualicon_sync = new pix_icon("t/delete", "Borrar");
+                      	$manualaction_sync = $OUTPUT->action_icon(
+                      	$manualurl_sync,
+                      	$manualicon_sync,
+                      	new confirm_action(get_string("delete_sync", "local_sync"))
+                      	);
+
+                      	// Define delete icon and url
+                      	$deleteurl_sync= new moodle_url("/local/sync/record.php", array(
+					"action" => "delete",
+					"syncid" => $syncid->id,
+                      	));
+                      	$deleteicon_sync = new pix_icon("t/delete", "Borrar");
+                      	$deleteaction_sync = $OUTPUT->action_icon(
+                      	$deleteurl_sync,
+                      	$deleteicon_sync,
+                      	new confirm_action(get_string("delete_sync", "local_sync"))
+                      	);
+
+                      	// Define edition icon and url
+                      	$editurl_sync = new moodle_url("/local/sync/record.php", array(
+					"action" => "edit",
+					"syncid" => $syncid->id
+                      	));
+                      	$editicon_sync = new pix_icon("i/edit", "Editar");
+                      	$editaction_sync = $OUTPUT->action_icon(
+                      	$editurl_sync,
+                      	$editicon_sync,
+                      	new confirm_action(get_string("edit", "local_sync"))
+                      	);
+
+
+                      	$extra = array();
+
+                      	$extra[]=$dato->academicperiodname;
+                      	$extra[]=$dato->academicperiodid;
+                      	$extra[]=$dato->category;
+                      	$extra[]=$dato->categoryid;
+                      	$extra[]=$dato->campus;
+                      	$extra[]=$activatection_sync;
+                      	$extra[]=$manualaction_sync;
+                      	$extra[]=$deleteaction_sync . $editaction_sync;
+
+                      	$synctable->add_data($extra);
+
+                      }
+
+                      $synctable->finish_html();
+}
+
+//action edit
+if ($action == "edit") {
+	if ($syncid== null) {
+		print_error(get_string("syncdoesnotexist", "local_sync"));
+		$action = "view";
+	}
+	else {
+		if ($module = $DB->get_record("sync_data", array("id" => $syncid))){
+			$editform = new sync_editmodule_form(null, array("idmodule" => $syncid));
+			$defaultdata = new stdClass();
+			$defaultdata->academicperiodname = $dato->academicperiodname;
+			$defaultdata->academicperiodid = $dato->academicperiodid;
+			$defaultdata->category = $dato->category;
+			$defaultdata->categoryid = $dato->categoryid;
+			$defaultdata->campus = $dato->campus;
+			$editform->set_data($defaultdata);
+
+			if ($editform->is_cancelled()) {
+				$action = "view";
+
+				$url = new moodle_url('/local/paperattendance/modules.php');
+				redirect($url);
+
+			}
+			else if ($editform->get_data() && $sesskey == $USER->sesskey) {
+				$record = new stdClass();
+				$record->id = $editform->get_data()->idmodule;
+				$record->name = $editform->get_data()->name;
+				$record->initialtime = $editform->get_data()->initialtime;
+				$record->endtime = $editform->get_data()->endtime;
+				$DB->update_record("paperattendance_module", $record);
+				$action = "view";
+
+				$url = new moodle_url('/local/paperattendance/modules.php');
+				redirect($url);
+			}
+		}
+		else {
+			print_error(get_string("moduledoesnotexist", "local_paperattendance"));
+			$action = "view";
+			$url = new moodle_url('/local/paperattendance/modules.php');
+			redirect($url);
+		}
+	}
+}
+//action delete
+if ($action == "delete") {
+	if ($idmodule == null) {
+		print_error(get_string("moduledoesnotexist", "local_paperattendance"));
+		$action = "view";
+	}
+	else {
+		if ($module = $DB->get_record("paperattendance_module", array("id" => $idmodule))) {
+			if ($sesskey == $USER->sesskey) {
+				$DB->delete_records("paperattendance_module", array("id" => $module->id));
+				$action = "view";
+			}
+			else {
+				print_error(get_string("usernotloggedin", "local_paperattendance"));
+			}
+		}
+		else {
+			print_error(get_string("moduledoesnotexist", "local_paperattendance"));
+			$action = "view";
+		}
+	}
+	$url = new moodle_url('/local/paperattendance/modules.php');
+	redirect($url);
+}
+
 
 			
-//fin de la pagina	
+if($action == "activate") {}
+
+//fin de la pagina
+
 echo $OUTPUT->footer();
