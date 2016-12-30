@@ -179,9 +179,15 @@ if ($action == "edit") {
 		$action = "view";
 	}
 	else {
-		if ($module = $DB->get_record("sync_data", array("id" => $syncid))){
+		$query = "SELECT s.id as id, s.academicperiodid , s.academicperiodname, s.categoryid, s.campus, c.name as category
+                      FROM mdl_sync_data as s
+                      INNER JOIN mdl_course_categories c ON (c.id = s.categoryid )
+                      WHERE s.id = ?
+                      ";
+
+		if ($module = $DB->get_record_sql($query, array($syncid))){
 			$editform = new sync_editmodule_form(null, array("datossync" => $module));
-			$editform->display();
+				
 
 
 			if ($editform->is_cancelled()) {
@@ -194,19 +200,28 @@ if ($action == "edit") {
 			elseif ($formdata = $editform->get_data()){
 				$defaultdata = new stdClass();
 				$defaultdata->id = $syncid;
-				$defaultdata->academicperiodname = $formdata->academicperiodname;
 				$defaultdata->academicperiodid = $formdata->academicperiodid;
-				$defaultdata->category = $formdata->category;
+				$defaultdata->academicperiodname = $formdata->academicperiodname;
 				$defaultdata->categoryid = $formdata->categoryid;
 				$defaultdata->campus = $formdata->campus;
-				
+				$defaultdata->campusshort = $formdata->campusshort;
+				$defaultdata->type = $formdata->type;
+				$defaultdata->year = $formdata->year;
+				$defaultdata->semester = $formdata->semester;
+				$defaultdata->timecreated = $formdata->timecreated;
+				$defaultdata->timemodified = $formdata->timemodified;
+				$defaultdata->responsible = $formdata->responsible;
+				$defaultdata->status = $formdata->status;
+				var_dump($formdata);
 				$DB->update_record("sync_data",$defaultdata);
-				
-				$action = "view";
 
-				$url = new moodle_url('/local/sync/record.php');
+
+				$url = new moodle_url('/local/sync/record.php', array("action"=>"edit"));
 				redirect($url);
+
 			}
+				
+			$editform->display();
 		}
 	}
 }
@@ -218,15 +233,14 @@ if ($action == "delete") {
 	}
 	else {
 		if ($module = $DB->get_record("sync_data", array("id" => $syncid))) {
-				
-			$DB->delete_records("sync_data", array("id" => $syncid->id));
-			$action = "view";
+
+			$DB->delete_records("sync_data", array("id" => $syncid));
 		}
 	}
-	$url = new moodle_url('/local/sync/record.php');
+	$url = new moodle_url('/local/sync/record.php', array("action"=>"view"));
 	redirect($url);
 }
-		
+
 if($action == "activate") {}
 if($action == "manual_unsub") {}
 

@@ -21,7 +21,7 @@
 * @package    local
 * @subpackage sync
 * @copyright  2016 Joaquin Rivano (jrivano@alumnos.uai.cl)
-* 			  2016 Mark Michaelsen (mmichaelsen678@gmail.com)
+* @copyright  2016 Mark Michaelsen (mmichaelsen678@gmail.com)
 * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
 */
 

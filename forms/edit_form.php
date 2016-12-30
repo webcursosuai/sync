@@ -37,30 +37,34 @@ class sync_editmodule_form extends moodleform {
 		$mform = $this->_form;
 		$instance = $this->_customdata;
 		$syncdata = $instance["datossync"];
-		var_dump($syncdata);
+		
 
 		//edit form
 		//academic_period
 		$mform->addElement('text', 'academicperiodname', get_string('academic_period', 'local_sync'));
+		$mform->setDefault('academicperiodname',$syncdata->academicperiodname);
 		$mform->setType('academicperiodname', PARAM_TEXT);                  
 		//academicperiodid
 		$mform->addElement('text', 'academicperiodid', get_string('period_id', 'local_sync'));
+		$mform->setDefault('academicperiodid',$syncdata->academicperiodid);
 		$mform->setType('academicperiodid', PARAM_TEXT);
 		//category
 		$mform->addElement('text', 'category', get_string('category', 'local_sync'));
+		$mform->setDefault('category',$syncdata->category);
 		$mform->setType('category', PARAM_TEXT);
 		//categoryid
 		$mform->addElement('text', 'categoryid', get_string('category_id', 'local_sync'));
+		$mform->setDefault('categoryid',$syncdata->categoryid);
 		$mform->setType('categoryid', PARAM_TEXT);
 		//campus
 		$mform->addElement('text', 'campus', get_string('sede', 'local_sync'));
+		$mform->setDefault('campus',$syncdata->campus);
 		$mform->setType('campus', PARAM_TEXT);
 		
 		$this->add_action_buttons($cancel = true, $submitlabel= get_string("button_edit", "local_sync"));      
 	}
 	//validacion de uso del formulario
 	public function validation($data, $files) {
-		
 		return $errors;
 	}
 }
