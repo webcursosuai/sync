@@ -93,5 +93,5 @@ else if($creationdata = $addform->get_data()) {
 	redirect($formurl);
 }
 $addform->display();
-}
+
 echo $OUTPUT->footer();
