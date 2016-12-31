@@ -37,8 +37,7 @@ class sync_editmodule_form extends moodleform {
 		$mform = $this->_form;
 		$instance = $this->_customdata;
 		$syncdata = $instance["datossync"];
-		
-
+	
 		//edit form
 		//academic_period
 		$mform->addElement('text', 'academicperiodname', get_string('academic_period', 'local_sync'));
@@ -61,10 +60,17 @@ class sync_editmodule_form extends moodleform {
 		$mform->setDefault('campus',$syncdata->campus);
 		$mform->setType('campus', PARAM_TEXT);
 		
-		$this->add_action_buttons($cancel = true, $submitlabel= get_string("button_edit", "local_sync"));      
+		$mform->addElement("hidden", "action", "edit");
+		$mform->setType("action", PARAM_TEXT);
+		$mform->addElement("hidden", "syncid", $instance['syncid']);
+		$mform->setType("syncid", PARAM_RAW);
+	
+		
+		$this->add_action_buttons(true);
 	}
 	//validacion de uso del formulario
 	public function validation($data, $files) {
+		$errors = array();
 		return $errors;
 	}
 }

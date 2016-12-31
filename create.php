@@ -92,6 +92,8 @@ else if($creationdata = $addform->get_data()) {
 	$formurl = new moodle_url("/local/sync/record.php", array("insert" => "success"));
 	redirect($formurl);
 }
-$addform->display();
 
+else {
+	$addform->display();
+}
 echo $OUTPUT->footer();
