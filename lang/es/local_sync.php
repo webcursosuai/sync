@@ -41,6 +41,22 @@ $string["h_executiontime"] = "Hora de ejecución";
 $string["h_synccourses"] = "Cursos sincronizados";
 $string["h_syncenrols"] = "Matriculados sincronizados";
 $string["h_emptytable"] = "La tabla está vacía";
+$string["academic_period"] = "Periodo Academico";
+$string["period_id"] = "ID Periodo";
+$string["category"]	= "Categoria";
+$string["category_id"] = "ID Categoria";
+$string["sede"] = "Campus";
+$string["Activation"] = "Activar/Desactivar";
+$string["manual_unsub"] = "Desincripcion Manual";
+$string["edit"] = "Editar";
+$string["delete_sync"] = "Esta sincronizacion sera borrada permanentemente ¿Esta seguro de continuar?";
+$string["sync_record_title"] = "Historial De Sincronizaciones";
+$string["sync_table"] = "Historial";
+$string["error_period"] = "Error";
+$string["edit_form"] = "¿Esta seguro de querer editar esta sincronizacion?";
+$string["button_edit"] = "Guardar Cambios";
+$string["syncdoesnotexist"] = "Porfavor seleccione una sincronizacion";
+
 
 //Settings
 $string["token"] = "Token Omega";

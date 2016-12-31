@@ -29,6 +29,7 @@
 require_once(dirname(dirname(dirname(__FILE__))) . "/config.php");
 require_once ($CFG->dirroot . "/repository/lib.php");
 require_once($CFG->dirroot . "/local/sync/forms/sync_form.php");
+require_once ($CFG->dirroot . "/local/sync/locallib.php");
 global $CFG, $DB, $OUTPUT, $PAGE;
 
 
@@ -55,6 +56,7 @@ $PAGE->set_url($url);
 $PAGE->set_pagelayout("standard");
 $PAGE->set_title(get_string("sync_page", "local_sync"));
 $PAGE->set_heading(get_string("sync_heading", "local_sync"));
+echo $OUTPUT->tabtree(sync_tabs(), "create");
 
 $insert = optional_param("insert", "", PARAM_TEXT);
 
@@ -94,5 +96,4 @@ else if($creationdata = $addform->get_data()) {
 else {
 	$addform->display();
 }
-
 echo $OUTPUT->footer();

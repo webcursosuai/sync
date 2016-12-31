@@ -118,7 +118,7 @@ function xmldb_local_sync_upgrade($oldversion) {
 		if (!$dbman->field_exists($table, $field)) {
 			$dbman->add_field($table, $field);
 		}
-		
+				
 		// Define field status to be added to sync_data.
 		$table = new xmldb_table('sync_data');
 		$field = new xmldb_field('status', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '1', 'responsible');
@@ -193,8 +193,7 @@ function xmldb_local_sync_upgrade($oldversion) {
 		
 		// Launch change of nullability for field idnumber.
 		$dbman->change_field_notnull($table, $field);
-	
-		// Sync savepoint reached.
+// Sync savepoint reached.
 		upgrade_plugin_savepoint(true, 2016122801, 'local', 'sync');
 	}
 	
@@ -287,4 +286,4 @@ function xmldb_local_sync_upgrade($oldversion) {
 	
     
 	return true;
-}
+}	

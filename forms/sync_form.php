@@ -87,7 +87,7 @@ class sync_form extends moodleform {
 			
 			$categoriesset->close();
 			
-			foreach($unpathedcategories as $id => $name) {
+	foreach($unpathedcategories as $id => $name) {
 				$finalpath = "$id";
 				foreach($path[$id] as $pathid) {
 					if($pathid != "") {

@@ -182,3 +182,17 @@ function sync_getacademicperiodids_fromomega() {
 	
 	return $result;
 }
+
+function sync_tabs() {
+    $tabs = array();
+    // create sync
+    $tabs[] = new tabobject("create", new moodle_url("/local/sync/create.php", array(
+        "status" => 1
+    )), get_string("create", 'local_sync'));
+    //  history.
+    $tabs[] = new tabobject("record", new moodle_url("/local/sync/record.php", array(
+        "status" => 2
+    )), get_string("record", 'local_sync'));
+    
+     return $tabs;
+}

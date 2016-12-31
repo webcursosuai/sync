@@ -41,6 +41,23 @@ $string["h_executiontime"] = "Execution time";
 $string["h_synccourses"] = "Synchronized courses";
 $string["h_syncenrols"] = "Synchronized enrols";
 $string["h_emptytable"] = "The table is empty";
+$string["acad_unid"] = "Academic Unit";
+$string["academic_period"] = "Academic Period";
+$string["period_id"] = "Period ID";
+$string["category"]	= "Category";
+$string["category_id"] = "Category ID";
+$string["sede"] = "Campus";
+$string["Activation"] = "Activate/Desactivate";
+$string["manual_unsub"] = "Manual de-enrollment";
+$string["edit"] = "Edit";
+$string["delete_sync"] = "This synchronization will be erased permanently Are you sure to continue?";
+$string["sync_record_title"] = "Syncronization Records";
+$string["sync_table"] = "Records";
+$string["error_period"] = "Error";
+$string["edit_form"] = "¿Are you sure you want to edit this sync?";
+$string["button_edit"] = "Save Changes";
+$string["syncdoesnotexist"] = "please select at least a sync";
+
 
 //Settings
 $string["token"] = "Token Omega";
