@@ -55,9 +55,7 @@ $PAGE->set_url($url);
 $PAGE->set_pagelayout("standard");
 $PAGE->set_title(get_string("sync_page", "local_sync"));
 $PAGE->set_heading(get_string("sync_heading", "local_sync"));
-echo $OUTPUT->header();
-echo $OUTPUT->heading(get_string("sync_table", "local_sync"));
-echo $OUTPUT->tabtree(sync_tabs(), "record");
+
 
 // Action = { view, edit, delete}, all page options.
 $action = optional_param("action", "view", PARAM_TEXT);
@@ -68,6 +66,10 @@ if($insert == "success") {
 }
 
 if ($action == "view") {
+	echo $OUTPUT->header();
+    echo $OUTPUT->heading(get_string("sync_table", "local_sync"));
+    echo $OUTPUT->tabtree(sync_tabs(), "record");
+    
 	$synctable = new flexible_table("sync");
 	$synctable->define_baseurl(new moodle_url("/local/sync/record.php"));
 	$synctable->define_columns(array('academicperiodname', 'academicperiodid' , 'category',"categoryid","campus","1","2","3" ));
@@ -168,26 +170,26 @@ if ($action == "view") {
                       	$synctable->add_data($extra);
 
                       }
-
+                      
                       $synctable->finish_html();
 }
 
 //action edit
 if ($action == "edit") {
+	
 	if ($syncid== null) {
 		print_error(get_string("syncdoesnotexist", "local_sync"));
 		$action = "view";
 	}
 	else {
-		$query = "SELECT s.id as id, s.academicperiodid , s.academicperiodname, s.categoryid, s.campus, c.name as category
-                      FROM mdl_sync_data as s
-                      INNER JOIN mdl_course_categories c ON (c.id = s.categoryid )
+		$query = "SELECT * , c.name as category
+                      FROM {sync_data} as s
+                      INNER JOIN {course_categories} c ON (c.id = s.categoryid )
                       WHERE s.id = ?
                       ";
 
 		if ($module = $DB->get_record_sql($query, array($syncid))){
-			$editform = new sync_editmodule_form(null, array("datossync" => $module));
-				
+			$editform = new sync_editmodule_form(null, array("datossync" => $module, "syncid"=> $syncid));
 
 
 			if ($editform->is_cancelled()) {
@@ -198,29 +200,34 @@ if ($action == "edit") {
 
 			}
 			elseif ($formdata = $editform->get_data()){
+				
 				$defaultdata = new stdClass();
-				$defaultdata->id = $syncid;
+				$defaultdata->id = $module->id;
 				$defaultdata->academicperiodid = $formdata->academicperiodid;
 				$defaultdata->academicperiodname = $formdata->academicperiodname;
 				$defaultdata->categoryid = $formdata->categoryid;
 				$defaultdata->campus = $formdata->campus;
-				$defaultdata->campusshort = $formdata->campusshort;
-				$defaultdata->type = $formdata->type;
-				$defaultdata->year = $formdata->year;
-				$defaultdata->semester = $formdata->semester;
-				$defaultdata->timecreated = $formdata->timecreated;
-				$defaultdata->timemodified = $formdata->timemodified;
-				$defaultdata->responsible = $formdata->responsible;
-				$defaultdata->status = $formdata->status;
-				var_dump($formdata);
+				$defaultdata->campusshort = $module->campusshort;
+				$defaultdata->type = $module->type;
+				$defaultdata->year = $module->year;
+				$defaultdata->semester = $module->semester;
+				$defaultdata->timecreated = $module->timecreated;
+				$defaultdata->timemodified = time();
+				$defaultdata->responsible = $module->responsible;
+				$defaultdata->status = $module->status;
+				
+				
 				$DB->update_record("sync_data",$defaultdata);
 
 
 				$url = new moodle_url('/local/sync/record.php', array("action"=>"edit"));
+				$action = "view";
 				redirect($url);
 
 			}
-				
+			echo $OUTPUT->header();
+			echo $OUTPUT->heading(get_string("sync_table", "local_sync"));
+			echo $OUTPUT->tabtree(sync_tabs(), "record");
 			$editform->display();
 		}
 	}
