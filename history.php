@@ -42,6 +42,11 @@ global $PAGE, $CFG, $OUTPUT, $DB;
 
 require_login();
 
+$dataid = optional_param("dataid", 1, PARAM_INT);
+$tsort = optional_param('tsort', '', PARAM_ALPHA);
+$page = optional_param('page', 0, PARAM_INT);
+$nofpages = optional_param('page', 0, PARAM_INT);
+$perpage = 10;
 
 $url = new moodle_url('/local/sync/history.php');
 $context = context_system::instance();
@@ -50,13 +55,6 @@ $PAGE->set_url($url);
 $PAGE->set_pagelayout('standard');
 $PAGE->set_title(get_string("h_title", "local_sync"));
 $PAGE->set_heading(get_string("h_title", "local_sync"));
-$url = new moodle_url('/local/sync/history.php');
-$dataid = optional_param("dataid", 1, PARAM_INT);
-$tsort = optional_param('tsort', '', PARAM_ALPHA);
-
-$page = optional_param('page', 0, PARAM_INT);
-$perpage = 10;
-$nofpages = optional_param('page', 0, PARAM_INT);
 
 $table = new html_table("p"); 
 
@@ -69,6 +67,17 @@ $table->head =array(
 		get_string("h_executiontime", "local_sync"),
 		get_string("h_synccourses", "local_sync"),
 		get_string("h_syncenrols", "local_sync")
+);
+
+$table->size = array(
+		"7%",
+		"7%",
+		"20%",
+		"15%",
+		"20%",
+		"20%",
+		"6%",
+		"5%"
 );
 
 $orderby = "ORDER BY h.executiondate DESC";
@@ -86,9 +95,10 @@ $query = "SELECT d.id,
 		INNER JOIN {course_categories} as c
 		ON d.id = h.dataid
 		AND c.id = d.categoryid
+		GROUP BY d.id
 		$orderby";
 
-$nofpages = count($DB->get_records_sql($query, array("")));
+$nofpages = count($DB->get_records_sql($query));
 $lastthirtysync = $DB->get_records_sql($query, array (""), $page * $perpage, $perpage);
 
 foreach($lastthirtysync as $last){
@@ -101,16 +111,6 @@ foreach($lastthirtysync as $last){
 			date("Y-m-d h:i:sa",$last->executiondate),
 			$last->countcourses,
 			$last->countenrols
-	);
-	$table->size = array(
-			"7%",
-			"7%",
-			"20%",
-			"15%",
-			"20%",
-			"20%",
-			"6%",
-			"5%"
 	);
 }
 
