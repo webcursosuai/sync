@@ -48,6 +48,7 @@ function sync_getusers_fromomega($academicids, $syncinfo){
 	
 	// Needs the academic period to record the history of sync
 	$coursesids = array_column($result, 'SeccionId');
+	
 	$academicdbycourseid = sync_getacademicbycourseids($coursesids);
 	
 	$users = array();
@@ -91,7 +92,11 @@ function sync_getcourses_fromomega($academicids, $syncinfo){
 	foreach($result as $course) {
 		$insertdata = new stdClass();
 		$insertdata->dataid = $syncinfo[$course->PeriodoAcademicoId]["dataid"];
+		// Format ISO-8859-1 Fullname
 		$insertdata->fullname = $course->FullName;
+		// Validate encode Fullname
+		//mtrace(mb_detect_encoding($course->FullName,"ISO-8859-1, GBK, UTF-8"));
+		
 		$insertdata->shortname = $course->ShortName;
 		$insertdata->idnumber = $course->SeccionId;
 		$insertdata->categoryid = $syncinfo[$course->PeriodoAcademicoId]["categoryid"];
