@@ -86,7 +86,7 @@ if($academicids){
 	// insert records in sync_history
 	$historyrecords = array();
 	$time = time();
-	foreach ($syncinfo as $rowinfo){
+	foreach ($syncinfo as $academic => $rowinfo){
 		$insert = new stdClass();
 		$insert->dataid = $rowinfo["dataid"];
 		$insert->executiondate = $time;
@@ -94,7 +94,7 @@ if($academicids){
 		$insert->countenrols = $rowinfo["enrol"];
 
 		$historyrecords[] = $insert;
-		mtrace("Academic Period ".", Total courses ".$rowinfo["course"].", Total enrol ".$rowinfo["enrol"]."\n");
+		mtrace("Academic Period ".$academic.", Total courses ".$rowinfo["course"].", Total enrol ".$rowinfo["enrol"]."\n");
 	}
 		
 	$DB->insert_records("sync_history", $historyrecords);

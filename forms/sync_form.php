@@ -22,12 +22,14 @@
 * @subpackage sync
 * @copyright  2016 Joaquin Rivano (jrivano@alumnos.uai.cl)
 * @copyright  2016 Mark Michaelsen (mmichaelsen678@gmail.com)
+* @copyright  2016 Hans Jeria (hansjeria8@gmail.com)
 * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
 */
 
 defined("MOODLE_INTERNAL") || die();
 require_once(dirname(dirname(dirname(dirname(__FILE__)))) . "/config.php");
 require_once($CFG->libdir . "/formslib.php");
+require_once($CFG->dirroot."/local/sync/locallib.php");
 
 // Form definition for synchronization creation
 class sync_form extends moodleform {

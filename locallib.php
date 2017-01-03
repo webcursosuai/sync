@@ -53,13 +53,13 @@ function sync_getusers_fromomega($academicids, $syncinfo){
 	$users = array();
 	foreach($result as $user) {
 		$insertdata = new stdClass();
-		$insertdata->course = utf8_encode($academicdbycourseid[$user->SeccionId]["shortname"]);
-		$insertdata->user = utf8_encode($user->Email);
-		$insertdata->role = utf8_encode($user->Tipo);
+		$academicid = $user->PeriodoAcademicoId;
+		$insertdata->course = $academicdbycourseid[$user->SeccionId];
+		$insertdata->user = strtolower($user->Email);
+		$insertdata->role = $user->Tipo;
 	
 		$users[] = $insertdata;
-	
-		$academicid = $academicdbycourseid[$user->SeccionId]["academicid"];
+
 		$syncinfo[$academicid]["enrol"] += 1;
 	}
 	
@@ -91,8 +91,8 @@ function sync_getcourses_fromomega($academicids, $syncinfo){
 	foreach($result as $course) {
 		$insertdata = new stdClass();
 		$insertdata->dataid = $syncinfo[$course->PeriodoAcademicoId]["dataid"];
-		$insertdata->fullname = utf8_encode($course->FullName);
-		$insertdata->shortname = utf8_encode($course->ShortName);
+		$insertdata->fullname = $course->FullName;
+		$insertdata->shortname = $course->ShortName;
 		$insertdata->idnumber = $course->SeccionId;
 		$insertdata->categoryid = $syncinfo[$course->PeriodoAcademicoId]["categoryid"];
 
@@ -146,18 +146,8 @@ function sync_getacademicbycourseids($coursesids){
 	$academicinfo = $DB->get_records_sql($sqlgetacademic, $param);
 	
 	$shortnamebycourseid = array_column($academicinfo, 'shortname', 'idnumber');
-	$academicbycourseid = array_column($academicinfo, 'academicperiodid', 'idnumber');
 	
-	$result = array();
-	foreach ($shortnamebycourseid as $courseid => $shortname){
-		$result[$courseid] = array(
-				"shortname" => $shortname,
-				"academicid" => $academicbycourseid[$courseid],
-		);
-	
-	}
-	
-	return $result;
+	return $shortnamebycourseid;
 }
 
 function sync_getacademicperiodids_fromomega() {

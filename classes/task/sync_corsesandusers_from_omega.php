@@ -18,7 +18,8 @@
 *
 * @package    local
 * @subpackage sync
-* @copyright  2016 Mark Michaelsen <mmichaelsen678@gmail.com>				
+* @copyright  2016 Hans Jeria <hansjeria@gmail.com>
+* @copyright  2016 Mark Michaelsen <mmichaelsen678@gmail.com>			
 * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
 */
 
@@ -31,7 +32,7 @@ class sync_corsesandusers_from_omega extends \core\task\scheduled_task {
 	
 	public function execute() {
 		global $DB, $CFG;
-		require_once($CFG->dirroot."local/sync/locallib.php");
+		require_once($CFG->dirroot."/local/sync/locallib.php");
 		
 		// Get all ID from each academic period with status is active
 		list($academicids, $syncinfo) = sync_getacademicperiod();
@@ -68,7 +69,7 @@ class sync_corsesandusers_from_omega extends \core\task\scheduled_task {
 				$insert->countenrols = $rowinfo["enrol"];
 				
 				$historyrecords[] = $insert;
-				mtrace("Academic Period ".$rowinfo["dataid"].", Total courses ".$rowinfo["course"].", Total enrol ".$rowinfo["enrol"]."\n");
+				mtrace("Academic Period ".$academic.", Total courses ".$rowinfo["course"].", Total enrol ".$rowinfo["enrol"]."\n");
 			}
 			
 			$DB->insert_records("sync_history", $historyrecords);
