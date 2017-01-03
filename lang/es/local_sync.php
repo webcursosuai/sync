@@ -31,7 +31,7 @@ $string["status"] = "Estado";
 $string["active"] = "Activo";
 $string["inactive"] = "Inactivo";
 $string["task_courses"] = "Sincronización de cursos de Omega";
-$string["h_title"] = "Historial de sincronizaciones";
+$string["h_title"] = "Sincronizaciones Omega";
 $string["h_id"] = "ID";
 $string["h_catid"] = "ID de la categoría";
 $string["h_catname"] = "Nombre de la categoría";
@@ -41,6 +41,7 @@ $string["h_executiontime"] = "Hora de ejecución";
 $string["h_synccourses"] = "Cursos sincronizados";
 $string["h_syncenrols"] = "Matriculados sincronizados";
 $string["h_emptytable"] = "La tabla está vacía";
+$string["h_tabletitle"] = "Historial de Sincronizaciones";
 
 //Settings
 $string["token"] = "Token Omega";
