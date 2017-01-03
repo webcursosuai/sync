@@ -126,6 +126,6 @@ if ($nofpages>0){
 			$CFG->wwwroot . '/local/sync/history.php?page=');
 }
 else{
-	get_string("h_emptytable", "local_sync");
+	echo $OUTPUT->notification(get_string("h_emptytable", "local_sync"));
 }
 echo $OUTPUT->footer();
