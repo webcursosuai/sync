@@ -102,10 +102,21 @@ foreach($lastthirtysync as $last){
 			$last->countcourses,
 			$last->countenrols
 	);
+	$table->size = array(
+			"7%",
+			"7%",
+			"20%",
+			"15%",
+			"20%",
+			"20%",
+			"6%",
+			"5%"
+	);
 }
 
 
 echo $OUTPUT->header();
+echo $OUTPUT->heading(get_string("h_tabletitle", "local_sync"));
 if ($nofpages>0){
 	if ($nofpages>30){
 		$nofpages = 30;
