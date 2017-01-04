@@ -16,6 +16,8 @@ $string["sync_sub_heading"] ="Crear Sincronización";
 $string["omega"] = "Período Académico";
 $string["webc"] = "Categorías";
 $string["in_charge"] = "Responsable";
+$string["in_charge_help"] = "El responsable será notificado cuando la sincronización se complete. Nótese que este campo es opcional, pero se recomienda llenarlo
+		al ser una manera fácil para rastear su éxito. Ej: usuario@uai.cl";
 $string["in_charge_default"] ="Agregue un responsable";
 $string["buttons"] = "Crear";
 $string["optional"]= "Si busca un período distinto por favor haga";
@@ -42,6 +44,8 @@ $string["h_synccourses"] = "Cursos sincronizados";
 $string["h_syncenrols"] = "Matriculados sincronizados";
 $string["h_emptytable"] = "La tabla está vacía";
 $string["h_tabletitle"] = "Historial de Sincronizaciones";
+$string["omega_default"] = "Seleccione un período...";
+$string["webc_default"] = "Seleccione una categoría...";
 
 //Settings
 $string["token"] = "Token Omega";

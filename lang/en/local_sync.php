@@ -16,6 +16,8 @@ $string["sync_sub_heading"] ="Create Synchronization";
 $string["omega"] = "Academic Period";
 $string["webc"] = "Categories";
 $string["in_charge"] = "Responsible";
+$string["in_charge_help"] = "The responsible will be notified of when the synchronization has completed. Note that this field is optional, but it is recommended
+		since it's an easy way to track a synchronization's success. Ex: user@uai.cl";
 $string["in_charge_default"] ="select a responsible";
 $string["buttons"] = "Create";
 $string["optional"] = "If you are looking for another period please ";
@@ -42,6 +44,8 @@ $string["h_synccourses"] = "Synchronized courses";
 $string["h_syncenrols"] = "Synchronized enrols";
 $string["h_emptytable"] = "The table is empty";
 $string["h_tabletitle"] = "Synchronizations History";
+$string["omega_default"] = "Select a period...";
+$string["webc_default"] = "Select a category...";
 
 //Settings
 $string["token"] = "Token Omega";

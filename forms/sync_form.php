@@ -39,26 +39,34 @@ class sync_form extends moodleform {
 		$mform = $this->_form;
 		
 		// Select academic period
-		$periods = array();
-		
 		$result = sync_getacademicperiodids_fromomega();
 		
 		if(count($result) == 0) {
 			echo $OUTPUT->notification(get_string("error_communication", "local_sync"));
 		} else {
+			$periods = array();
 			foreach($result as $period) {
-				$id = $period->periodoAcademicoId;
-				$periodname = $period->periodoAcademico;
-				$periodcampus = $period->sede;
-				$periodtype = $period->tipo;
+				$object = new stdClass();
+				$object->id = $id = $period->periodoAcademicoId;
+				$object->name = $period->periodoAcademico;
+				$object->campus = $period->sede;
+				$object->type = $period->tipo;
+				$object->year = $period->AnoPeriodo;
+				$object->number = $period->NumeroPeriodo;
 				
-				$periods[$id."|".$periodcampus."|".$periodtype."|".$period->AnoPeriodo."|".$periodname."|".$period->NumeroPeriodo] = $id." | ".$periodname." | ".$periodcampus." | ".$periodtype;
+				$periods[$id] = $object;
 			}
 			
 			krsort($periods);
 			
-			$beginning = array("");
-			$options = $beginning + $periods;
+			$select = array();
+			foreach($periods as $period) {
+				$select[$period->id."|".$period->campus."|".$period->type."|".$period->year."|".$period->name."|".$period->number] = $period->id." | ".
+					$period->name." | ".$period->campus." | ".$period->type;
+			}
+			
+			$beginning = array(get_string("omega_default", "local_sync"));
+			$options = $beginning + $select;
 			
 			$mform->addElement("select", "period", get_string("omega","local_sync"), $options);
 			$mform->setType("period" , PARAM_TEXT);
@@ -77,7 +85,7 @@ class sync_form extends moodleform {
 			$categoriesset = $DB->get_recordset_sql($categoriessql, $params);
 			
 			$categories = array();
-			$categories[0] = "";
+			$categories[0] = get_string("webc_default", "local_sync");
 			
 			$unpathedcategories = array();
 			$path = array();
@@ -113,6 +121,7 @@ class sync_form extends moodleform {
 			//text area encargado
 			$mform->addElement("text", "responsible", get_string("in_charge", "local_sync")); 
 	        $mform->setType("responsible", PARAM_NOTAGS);
+	        $mform->addHelpButton("responsible", "in_charge", "local_sync");
 			
 			$this->add_action_buttons($cancel = true, $submitlabel= get_string("buttons", "local_sync"));
 		}
