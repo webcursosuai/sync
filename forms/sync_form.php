@@ -138,10 +138,30 @@ class sync_form extends moodleform {
 		
 		if (!isset($academicperiod) || empty($academicperiod) || $academicperiod == 0 || $academicperiod == null) {
 			$errors["period"] = get_string("error_period", "local_sync");
+		} else if($DB->record_exists("sync_data", array(
+				"academicperiodid" => intval(explode("|", $academicperiod)[0]), 
+				"status" => 1
+		))) {
+			$errors["period"] = get_string("error_period_active", "local_sync");
+		} else if($DB->record_exists("sync_data", array(
+				"academicperiodid" => intval(explode("|", $academicperiod)[0]), 
+				"status" => 0
+		))) {
+			$errors["period"] = get_string("error_period_inactive", "local_sync");
 		}
 		
 		if (!isset($category) || empty($category) || $category == 0 || $category == null) {
 			$errors["category"] = get_string("error_omega", "local_sync");
+		} else if($DB->record_exists("sync_data", array(
+				"categoryid" => $category,
+				"status" => 1
+		))) {
+			$errors["category"] = get_string("error_omega_active", "local_sync");
+		} else if($DB->record_exists("sync_data", array(
+				"categoryid" => $category,
+				"status" => 0
+		))) {
+			$errors["category"] = get_string("error_omega_inactive", "local_sync");
 		}
 		
 		if($responsible != "") {
