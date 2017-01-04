@@ -218,12 +218,12 @@ function sync_delete_enrolments($enrol, $categoryid){
 				AND cc.id =?";
 	
 		$todelete = $DB->get_records_sql($sql, array($enrol, $categoryid));
-		$arr = array();
+		$userenrolmentsid = array();
 		foreach($todelete as $idtodelete){
-			$arr[]=$idtodelete->id;
+			$userenrolmentsid[]=$idtodelete->id;
 		}
-		if (count($arr>0)){
-			list($sqlin, $param) = $DB->get_in_or_equal($arr);
+		if (count($userenrolmentsid>0)){
+			list($sqlin, $param) = $DB->get_in_or_equal($userenrolmentsid);
 			$query = "DELETE
 					FROM {user_enrolments}
 					WHERE {user_enrolments}.id $sqlin";
@@ -231,6 +231,6 @@ function sync_delete_enrolments($enrol, $categoryid){
 			$value = $succesfuldelete;
 		}
 	}
-	return $vale;
+	return $value;
 }
 
