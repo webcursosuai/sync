@@ -161,7 +161,7 @@ function sync_getacademicbycourseids($coursesids){
 	if(PHP_MAJOR_VERSION < 7){
 		$shortnamebycourseid = array();
 		foreach ($academicinfo as $academic){
-			$shortnamebycourseid[$academic["idnumber"]] = $academic["shortname"];
+			$shortnamebycourseid[$academic->idnumber] = $academic->shortname;
 		}
 	}else{
 		$shortnamebycourseid = array_column($academicinfo, 'shortname', 'idnumber');
