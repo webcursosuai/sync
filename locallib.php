@@ -220,15 +220,17 @@ function sync_delete_manual_enrolments($categoryid){
 	foreach($todelete as $idtodelete){
 		$arr[]=$idtodelete->id;
 	}
-	
-	list($sqlin, $param) = $DB->get_in_or_equal($arr);
-	$query = "DELETE
-			FROM {user_enrolments}
-			WHERE {user_enrolments}.id $sqlin";
-	
-	$succesfuldelete =$deleter= $DB->execute($query, $param);
-	return $succesfuldelete;
+	if (count($arr>0)){
+		list($sqlin, $param) = $DB->get_in_or_equal($arr);
+		$query = "DELETE
+				FROM {user_enrolments}
+				WHERE {user_enrolments}.id $sqlin";
+		$succesfuldelete =$deleter= $DB->execute($query, $param);
+		return $succesfuldelete;
 }
+	else{
+		return false;
+	}}
 
 function sync_delete_self_enrolments($categoryid){
 	$sql = "SELECT ue.id
@@ -244,11 +246,15 @@ function sync_delete_self_enrolments($categoryid){
 	foreach($todelete as $idtodelete){
 		$arr[]=$idtodelete->id;
 	}
-
-	list($sqlin, $param) = $DB->get_in_or_equal($arr);
-	$query = "DELETE
-	FROM {user_enrolments}
-	WHERE {user_enrolments}.id $sqlin";
-	$succesfuldelete = $deleter= $DB->execute($query, $param);
-	return $succesfuldelete;
+	if (count($arr>0)){
+		list($sqlin, $param) = $DB->get_in_or_equal($arr);
+		$query = "DELETE
+		FROM {user_enrolments}
+		WHERE {user_enrolments}.id $sqlin";
+		$succesfuldelete = $deleter= $DB->execute($query, $param);
+		return $succesfuldelete;
+	}
+	else{
+		return false;
+	}
 }
