@@ -46,8 +46,16 @@ function sync_getusers_fromomega($academicids, $syncinfo){
 	$result = json_decode(curl_exec($curl));
 	curl_close($curl);
 	
-	// Needs the academic period to record the history of sync
-	$coursesids = array_column($result, 'SeccionId');
+	// Check the version to use the corrects functions
+	if(PHP_MAJOR_VERSION < 7){
+		$coursesids = array();
+		foreach ($result as $course){
+			$coursesids[] = $course["SeccionId"];
+		}
+	}else{
+		// Needs the academic period to record the history of sync
+		$coursesids = array_column($result, 'SeccionId');
+	}
 	
 	$academicdbycourseid = sync_getacademicbycourseids($coursesids);
 	
