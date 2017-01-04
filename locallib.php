@@ -206,55 +206,36 @@ function sync_tabs() {
 	return $tabs;
 }
 
-function sync_delete_manual_enrolments($categoryid){
-	$sql = "SELECT ue.id
-				FROM {user_enrolments} as ue
-				INNER JOIN {enrol} AS e ON e.id = ue.enrolid
-				INNER JOIN {course} as c ON c.id = e.courseid
-				INNER JOIN {course_categories} as cc ON cc.id = c.category
-				WHERE e.enrol = 'manual'
-				AND cc.id =?";
+function sync_delete_enrolments($enrol, $categoryid){
+	if($enrol != "manual" || $enrol != "self"){
+		$sql = "SELECT ue.id
+					FROM {user_enrolments} AS ue
+					INNER JOIN {enrol} AS e ON e.id = ue.enrolid
+					INNER JOIN {course} AS c ON c.id = e.courseid
+					INNER JOIN {course_categories} AS cc ON cc.id = c.category
+					WHERE e.enrol =?
+					AND cc.id =?";
 	
-	$todelete = $DB->get_records_sql($sql, array("cc.id" => $categoryid));
-	$arr = array();
-	foreach($todelete as $idtodelete){
-		$arr[]=$idtodelete->id;
+		$todelete = $DB->get_records_sql($sql, array($enrol, $categoryid));
+		$arr = array();
+		foreach($todelete as $idtodelete){
+			$arr[]=$idtodelete->id;
+		}
+		if (count($arr>0)){
+			list($sqlin, $param) = $DB->get_in_or_equal($arr);
+			$query = "DELETE
+					FROM {user_enrolments}
+					WHERE {user_enrolments}.id $sqlin";
+			$succesfuldelete =$deleter= $DB->execute($query, $param);
+			return $succesfuldelete;
+		}
+		else{
+			return false;
+		}
 	}
-	if (count($arr>0)){
-		list($sqlin, $param) = $DB->get_in_or_equal($arr);
-		$query = "DELETE
-				FROM {user_enrolments}
-				WHERE {user_enrolments}.id $sqlin";
-		$succesfuldelete =$deleter= $DB->execute($query, $param);
-		return $succesfuldelete;
+	else{
+		return false;
+	}
 }
-	else{
-		return false;
-	}}
-
-function sync_delete_self_enrolments($categoryid){
-	$sql = "SELECT ue.id
-				FROM {user_enrolments} as ue
-				INNER JOIN {enrol} AS e ON e.id = ue.enrolid
-				INNER JOIN {course} as c ON c.id = e.courseid
-				INNER JOIN {course_categories} as cc ON cc.id = c.category
-				WHERE e.enrol = 'self'
-				AND cc.id =?";
-
-	$todelete = $DB->get_records_sql($sql, array("cc.id" => $categoryid));
-	$arr = array();
-	foreach($todelete as $idtodelete){
-		$arr[]=$idtodelete->id;
-	}
-	if (count($arr>0)){
-		list($sqlin, $param) = $DB->get_in_or_equal($arr);
-		$query = "DELETE
-		FROM {user_enrolments}
-		WHERE {user_enrolments}.id $sqlin";
-		$succesfuldelete = $deleter= $DB->execute($query, $param);
-		return $succesfuldelete;
-	}
-	else{
-		return false;
 	}
 }
