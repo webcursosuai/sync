@@ -46,6 +46,22 @@ $string["h_emptytable"] = "The table is empty";
 $string["h_tabletitle"] = "Synchronizations History";
 $string["omega_default"] = "Select a period...";
 $string["webc_default"] = "Select a category...";
+$string["academicperiod"] = "Academic Period";
+$string["periodid"] = "Period ID";
+$string["category"]	= "Category";
+$string["categoryid"] = "Category ID";
+$string["sede"] = "Campus";
+$string["activation"] = "Activate/Desactivate";
+$string["manualunsub"] = "Manual de-enrollment";
+$string["edit"] = "Edit";
+$string["deletesync"] = "This synchronization will be erased permanently Are you sure to continue?";
+$string["syncrecordtitle"] = "Syncronization Records";
+$string["synctable"] = "Records";
+$string["errorperiod"] = "Error";
+$string["editform"] = "¿Are you sure you want to edit this sync?";
+$string["buttonedit"] = "Save Changes";
+$string["syncdoesnotexist"] = "please select at least a sync";
+
 
 //Settings
 $string["token"] = "Token Omega";

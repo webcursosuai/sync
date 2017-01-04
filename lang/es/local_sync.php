@@ -46,6 +46,22 @@ $string["h_emptytable"] = "La tabla está vacía";
 $string["h_tabletitle"] = "Historial de Sincronizaciones";
 $string["omega_default"] = "Seleccione un período...";
 $string["webc_default"] = "Seleccione una categoría...";
+$string["academicperiod"] = "Periodo Academico";
+$string["periodid"] = "ID Periodo";
+$string["category"]	= "Categoria";
+$string["categoryid"] = "ID Categoria";
+$string["sede"] = "Campus";
+$string["activation"] = "Activar/Desactivar";
+$string["manualunsub"] = "Desincripcion Manual";
+$string["edit"] = "Editar";
+$string["deletesync"] = "Esta sincronizacion sera borrada permanentemente ¿Esta seguro de continuar?";
+$string["syncrecordtitle"] = "Historial De Sincronizaciones";
+$string["synctable"] = "Historial";
+$string["errorperiod"] = "Error";
+$string["editform"] = "¿Esta seguro de querer editar esta sincronizacion?";
+$string["buttonedit"] = "Guardar Cambios";
+$string["syncdoesnotexist"] = "Porfavor seleccione una sincronizacion";
+
 
 //Settings
 $string["token"] = "Token Omega";
