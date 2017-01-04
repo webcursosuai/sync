@@ -156,26 +156,29 @@ if ($action == "view") {
 	if ($where) {
 		$where = 'WHERE '. $where;
 	}
+	
+	$querycount = "SELECT count(*)
+			       FROM {sync_data} AS s
+			       ";
 
 	$query = "SELECT s.id AS id, s.academicperiodid , s.academicperiodname, s.categoryid, s.campus, c.name AS category , s.responsible AS responsible
 	FROM {sync_data} AS s
 	INNER JOIN {course_categories} c ON (c.id = s.categoryid )
 	$where
 	$sort";
-
+	
 	$datos = $DB->get_records_sql($query,
 			$params,
-			$synctable->get_page_start(),
-			$synctable->get_page_size());
+			$page * $perpage,
+			($page + 1) * $perpage);
 
-	$synccount = $DB->count_records_sql($query,
+	$synccount = $DB->count_records_sql($querycount,
 			$params,
 			$synctable->get_page_start(),
-			$synctable->get_page_size()
-			//$page * $perpage,
-			//($page + 1) * $perpage
-			);
-
+			$synctable->get_page_size(),
+			$page * $perpage,
+			($page + 1) * $perpage);
+	
 	foreach($datos as $dato){
 		 
 		//Define activation icon and url
