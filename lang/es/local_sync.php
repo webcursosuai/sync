@@ -44,8 +44,8 @@ $string["h_synccourses"] = "Cursos sincronizados";
 $string["h_syncenrols"] = "Matriculados sincronizados";
 $string["h_emptytable"] = "La tabla está vacía";
 $string["h_tabletitle"] = "Historial de Sincronizaciones";
-$string["omega_default"] = "Seleccione un per�odo...";
-$string["webc_default"] = "Seleccione una categor�a...";
+$string["omega_default"] = "Seleccione un período...";
+$string["webc_default"] = "Seleccione una categoría...";
 
 //Settings
 $string["token"] = "Token Omega";
