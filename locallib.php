@@ -50,7 +50,7 @@ function sync_getusers_fromomega($academicids, $syncinfo){
 	if(PHP_MAJOR_VERSION < 7){
 		$coursesids = array();
 		foreach ($result as $course){
-			$coursesids[] = $course["SeccionId"];
+			$coursesids[] = $course->SeccionId;
 		}
 	}else{
 		// Needs the academic period to record the history of sync
