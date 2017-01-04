@@ -227,7 +227,7 @@ function sync_delete_enrolments($enrol, $categoryid){
 			$query = "DELETE
 					FROM {user_enrolments}
 					WHERE {user_enrolments}.id $sqlin";
-			$succesfuldelete =$deleter= $DB->execute($query, $param);
+			$succesfuldelete = $DB->execute($query, $param);
 			$value = $succesfuldelete;
 		}
 	}
