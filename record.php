@@ -172,12 +172,7 @@ if ($action == "view") {
 			$page * $perpage,
 			($page + 1) * $perpage);
 
-	$synccount = $DB->count_records_sql($querycount,
-			$params,
-			$synctable->get_page_start(),
-			$synctable->get_page_size(),
-			$page * $perpage,
-			($page + 1) * $perpage);
+	$synccount = $DB->count_records_sql($querycount,$params);
 	
 	foreach($datos as $dato){
 		 
