@@ -26,10 +26,10 @@
 
 $tasks = array(
 	array(
-			'classname' => 'local_sync\task\sync_corsesandusers_from_omega',
+			'classname' => 'local_sync\task\sync_coursesandusers_from_omega',
 			'blocking' => 0,
 			'minute' => '*',
-			'hour' => '3-5',
+			'hour' => '2-5',
 			'day' => '*',
 			'dayofweek' => '*',
 			'month' => '*'

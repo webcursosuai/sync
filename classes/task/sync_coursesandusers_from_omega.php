@@ -25,7 +25,7 @@
 
 namespace local_sync\task;
 
-class sync_corsesandusers_from_omega extends \core\task\scheduled_task {
+class sync_coursesandusers_from_omega extends \core\task\scheduled_task {
 	public function get_name() {
 		return get_string("task_courses", "local_sync");
 	}
