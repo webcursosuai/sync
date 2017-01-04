@@ -149,9 +149,15 @@ function sync_getacademicbycourseids($coursesids){
 			WHERE c. idnumber $sqlin";
 	
 	$academicinfo = $DB->get_records_sql($sqlgetacademic, $param);
-	
-	$shortnamebycourseid = array_column($academicinfo, 'shortname', 'idnumber');
-	
+	// Check the version to use the corrects functions
+	if(PHP_MAJOR_VERSION < 7){
+		$shortnamebycourseid = array();
+		foreach ($academicinfo as $academic){
+			$shortnamebycourseid[$academic["idnumber"]] = $academic["shortname"];
+		}
+	}else{
+		$shortnamebycourseid = array_column($academicinfo, 'shortname', 'idnumber');
+	}
 	return $shortnamebycourseid;
 }
 
