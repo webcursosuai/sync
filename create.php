@@ -61,6 +61,7 @@ $insert = optional_param("insert", "", PARAM_TEXT);
 //Agrego y muestro formulario
 echo $OUTPUT->header();
 echo $OUTPUT->heading(get_string("sync_sub_heading", "local_sync"));
+echo $OUTPUT->tabtree(sync_tabs(), "create");
 $addform = new sync_form();
 
 if($addform->is_cancelled()) {
