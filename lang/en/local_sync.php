@@ -48,6 +48,7 @@ $string["h_synccourses"] = "Synchronized courses";
 $string["h_syncenrols"] = "Synchronized enrols";
 $string["h_emptytable"] = "The table is empty";
 $string["h_tabletitle"] = "Synchronizations History";
+$string["history"] = "History";
 $string["omega_default"] = "Select a period...";
 $string["webc_default"] = "Select a category...";
 $string["academicperiod"] = "Academic Period";

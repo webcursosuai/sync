@@ -48,6 +48,7 @@ $string["h_synccourses"] = "Cursos sincronizados";
 $string["h_syncenrols"] = "Matriculados sincronizados";
 $string["h_emptytable"] = "La tabla está vacía";
 $string["h_tabletitle"] = "Historial de Sincronizaciones";
+$string["history"] = "Historial";
 $string["omega_default"] = "Seleccione un período...";
 $string["webc_default"] = "Seleccione una categoría...";
 $string["academicperiod"] = "Periodo Academico";
