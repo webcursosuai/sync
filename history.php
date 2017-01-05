@@ -37,6 +37,7 @@
  */
 
 require_once(dirname(__FILE__) . '/../../config.php');
+require_once($CFG->dirroot."/local/sync/locallib.php");
 require "$CFG->libdir/tablelib.php";
 global $PAGE, $CFG, $OUTPUT, $DB;
 
@@ -50,6 +51,9 @@ $perpage = 10;
 
 $url = new moodle_url('/local/sync/history.php');
 $context = context_system::instance();
+
+$PAGE->navbar->add(get_string("sync_title", "local_sync"));
+$PAGE->navbar->add(get_string("h_tabletitle", "local_sync"),$url);
 $PAGE->set_context($context);
 $PAGE->set_url($url);
 $PAGE->set_pagelayout('standard');
@@ -117,6 +121,7 @@ foreach($lastthirtysync as $last){
 
 echo $OUTPUT->header();
 echo $OUTPUT->heading(get_string("h_tabletitle", "local_sync"));
+echo $OUTPUT->tabtree(sync_tabs(), "history");
 if ($nofpages>0){
 	if ($nofpages>30){
 		$nofpages = 30;
