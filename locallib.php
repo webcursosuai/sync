@@ -249,7 +249,7 @@ function sync_deletecourses($categoryid) {
 
 	if($categoryid != 0) {
 		return $DB->delete_records("course", array(
-				"categoryid" => $categoryid
+				"category" => $categoryid
 		));
 	} else {
 		return false;
