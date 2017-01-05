@@ -217,6 +217,8 @@ function sync_tabs() {
 }
 
 function sync_delete_enrolments($enrol, $categoryid){
+	global $DB;
+	
 	$value = false;
 	if($enrol == "manual" || $enrol == "self"){
 		$sql = "SELECT ue.id
@@ -232,7 +234,7 @@ function sync_delete_enrolments($enrol, $categoryid){
 		foreach($todelete as $idtodelete){
 			$userenrolmentsid[]=$idtodelete->id;
 		}
-		if (count($userenrolmentsid>0)){
+		if (!empty($userenrolmentsid)){
 			list($sqlin, $param) = $DB->get_in_or_equal($userenrolmentsid);
 			$query = "DELETE
 					FROM {user_enrolments}
