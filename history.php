@@ -86,7 +86,8 @@ $table->size = array(
 
 $orderby = "ORDER BY h.executiondate DESC";
 
-$query = "SELECT d.id, 
+$query = "SELECT h.id as historyid,
+		d.id, 
 		d.categoryid, 
 		c.name, 
 		d.academicperiodid,
@@ -99,7 +100,6 @@ $query = "SELECT d.id,
 		INNER JOIN {course_categories} as c
 		ON d.id = h.dataid
 		AND c.id = d.categoryid
-		GROUP BY d.id
 		$orderby";
 
 $nofpages = count($DB->get_records_sql($query));
@@ -107,7 +107,7 @@ $lastthirtysync = $DB->get_records_sql($query, array (""), $page * $perpage, $pe
 
 foreach($lastthirtysync as $last){
 	$table->data[] = array(
-			$last->id,
+			$last->historyid,
 			$last->categoryid,
 			$last->name,
 			$last->academicperiodid,
