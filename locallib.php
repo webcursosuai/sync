@@ -244,3 +244,51 @@ function sync_delete_enrolments($enrol, $categoryid){
 	return $value;
 }
 
+function sync_deletecourses($categoryid) {
+	global $DB;
+
+	if($categoryid != 0) {
+		return $DB->delete_records("course", array(
+				"categoryid" => $categoryid
+		));
+	} else {
+		return false;
+	}
+}
+
+function sync_validate_deletion($syncid) {
+	// Sync desactivada -> opción se mostrará solo en tab de sync inactivas
+	// Categoría sin hijos
+	// Cursos sin gente enrolada
+	// Cursos sin módulos aparte del foro principal
+	// ID del curso != 1
+
+	// En caso de que encuentre por lo menos un curso con gente o con módulos, debe mostrar que la acción no se pudo completar por tal razón,
+	// e informar qué cursos aún tienen usuarios enrolados o módulos activos.
+
+	return;
+}
+
+function sync_records_tabs() {
+	$tabs = array();
+	
+	// Active
+	$tabs[] = new tabobject(
+			"active",
+			new moodle_url("/local/sync/record.php", array(
+					"view" => "active"
+			)),
+			get_string("active", "local_sync")
+	);
+	
+	// Inactive
+	$tabs[] = new tabobject(
+			"inactive",
+			new moodle_url("/local/sync/record.php", array(
+					"view" => "inactive"
+			)),
+			get_string("inactive", "local_sync")
+	);
+	
+	return $tabs;
+}
