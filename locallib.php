@@ -205,3 +205,32 @@ function sync_tabs() {
 
 	return $tabs;
 }
+
+function sync_delete_enrolments($enrol, $categoryid){
+	$value = false;
+	if($enrol == "manual" || $enrol == "self"){
+		$sql = "SELECT ue.id
+				FROM {user_enrolments} AS ue
+				INNER JOIN {enrol} AS e ON e.id = ue.enrolid
+				INNER JOIN {course} AS c ON c.id = e.courseid
+				INNER JOIN {course_categories} AS cc ON cc.id = c.category
+				WHERE e.enrol =?
+				AND cc.id =?";
+	
+		$todelete = $DB->get_records_sql($sql, array($enrol, $categoryid));
+		$userenrolmentsid = array();
+		foreach($todelete as $idtodelete){
+			$userenrolmentsid[]=$idtodelete->id;
+		}
+		if (count($userenrolmentsid>0)){
+			list($sqlin, $param) = $DB->get_in_or_equal($userenrolmentsid);
+			$query = "DELETE
+					FROM {user_enrolments}
+					WHERE {user_enrolments}.id $sqlin";
+			$succesfuldelete = $DB->execute($query, $param);
+			$value = $succesfuldelete;
+		}
+	}
+	return $value;
+}
+
