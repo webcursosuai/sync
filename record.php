@@ -36,6 +36,7 @@ $perpage = 10;
 $insert = optional_param("insert", "", PARAM_TEXT);
 $action = optional_param("action", "view", PARAM_TEXT);
 $syncid = optional_param("syncid", null, PARAM_INT);
+$unenrol = optional_param("unenrol", null, PARAM_TEXT);
 
 
 // User must be logged in.
@@ -45,7 +46,11 @@ if (isguestuser()) {
 }
 
 //Pagina moodle basico
+//User needs capability to access
 $context = context_system::instance();
+if(!has_capability("local/sync:record", $context)) {
+	print_error("ACCESS DENIED");
+}
 $url = new moodle_url("/local/sync/record.php");
 $PAGE->navbar->add(get_string("sync_title", "local_sync"));
 $PAGE->navbar->add(get_string("syncrecordtitle", "local_sync"),$url);
@@ -98,19 +103,18 @@ if ($action == "edit") {
 	}
 }
 
-//action delete
-if ($action == "delete") {
-	if ($syncid == null) {
-		print_error(get_string("syncdoesnotexist", "local_sync"));
-		$action = "view";
+
+
+if ($action == "manual" || $action == "self"){
+	echo $action." ".$syncid;
+	
+	if (sync_delete_enrolments($action, $syncid)){
+		$unenrol = "success";
 	}
-	else {
-		if ($module = $DB->get_record("sync_data", array("id" => $syncid))) {
-			$DB->delete_records("sync_data", array("id" => $syncid));
-		}
+	else{
+		$unenrol = "fail";
 	}
-	$url = new moodle_url('/local/sync/record.php', array("action"=>"view"));
-	redirect($url);
+	$action = "view";
 }
 
 //action view
@@ -119,11 +123,19 @@ if ($action == "view") {
 	echo $OUTPUT->heading(get_string("synctable", "local_sync"));
 	echo $OUTPUT->tabtree(sync_tabs(), "record");
 
+	if ($unenrol == "success"){
+		echo $OUTPUT->notification(get_string("unenrol_success", "local_sync"), "notifysuccess");		
+	}
+	else if ($unenrol == "fail"){
+		echo $OUTPUT->notification(get_string("unenrol_fail", "local_sync"));
+	}
+	
 	$tablecount = 10 * $page;
 	$synctable = new flexible_table("sync");
 	$synctable->define_baseurl(new moodle_url("/local/sync/record.php"));
 	$synctable->define_columns(array(
 			"number",
+			"timecreated",
 			"academicperiodname",
 			"academicperiodid" ,
 			"category",
@@ -132,9 +144,12 @@ if ($action == "view") {
 			"responsible",
 			"1",
 			"2",
-			"3" ));
+			"3",
+			"4"
+	));
 	$synctable->define_headers(array(
-			"",
+			"#",
+			get_string("timecreated", "local_sync"),
 			get_string("academicperiod", "local_sync"),
 			get_string("periodid","local_sync"),
 			get_string("category","local_sync"),
@@ -143,10 +158,12 @@ if ($action == "view") {
 			get_string("in_charge","local_sync"),
 			get_string("activation","local_sync"),
 			get_string("manualunsub","local_sync"),
+			get_string("selfunsub","local_sync"),
 			get_string("edit","local_sync")));
-	$synctable->sortable(true,"academicperiodname",SORT_DESC);
-	$synctable->no_sorting("1","2","3");
+	$synctable->sortable(true,"timecreated",SORT_DESC);
+	$synctable->no_sorting("number","1","2","3");
 	$synctable->setup();
+	$synctable->style = array("3%","10%","9%","9%","10%","10%","10%","10%","8%","8%","8%","5%");
 	if ($synctable->get_sql_sort()) {
 		$sort = 'ORDER BY '. $synctable->get_sql_sort();
 	} else {
@@ -161,7 +178,7 @@ if ($action == "view") {
 			       FROM {sync_data} AS s
 			       ";
 
-	$query = "SELECT s.id AS id, s.academicperiodid , s.academicperiodname, s.categoryid, s.campus, c.name AS category , s.responsible AS responsible
+	$query = "SELECT s.id AS id, s.timecreated, s.academicperiodid , s.academicperiodname, s.categoryid, s.campus, c.name AS category , s.responsible AS responsible
 	FROM {sync_data} AS s
 	INNER JOIN {course_categories} c ON (c.id = s.categoryid )
 	$where
@@ -180,7 +197,14 @@ if ($action == "view") {
 		$activateurl_sync= new moodle_url("/local/sync/record.php", array(
 				"action" => "activate",
 				"syncid" => $dato->id,));
-		$activateicon_sync = new pix_icon("i/edit", "Borrar");
+		$checkifactive = "SELECT status FROM {sync_data} WHERE id = ?";
+		$module = $DB->get_record_sql($checkifactive, array($dato->id));
+		if ($module->status == 1){
+			$activateicon_sync = new pix_icon("e/preview", get_string("deactivate", "local_sync"));
+		}
+		else if ($module->status == 0){
+			$activateicon_sync = new pix_icon("e/accessibility_checker", get_string("activate","local_sync"));
+		}
 		$activatection_sync = $OUTPUT->action_icon(
 				$activateurl_sync,
 				$activateicon_sync,
@@ -190,23 +214,22 @@ if ($action == "view") {
 		$manualurl_sync= new moodle_url("/local/sync/record.php", array(
 				"action" => "manual",
 				"syncid" => $dato->id,));
-		$manualicon_sync = new pix_icon("t/delete", "Borrar");
+		$manualicon_sync = new pix_icon("t/delete", get_string("unenrol","local_sync"));
 		$manualaction_sync = $OUTPUT->action_icon(
 				$manualurl_sync,
 				$manualicon_sync,
 				new confirm_action(get_string("deletesync", "local_sync"))
 				);
-		// Define delete icon and url
-		$deleteurl_sync= new moodle_url("/local/sync/record.php", array(
-				"action" => "delete",
+		//Define icon and url to eliminate self enrolled
+		$selfurl_sync= new moodle_url("/local/sync/record.php", array(
+				"action" => "self",
 				"syncid" => $dato->id,));
-		$deleteicon_sync = new pix_icon("t/delete", "Borrar");
-		$deleteaction_sync = $OUTPUT->action_icon(
-				$deleteurl_sync,
-				$deleteicon_sync,
+		$selficon_sync = new pix_icon("t/delete", get_string("unenrol","local_sync"));
+		$selfaction_sync = $OUTPUT->action_icon(
+				$selfurl_sync,
+				$selficon_sync,
 				new confirm_action(get_string("deletesync", "local_sync"))
 				);
-		// Define edition icon and url
 		$editurl_sync = new moodle_url("/local/sync/record.php", array(
 				"action" => "edit",
 				"syncid" => $dato->id));
@@ -218,7 +241,8 @@ if ($action == "view") {
 				);
 		 
 		$extra = array();
-		$extra[] = $tablecount;
+		$extra[] = $tablecount+1;
+		$extra[]=date("Y-m-d", $dato->timecreated);
 		$extra[]=$dato->academicperiodname;
 		$extra[]=$dato->academicperiodid;
 		$extra[]=$dato->category;
@@ -227,7 +251,8 @@ if ($action == "view") {
 		$extra[]=$dato->responsible;
 		$extra[]=$activatection_sync;
 		$extra[]=$manualaction_sync;
-		$extra[]=$deleteaction_sync . $editaction_sync;
+		$extra[]=$selfaction_sync;
+		$extra[]=$editaction_sync;
 		$synctable->add_data($extra);
 		$tablecount++;
 	}
