@@ -51,13 +51,15 @@ $string["h_tabletitle"] = "Historial de Sincronizaciones";
 $string["history"] = "Historial";
 $string["omega_default"] = "Seleccione un período...";
 $string["webc_default"] = "Seleccione una categoría...";
+$string["timecreated"]="Fecha de Creación";
 $string["academicperiod"] = "Período Académico";
 $string["periodid"] = "ID Período";
 $string["category"]	= "Categoría";
 $string["categoryid"] = "ID Categoría";
 $string["sede"] = "Sede";
 $string["activation"] = "Activar/Desactivar";
-$string["manualunsub"] = "Desincripción Manual";
+$string["manualunsub"] = "Eliminar matriculas manuales";
+$string["selfunsub"]="Eliminar auto-matriculados";
 $string["edit"] = "Editar";
 $string["deletesync"] = "Esta sincronización será borrada permanentemente ¿Desea continuar?";
 $string["syncrecordtitle"] = "Historial De Sincronizaciones";
@@ -66,6 +68,11 @@ $string["errorperiod"] = "Error";
 $string["editform"] = "Esta sincronización será editada ¿Desea continuar?";
 $string["buttonedit"] = "Guardar Cambios";
 $string["syncdoesnotexist"] = "Por favor seleccione una sincronización";
+$string["unenrol_success"] = "Usuarios desmatriculados exitosamente";
+$string["unenrol_fail"] = "No se pudo desmatricular usuarios. Vuelva a intentarlo mas tarde.";
+$string["activate"]="Activar";
+$string["deactivate"]="Desactivar";
+$string["unenrol"]="Desmatricular";
 
 
 //Settings

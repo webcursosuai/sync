@@ -51,13 +51,15 @@ $string["h_tabletitle"] = "Synchronizations History";
 $string["history"] = "History";
 $string["omega_default"] = "Select a period...";
 $string["webc_default"] = "Select a category...";
+$string["timecreated"]="Time Created";
 $string["academicperiod"] = "Academic Period";
 $string["periodid"] = "Period ID";
 $string["category"]	= "Category";
 $string["categoryid"] = "Category ID";
 $string["sede"] = "Campus";
 $string["activation"] = "Activate/Desactivate";
-$string["manualunsub"] = "Manual de-enrollment";
+$string["manualunsub"] = "Eliminate manual enrolments";
+$string["selfunsub"]="Eliminate self- enrolments";
 $string["edit"] = "Edit";
 $string["deletesync"] = "This synchronization will be erased permanently Are you sure to continue?";
 $string["syncrecordtitle"] = "Syncronization Records";
@@ -66,7 +68,11 @@ $string["errorperiod"] = "Error";
 $string["editform"] = "¿Are you sure you want to edit this sync?";
 $string["buttonedit"] = "Save Changes";
 $string["syncdoesnotexist"] = "please select at least a sync";
-
+$string["unenrol_success"] = "Users succesfully unenroled";
+$string["unenrol_fail"] = "Failed to unenrol users. Try again later.";
+$string["activate"]="Activate";
+$string["deactivate"]="Deactivate";
+$string["unenrol"]="Eliminate enrol";
 
 //Settings
 $string["token"] = "Token Omega";
