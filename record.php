@@ -106,13 +106,18 @@ if ($action == "edit") {
 
 
 if ($action == "manual" || $action == "self"){
-	echo $action." ".$syncid;
-	
-	if (sync_delete_enrolments($action, $syncid)){
-		$unenrol = "success";
+	$checkifstatusisactive = "SELECT status FROM {sync_data} WHERE id = ?";
+	$checkstatus = $DB->get_record_sql($checkifstatusisactive, array($syncid));
+	if ($checkstatus->status == 0){
+		if (sync_delete_enrolments($action, $syncid)){
+			$unenrol = "success";
+		}
+		else{
+			$unenrol = "fail";
+		}
 	}
 	else{
-		$unenrol = "fail";
+		$unenrol = "status1";
 	}
 	$action = "view";
 }
@@ -128,6 +133,9 @@ if ($action == "view") {
 	}
 	else if ($unenrol == "fail"){
 		echo $OUTPUT->notification(get_string("unenrol_fail", "local_sync"));
+	}
+	else if ($unenrol == "status1"){
+		echo $OUTPUT->notification(get_string("unenrol_status", "local_sync"));
 	}
 	
 	$tablecount = 10 * $page;
