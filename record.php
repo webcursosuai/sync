@@ -106,10 +106,19 @@ if ($action == "edit") {
 
 
 if ($action == "manual" || $action == "self"){
-	echo $action." ".$syncid;
-	
-	if (sync_delete_enrolments($action, $syncid)){
-		$unenrol = "success";
+	if ($checkstatus = $DB->get_record("sync_data", array("id" => $syncid))){
+		if ($checkstatus->status == 0){
+			if (sync_delete_enrolments($action, $syncid)){
+				$unenrol = "success";
+			}
+			else{
+				$unenrol = "fail";
+			}
+		}
+		else{
+			$unenrol = "status1";
+			//status1 means status is set to 1, the sync. is still active and the users can't be unenrol
+		}
 	}
 	else{
 		$unenrol = "fail";
@@ -128,6 +137,9 @@ if ($action == "view") {
 	}
 	else if ($unenrol == "fail"){
 		echo $OUTPUT->notification(get_string("unenrol_fail", "local_sync"));
+	}
+	else if ($unenrol == "status1"){
+		echo $OUTPUT->notification(get_string("unenrol_status", "local_sync"));
 	}
 	
 	$tablecount = 10 * $page;
@@ -197,14 +209,13 @@ if ($action == "view") {
 		$activateurl_sync= new moodle_url("/local/sync/record.php", array(
 				"action" => "activate",
 				"syncid" => $dato->id,));
-		$checkifactive = "SELECT status FROM {sync_data} WHERE id = ?";
-		$module = $DB->get_record_sql($checkifactive, array($dato->id));
-		if ($module->status == 1){
-			$activateicon_sync = new pix_icon("e/preview", get_string("deactivate", "local_sync"));
-		}
-		else if ($module->status == 0){
-			$activateicon_sync = new pix_icon("e/accessibility_checker", get_string("activate","local_sync"));
-		}
+		if ($module = $DB->get_record("sync_data", array("id" => $syncid))){
+			if ($module->status == 1){
+				$activateicon_sync = new pix_icon("e/preview", get_string("deactivate", "local_sync"));
+			}
+			else if ($module->status == 0){
+				$activateicon_sync = new pix_icon("e/accessibility_checker", get_string("activate","local_sync"));
+			}
 		$activatection_sync = $OUTPUT->action_icon(
 				$activateurl_sync,
 				$activateicon_sync,

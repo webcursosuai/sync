@@ -70,6 +70,7 @@ $string["buttonedit"] = "Guardar Cambios";
 $string["syncdoesnotexist"] = "Por favor seleccione una sincronización";
 $string["unenrol_success"] = "Usuarios desmatriculados exitosamente";
 $string["unenrol_fail"] = "No se pudo desmatricular usuarios. Vuelva a intentarlo mas tarde.";
+$string["unenrol_status"]="No se pudo desmatricular usuarios, la sincronización aún está activa.";
 $string["activate"]="Activar";
 $string["deactivate"]="Desactivar";
 $string["unenrol"]="Desmatricular";
