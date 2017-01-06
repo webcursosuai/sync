@@ -24,7 +24,7 @@ defined('MOODLE_INTERNAL') || die();
 // Define whether the sync has been actived or not inactived
 define('SYNC_STATUS_INACTIVE', 0);
 define('SYNC_STATUS_ACTIVE', 1);
-define('MODULE_FORUM', 9);
+define('MODULE_FORUM', 'forum');
 
 function sync_getusers_fromomega($academicids, $syncinfo){
 	global $DB, $CFG;
@@ -302,8 +302,9 @@ function sync_validate_deletion($syncid) {
 				FROM {sync_data} AS sd
 				INNER JOIN {course} AS c ON (sd.categoryid = c.category)
 				INNER JOIN {course_modules} AS cm ON (c.id = cm.course)
+				INNER JOIN {modules} AS m ON (m.id = cm.module)
 				WHERE sd.categoryid = ?
-				AND cm.module != ?
+				AND m.name != ?
 				GROUP BY c.id";
 		
 		$modulesparams = array($categoryid, MODULE_FORUM);
