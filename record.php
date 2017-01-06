@@ -216,6 +216,7 @@ if ($action == "view") {
 			else if ($module->status == 0){
 				$activateicon_sync = new pix_icon("e/accessibility_checker", get_string("activate","local_sync"));
 			}
+		}
 		$activatection_sync = $OUTPUT->action_icon(
 				$activateurl_sync,
 				$activateicon_sync,
