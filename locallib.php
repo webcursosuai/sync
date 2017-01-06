@@ -24,6 +24,7 @@ defined('MOODLE_INTERNAL') || die();
 // Define whether the sync has been actived or not inactived
 define('SYNC_STATUS_INACTIVE', 0);
 define('SYNC_STATUS_ACTIVE', 1);
+define('MODULE_FORUM', 'forum');
 
 function sync_getusers_fromomega($academicids, $syncinfo){
 	global $DB, $CFG;
@@ -259,16 +260,87 @@ function sync_deletecourses($categoryid) {
 }
 
 function sync_validate_deletion($syncid) {
-	// Sync desactivada -> opción se mostrará solo en tab de sync inactivas
-	// Categoría sin hijos
-	// Cursos sin gente enrolada
-	// Cursos sin módulos aparte del foro principal
-	// ID del curso != 1
-
-	// En caso de que encuentre por lo menos un curso con gente o con módulos, debe mostrar que la acción no se pudo completar por tal razón,
-	// e informar qué cursos aún tienen usuarios enrolados o módulos activos.
-
-	return;
+	global $OUTPUT, $DB;
+	
+	$capable = true;
+	$message = "";
+	
+	if($syncdata = $DB->get_record("sync_data", array(
+			"id" => $syncid
+		))) {
+		$categoryid = $syncdata->categoryid;
+	
+		// Categoría sin hijos
+		if($DB->record_exists("course_categories", array(
+				"parent" => $categoryid
+		))) {
+			$capable = false;
+			$message .= $OUTPUT->notification("The selected synchronization's category has other children categories and cannot be deleted.");
+		} else {
+			// Cursos sin gente enrolada
+			$enrolmentssql = "SELECT ue.id,
+					COUNT(ue.id) AS instances,
+					sd.academicperiodid AS periodid,
+					sd.academicperiodname AS periodname,
+					c.fullname AS coursefullname,
+					c.shortname AS courseshortname
+					FROM {sync_data} AS sd
+					INNER JOIN {course} AS c ON (sd.categoryid = c.category)
+					INNER JOIN {enrol} AS e ON (c.id = e.courseid)
+					INNER JOIN {user_enrolments} AS ue ON (e.id = ue.enrolid)
+					WHERE sd.categoryid = ?
+					GROUP BY c.id";
+			
+			$enrolmentsparams = array($categoryid);
+	
+			// Cursos sin módulos aparte del foro principal
+			$modulessql = "SELECT cm.id,
+					COUNT(cm.id) AS instances,
+					sd.academicperiodid AS periodid,
+					sd.academicperiodname AS periodname,
+					c.fullname AS coursefullname,
+					c.shortname AS courseshortname
+					FROM {sync_data} AS sd
+					INNER JOIN {course} AS c ON (sd.categoryid = c.category)
+					INNER JOIN {course_modules} AS cm ON (c.id = cm.course)
+					INNER JOIN {modules} AS m ON (m.id = cm.module)
+					WHERE sd.categoryid = ?
+					AND m.name != ?
+					GROUP BY c.id";
+			
+			$modulesparams = array($categoryid, MODULE_FORUM);
+			
+			$enrolments = $DB->get_records_sql($enrolmentssql, $enrolmentsparams);
+			$modules = $DB->get_records_sql($modulessql, $modulesparams);
+			
+			if(!empty($enrolments)) {
+				$capable = false;
+				foreach($enrolments as $enrolment) {
+					$message .= $OUTPUT->notification("Courses deletion from period '".$enrolment->periodname."' (ID: ".$enrolment->periodid.
+						") could not complete because course '".$enrolment->coursefullname."' (Shortname: ".$enrolment->courseshortname.") 
+						has ".$enrolment->instances." users enroled.");
+				}
+			} else {
+				$message .= $OUTPUT->notification("Courses deletion found no trouble with enroled users.", "notifysuccess");
+			}
+			
+			if(!empty($modules)) {
+				$capable = false;
+				foreach($modules as $module) {
+					$message .= $OUTPUT->notification("Courses deletion from period '".$enrolment->periodname."' (ID: ".$enrolment->periodid.
+						") could not complete because course '".$enrolment->coursefullname."' (Shortname: ".$enrolment->courseshortname.")
+						has ".$enrolment->instances." modules active.");
+				}
+			} else {
+				$message .= $OUTPUT->notification("Courses deletion found no trouble with modules.", "notifysuccess");
+			}
+		}
+	} else {
+		$capable = false;
+		$message .= $OUTPUT->notification("Synchronization ID was not found in the database.");
+	}
+		
+	return array($capable, $message);
 }
 
 function sync_records_tabs() {
