@@ -36,7 +36,7 @@ $perpage = 10;
 $insert = optional_param("insert", "", PARAM_TEXT);
 $action = optional_param("action", "view", PARAM_TEXT);
 $syncid = optional_param("syncid", null, PARAM_INT);
-$unenrol = optional_param("unenrol", "fail", PARAM_TEXT);
+$unenrol = optional_param("unenrol", null, PARAM_TEXT);
 
 
 // User must be logged in.
@@ -111,10 +111,16 @@ if ($action == "manual" || $action == "self"){
 			if (sync_delete_enrolments($action, $syncid)){
 				$unenrol = "success";
 			}
+			else{
+				$unenrol = "fail";
+			}
 		}
 		else{
 			$unenrol = "status1";
 		}
+	}
+	else{
+		$unenrol = "fail";
 	}
 	$action = "view";
 }
@@ -203,13 +209,12 @@ if ($action == "view") {
 				"action" => "activate",
 				"syncid" => $dato->id,));
 		if ($DB->get_record("sync_data", array("id" => $syncid))){
-			if ($module->status == 1){
-				$activateicon_sync = new pix_icon("e/preview", get_string("deactivate", "local_sync"));
-			}
-			else if ($module->status == 0){
-				$activateicon_sync = new pix_icon("e/accessibility_checker", get_string("activate","local_sync"));
-			}
-		}
+						if ($module->status == 1){
+								$activateicon_sync = new pix_icon("e/preview", get_string("deactivate", "local_sync"));
+							}
+							else if ($module->status == 0){
+									$activateicon_sync = new pix_icon("e/accessibility_checker", get_string("activate","local_sync"));
+								}
 		$activatection_sync = $OUTPUT->action_icon(
 				$activateurl_sync,
 				$activateicon_sync,
