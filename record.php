@@ -20,7 +20,9 @@
 *
 * @package    local
 * @subpackage sync
-* @copyright  2016 Joaquin Rivano (jrivano@alumnos.uai.cl) 					
+* @copyright  2016 Joaquin Rivano (jrivano@alumnos.uai.cl)
+* @copyright  2016 Mark Michaelsen (mmichaelsen678@gmail.com)
+* @copyright  2016 Javier González (javiergonzalez@alumnos.uai.cl)
 * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
 */
 
@@ -37,7 +39,7 @@ $insert = optional_param("insert", "", PARAM_TEXT);
 $action = optional_param("action", "view", PARAM_TEXT);
 $syncid = optional_param("syncid", null, PARAM_INT);
 $unenrol = optional_param("unenrol", null, PARAM_TEXT);
-
+$view = optional_param("view", "active", PARAM_TEXT);
 
 // User must be logged in.
 require_login();
@@ -103,7 +105,23 @@ if ($action == "edit") {
 	}
 }
 
-
+if($action == "activate") {
+	$updatedata = new stdClass();
+	
+	$updatedata->id = $syncid;
+	$updatedata->status = 1;
+	
+	$DB->update_record("sync_data", $updatedata);
+	$action = "view";
+} else if($action == "deactivate") {
+	$updatedata = new stdClass();
+	
+	$updatedata->id = $syncid;
+	$updatedata->status = 0;
+	
+	$DB->update_record("sync_data", $updatedata);
+	$action = "view";
+}
 
 if ($action == "manual" || $action == "self"){
 	if ($checkstatus = $DB->get_record("sync_data", array("id" => $syncid))){
@@ -131,6 +149,7 @@ if ($action == "view") {
 	echo $OUTPUT->header();
 	echo $OUTPUT->heading(get_string("synctable", "local_sync"));
 	echo $OUTPUT->tabtree(sync_tabs(), "record");
+	echo $OUTPUT->tabtree(sync_records_tabs(), $view);
 
 	if ($unenrol == "success"){
 		echo $OUTPUT->notification(get_string("unenrol_success", "local_sync"), "notifysuccess");		
@@ -181,42 +200,72 @@ if ($action == "view") {
 	} else {
 		$sort = '';
 	}
+	
 	list($where, $params) = $synctable->get_sql_where();
-	if ($where) {
-		$where = 'WHERE '. $where;
+	
+	if($view == "active") {
+		$status = 1;
+	} else if($view == "inactive") {
+		$status = 0;
 	}
 	
-	$querycount = "SELECT count(*)
-			       FROM {sync_data} AS s
-			       ";
+	array_push($params, $status);
+	
+	if ($where) {
+		$where = "WHERE ". $where;
+	}
+	
+	$querycount = "SELECT count(*) FROM {sync_data} AS s";
 
-	$query = "SELECT s.id AS id, s.timecreated, s.academicperiodid , s.academicperiodname, s.categoryid, s.campus, c.name AS category , s.responsible AS responsible
-	FROM {sync_data} AS s
-	INNER JOIN {course_categories} c ON (c.id = s.categoryid )
-	$where
-	$sort";
+	$query = "SELECT s.id AS id,
+		s.timecreated,
+		s.academicperiodid,
+		s.academicperiodname,
+		s.categoryid,
+		s.campus,
+		s.status
+		c.name AS category,
+		s.responsible AS responsible
+		FROM {sync_data} AS s
+		INNER JOIN {course_categories} c ON (c.id = s.categoryid )
+		$where
+		AND s.status = ?
+		$sort";
 	
 	$datos = $DB->get_records_sql($query,
 			$params,
 			$page * $perpage,
 			($page + 1) * $perpage);
 
-	$synccount = $DB->count_records_sql($querycount,$params);
+	$synccount = $DB->count_records_sql($querycount, $params);
 	
 	foreach($datos as $dato){
 		 
 		//Define activation icon and url
+<<<<<<< HEAD
 		$activateurl_sync= new moodle_url("/local/sync/record.php", array(
 				"action" => "activate",
 				"syncid" => $dato->id,));
-		if ($module = $DB->get_record("sync_data", array("id" => $dato->id))){
-			if ($module->status == 1){
-				$activateicon_sync = new pix_icon("e/preview", get_string("deactivate", "local_sync"));
-			}
-			else if ($module->status == 0){
-				$activateicon_sync = new pix_icon("e/accessibility_checker", get_string("activate","local_sync"));
-			}
+=======
+		
+>>>>>>> upstream/master
+		if ($dato->status == 1){
+			$activateicon_sync = new pix_icon("e/preview", get_string("deactivate", "local_sync"));
+			$actionsent = "deactivate";
 		}
+		else if ($dato->status == 0){
+			$activateicon_sync = new pix_icon("e/accessibility_checker", get_string("activate","local_sync"));
+			$actionsent = "activate";
+		}
+<<<<<<< HEAD
+=======
+		
+		$activateurl_sync= new moodle_url("/local/sync/record.php", array(
+				"action" => $actionsent,
+				"syncid" => $dato->id
+		));
+		
+>>>>>>> upstream/master
 		$activatection_sync = $OUTPUT->action_icon(
 				$activateurl_sync,
 				$activateicon_sync,
@@ -274,8 +323,5 @@ if ($action == "view") {
 			$CFG->wwwroot . '/local/sync/record.php');
 }
 
-		 
-		
-			
 //fin de la pagina	
 echo $OUTPUT->footer();
