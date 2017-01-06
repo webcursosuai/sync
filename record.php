@@ -209,7 +209,7 @@ if ($action == "view") {
 		$activateurl_sync= new moodle_url("/local/sync/record.php", array(
 				"action" => "activate",
 				"syncid" => $dato->id,));
-		if ($module = $DB->get_record("sync_data", array("id" => $syncid))){
+		if ($module = $DB->get_record("sync_data", array("id" => $dato->id))){
 			if ($module->status == 1){
 				$activateicon_sync = new pix_icon("e/preview", get_string("deactivate", "local_sync"));
 			}
