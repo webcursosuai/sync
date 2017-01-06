@@ -209,12 +209,12 @@ if ($action == "view") {
 				"action" => "activate",
 				"syncid" => $dato->id,));
 		if ($DB->get_record("sync_data", array("id" => $syncid))){
-						if ($module->status == 1){
-								$activateicon_sync = new pix_icon("e/preview", get_string("deactivate", "local_sync"));
-							}
-							else if ($module->status == 0){
-									$activateicon_sync = new pix_icon("e/accessibility_checker", get_string("activate","local_sync"));
-								}
+			if ($module->status == 1){
+				$activateicon_sync = new pix_icon("e/preview", get_string("deactivate", "local_sync"));
+			}
+			else if ($module->status == 0){
+				$activateicon_sync = new pix_icon("e/accessibility_checker", get_string("activate","local_sync"));
+			}
 		$activatection_sync = $OUTPUT->action_icon(
 				$activateurl_sync,
 				$activateicon_sync,
