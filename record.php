@@ -22,6 +22,7 @@
 * @subpackage sync
 * @copyright  2016 Joaquin Rivano (jrivano@alumnos.uai.cl)
 * @copyright  2016 Mark Michaelsen (mmichaelsen678@gmail.com)
+* @copyright  2016 Javier González (javiergonzalez@alumnos.uai.cl)
 * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
 */
 
@@ -222,6 +223,7 @@ if ($action == "view") {
 		s.academicperiodname,
 		s.categoryid,
 		s.campus,
+		s.status,
 		c.name AS category,
 		s.responsible AS responsible
 		FROM {sync_data} AS s
@@ -237,21 +239,16 @@ if ($action == "view") {
 
 	$synccount = $DB->count_records_sql($querycount, $params);
 	
-	foreach($datos as $dato){
-		 
+	foreach($datos as $dato){	 
 		//Define activation icon and url
-		
-		if ($module = $DB->get_record("sync_data", array("id" => $dato->id))){
-			if ($module->status == 1){
-				$activateicon_sync = new pix_icon("e/preview", get_string("deactivate", "local_sync"));
-				$actionsent = "deactivate";
-			}
-			else if ($module->status == 0){
-				$activateicon_sync = new pix_icon("e/accessibility_checker", get_string("activate","local_sync"));
-				$actionsent = "activate";
-			}
+		if ($dato->status == 1){
+			$activateicon_sync = new pix_icon("e/preview", get_string("deactivate", "local_sync"));
+			$actionsent = "deactivate";
 		}
-		
+		else if ($dato->status == 0){
+			$activateicon_sync = new pix_icon("e/accessibility_checker", get_string("activate","local_sync"));
+			$actionsent = "activate";
+		}
 		$activateurl_sync= new moodle_url("/local/sync/record.php", array(
 				"action" => $actionsent,
 				"syncid" => $dato->id
