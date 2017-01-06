@@ -106,7 +106,7 @@ if ($action == "edit") {
 
 
 if ($action == "manual" || $action == "self"){
-	if ($DB->get_record("sync_data", array("id" => $syncid))){
+	if ($checkstatus = $DB->get_record("sync_data", array("id" => $syncid))){
 		if ($checkstatus->status == 0){
 			if (sync_delete_enrolments($action, $syncid)){
 				$unenrol = "success";
@@ -117,6 +117,7 @@ if ($action == "manual" || $action == "self"){
 		}
 		else{
 			$unenrol = "status1";
+			//status1 means status is set to 1, the sync. is still active and the users can't be unenrol
 		}
 	}
 	else{
@@ -208,7 +209,7 @@ if ($action == "view") {
 		$activateurl_sync= new moodle_url("/local/sync/record.php", array(
 				"action" => "activate",
 				"syncid" => $dato->id,));
-		if ($DB->get_record("sync_data", array("id" => $syncid))){
+		if ($module = $DB->get_record("sync_data", array("id" => $syncid))){
 			if ($module->status == 1){
 				$activateicon_sync = new pix_icon("e/preview", get_string("deactivate", "local_sync"));
 			}
