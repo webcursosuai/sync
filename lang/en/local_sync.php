@@ -70,6 +70,7 @@ $string["buttonedit"] = "Save Changes";
 $string["syncdoesnotexist"] = "please select at least a sync";
 $string["unenrol_success"] = "Users succesfully unenroled";
 $string["unenrol_fail"] = "Failed to unenrol users. Try again later.";
+$string["unenrol_status"]="Failed to unenrol users. Syncronization is still active.";
 $string["activate"]="Activate";
 $string["deactivate"]="Deactivate";
 $string["unenrol"]="Eliminate enrol";
