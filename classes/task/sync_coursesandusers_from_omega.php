@@ -40,7 +40,7 @@ class sync_coursesandusers_from_omega extends \core\task\scheduled_task {
 		if($academicids){
 			
 			// Courses from Omega
-			list($courses, $syncinfo) = sync_getcourses_fromomega($academicids, $syncinfo);
+			list($courses, $syncinfo) = sync_sync_getcourses_fromomega($academicids, $syncinfo);
 			// Delete previous courses
 			if(!$DB->execute("TRUNCATE TABLE {sync_course}")) {
 				mtrace("Truncate Table sync_course Failed");
