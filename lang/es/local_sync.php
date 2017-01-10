@@ -71,10 +71,14 @@ $string["syncdoesnotexist"] = "Por favor seleccione una sincronización";
 $string["unenrol_success"] = "Usuarios desmatriculados exitosamente";
 $string["unenrol_fail"] = "No se pudo desmatricular usuarios. Vuelva a intentarlo mas tarde.";
 $string["unenrol_status"]="No se pudo desmatricular usuarios, la sincronización aún está activa.";
+$string["unenrol_empty"] = "La categoría ya está vacía (no hay usuarios matriculados).";
 $string["activate"]="Activar";
 $string["deactivate"]="Desactivar";
 $string["unenrol"]="Desmatricular";
-
+$string["delete"] = "Borrar cursos";
+$string["delete_detail"] = "Borrar cursos de esta sincronización";
+$string["back"] = "Volver a la página de registros.";
+$string["delete_prompt"] = "Se borrarán los cursos de esta sincronización. ¿Desea continuar?";
 
 //Settings
 $string["token"] = "Token Omega";
@@ -85,3 +89,18 @@ $string["urlgetcursos"] = "Url Servicio GetCursos";
 $string["urlgetcursosdesc"] = "Url de Webapi Omega para obtener los cursos a sincronizar.";
 $string["urlgetacademicperiods"] = "Url servicio GetPeriodosAcademicos";
 $string["urlgetacademicperiodsdesc"] = "Url de Webapi Omega para obtener los ids de períodos académicos a sincronizar.";
+
+// Functions outputs
+$string["category_haschildren"] = "La categoría de la sincronización seleccionada posee sub categorías, y no puede ser eliminada.";
+$string["courses_delete_description"] = "Eliminación de cursos del período '";
+$string["courses_delete_cause"] = ") no se puede completar porque el curso '";
+$string["courses_delete_shortname"] = "' (Nombre corto: ";
+$string["courses_delete_has"] = ") tiene ";
+$string["courses_delete_enroled"] = " usuarios matriculados.";
+$string["courses_delete_modules"] = " módulos presentes.";
+$string["courses_enroled_success"] = "Eliminación de cursos no encontró problemas con usuarios matriculados.";
+$string["courses_modules_success"] = "Eliminación de cursos no encontró problemas con módulos.";
+$string["courses_missingid"] = "El ID de la sincronización no se encontró en la base de datos.";
+$string["courses_delete_success"] = "Los cursos se han eliminado satisfactoriamente.";
+$string["courses_delete_failed"] = "Ha fallado la eliminación de los cursos.";
+$string["courses_delete_check"] = "Por favor revise los requerimientos anteriores para eliminar los cursos de esta sincronización.";
