@@ -218,38 +218,58 @@ function sync_tabs() {
 }
 
 function sync_delete_enrolments($enrol, $categoryid){
-	global $DB;
+	global $DB, $OUTPUT;
 	
-	$value = false;
-	if($enrol == "manual" || $enrol == "self"){
+	$success = false;
+	$message = "";
+	
+	if($enrol == "manual" || $enrol == "self") {
 		$sql = "SELECT ue.id
 				FROM {user_enrolments} AS ue
-				INNER JOIN {enrol} AS e ON e.id = ue.enrolid
-				INNER JOIN {course} AS c ON c.id = e.courseid
-				INNER JOIN {course_categories} AS cc ON cc.id = c.category
-				WHERE e.enrol =?
-				AND cc.id =?";
+				INNER JOIN {enrol} AS e ON (e.id = ue.enrolid)
+				INNER JOIN {course} AS c ON (c.id = e.courseid)
+				INNER JOIN {course_categories} AS cc ON (cc.id = c.category)
+				WHERE e.enrol = ?
+				AND cc.id = ?";
 	
 		$todelete = $DB->get_records_sql($sql, array($enrol, $categoryid));
+		
 		$userenrolmentsid = array();
 		foreach($todelete as $idtodelete){
-			$userenrolmentsid[]=$idtodelete->id;
+			$userenrolmentsid[] = $idtodelete->id;
 		}
+		
 		if (!empty($userenrolmentsid)){
 			list($sqlin, $param) = $DB->get_in_or_equal($userenrolmentsid);
 			$query = "DELETE
 					FROM {user_enrolments}
-					WHERE {user_enrolments}.id $sqlin";
-			$succesfuldelete = $DB->execute($query, $param);
-			$value = $succesfuldelete;
+					WHERE id $sqlin";
+			
+			if($DB->execute($query, $param)) {
+				$success = true;
+				$message .= $OUTPUT->notification(get_string("unenrol_success", "local_sync"), "notifysuccess");
+			} else {
+				$message .= $OUTPUT->notification(get_string("unenrol_fail", "local_sync"));
+			}
+		} else {
+			$message .= $OUTPUT->notification(get_string("unenrol_empty", "local_sync"));
 		}
+	} else {
+		$message .= $OUTPUT->notification(get_string("unenrol_fail", "local_sync"));
 	}
-	return $value;
+	
+	return array($success, $message);
 }
 
-function sync_deletecourses($categoryid) {
+function sync_deletecourses($syncid) {
 	global $DB;
-
+	
+	$data = $DB->get_record("sync_data", array(
+			"id" => $syncid
+	));
+	
+	$categoryid = $data->categoryid;
+	
 	if($categoryid != 0) {
 		return $DB->delete_records("course", array(
 				"category" => $categoryid
@@ -275,7 +295,7 @@ function sync_validate_deletion($syncid) {
 				"parent" => $categoryid
 		))) {
 			$capable = false;
-			$message .= $OUTPUT->notification("The selected synchronization's category has other children categories and cannot be deleted.");
+			$message .= $OUTPUT->notification(get_string("category_haschildren", "local_sync"));
 		} else {
 			// Cursos sin gente enrolada
 			$enrolmentssql = "SELECT ue.id,
@@ -316,28 +336,48 @@ function sync_validate_deletion($syncid) {
 			if(!empty($enrolments)) {
 				$capable = false;
 				foreach($enrolments as $enrolment) {
-					$message .= $OUTPUT->notification("Courses deletion from period '".$enrolment->periodname."' (ID: ".$enrolment->periodid.
-						") could not complete because course '".$enrolment->coursefullname."' (Shortname: ".$enrolment->courseshortname.") 
-						has ".$enrolment->instances." users enroled.");
+					$message .= $OUTPUT->notification(
+							get_string("courses_delete_description", "local_sync").
+							$enrolment->periodname.
+							"' (ID: ".
+							$enrolment->periodid.
+							get_string("courses_delete_cause", "local_sync").
+							$enrolment->coursefullname.
+							get_string("courses_delete_shortname", "local_sync").
+							$enrolment->courseshortname.
+							get_string("courses_delete_has", "local_sync").
+							$enrolment->instances.
+							get_string("courses_delete_enroled", "local_sync")
+					);
 				}
 			} else {
-				$message .= $OUTPUT->notification("Courses deletion found no trouble with enroled users.", "notifysuccess");
+				$message .= $OUTPUT->notification(get_string("courses_enroled_success", "local_sync"), "notifysuccess");
 			}
 			
 			if(!empty($modules)) {
 				$capable = false;
 				foreach($modules as $module) {
-					$message .= $OUTPUT->notification("Courses deletion from period '".$enrolment->periodname."' (ID: ".$enrolment->periodid.
-						") could not complete because course '".$enrolment->coursefullname."' (Shortname: ".$enrolment->courseshortname.")
-						has ".$enrolment->instances." modules active.");
+					$message .= $OUTPUT->notification(
+							get_string("courses_delete_description", "local_sync").
+							$module->periodname.
+							"' (ID: ".
+							$module->periodid.
+							get_string("courses_delete_cause", "local_sync").
+							$module->coursefullname.
+							get_string("courses_delete_shortname", "local_sync").
+							$module->courseshortname.
+							get_string("courses_delete_has", "local_sync").
+							$module->instances.
+							get_string("courses_delete_modules", "local_sync")
+					);
 				}
 			} else {
-				$message .= $OUTPUT->notification("Courses deletion found no trouble with modules.", "notifysuccess");
+				$message .= $OUTPUT->notification(get_string("courses_modules_success", "local_sync"), "notifysuccess");
 			}
 		}
 	} else {
 		$capable = false;
-		$message .= $OUTPUT->notification("Synchronization ID was not found in the database.");
+		$message .= $OUTPUT->notification(get_string("courses_missingid", "local_sync"));
 	}
 		
 	return array($capable, $message);
