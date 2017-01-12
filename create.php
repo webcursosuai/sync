@@ -20,6 +20,7 @@
 *
 * @package    local
 * @subpackage sync
+* @copyright  2016 Hans Jeria (hansjeria@gmail.com)
 * @copyright  2016 Joaquin Rivano (jrivano@alumnos.uai.cl)
 * @copyright  2016 Mark Michaelsen (mmichaelsen678@gmail.com)
 * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -58,14 +59,10 @@ $PAGE->set_heading(get_string("sync_heading", "local_sync"));
 
 $insert = optional_param("insert", "", PARAM_TEXT);
 
-//Agrego y muestro formulario
-echo $OUTPUT->header();
-echo $OUTPUT->heading(get_string("sync_sub_heading", "local_sync"));
-echo $OUTPUT->tabtree(sync_tabs(), "create");
 $addform = new sync_form();
 
 if($addform->is_cancelled()) {
-	$formurl = new moodle_url("/local/sync/create.php");
+	$formurl = new moodle_url("/local/sync/record.php");
 	redirect($formurl);
 }
 
@@ -86,13 +83,17 @@ else if($creationdata = $addform->get_data()) {
 	$record->responsible = $creationdata->responsible;
 	$record->status = $creationdata->status;
 	
-	$DB->insert_record("sync_data", $record);
+	$dataid = $DB->insert_record("sync_data", $record);
 	
-	$formurl = new moodle_url("/local/sync/record.php", array("insert" => "success"));
+	$formurl = new moodle_url("/local/sync/record.php", array(
+			"insert" => "success",
+			"dataid" => $dataid
+	));
 	redirect($formurl);
-}
-
-else {
+}else {
+	echo $OUTPUT->header();
+	echo $OUTPUT->heading(get_string("sync_sub_heading", "local_sync"));
+	echo $OUTPUT->tabtree(sync_tabs(), "create");
 	$addform->display();
 }
 

@@ -20,6 +20,7 @@
 *
 * @package    local
 * @subpackage sync
+* @copyright  2016 Hans Jeria (hansjeria@gmail.com)
 * @copyright  2016 Joaquin Rivano (jrivano@alumnos.uai.cl)
 * @copyright  2016 Mark Michaelsen (mmichaelsen678@gmail.com)
 * @copyright  2016 Javier González (javiergonzalez@alumnos.uai.cl)
@@ -40,19 +41,20 @@ $action = optional_param("action", "view", PARAM_TEXT);
 $syncid = optional_param("syncid", null, PARAM_INT);
 $unenrol = optional_param("unenrol", null, PARAM_TEXT);
 $view = optional_param("view", "active", PARAM_TEXT);
+$dataid = optional_param("dataid", 0, PARAM_INT);
 
 // User must be logged in.
 require_login();
 if (isguestuser()) {
-    //die();
+    die();
 }
 
-//Pagina moodle basico
 //User needs capability to access
 $context = context_system::instance();
 if(!has_capability("local/sync:record", $context)) {
 	print_error("ACCESS DENIED");
 }
+
 $url = new moodle_url("/local/sync/record.php");
 $PAGE->navbar->add(get_string("sync_title", "local_sync"));
 $PAGE->navbar->add(get_string("syncrecordtitle", "local_sync"),$url);
@@ -81,10 +83,6 @@ if($action == "delete") {
 	
 	$recordsurl = new moodle_url("/local/sync/record.php");
 	echo $OUTPUT->action_link($recordsurl, get_string("back", "local_sync"));
-}
-
-if($insert == "success") {
-	echo $OUTPUT->notification(get_string("sync_success", "local_sync"), "notifysuccess");
 }
 
 //action edit
@@ -202,7 +200,7 @@ if ($action == "view") {
 				get_string("edit", "local_sync")
 		));
 		
-		$synctable->style = array("3%", "15%", "9%", "16%", "10%", "10%", "15%", "10%", "8%", "5%");
+		$synctable->style = array("3%", "15%", "9%", "16%", "10%", "9%", "15%", "10%", "8%", "5%");
 		$synctable->no_sorting("number", "status", "edit");
 	} else if($view == "inactive") {
 		$synctable->define_columns(array(
@@ -237,16 +235,16 @@ if ($action == "view") {
 				get_string("delete", "local_sync")
 		));
 		
-		$synctable->style = array("3%", "10%", "9%", "9%", "10%", "10%", "10%", "10%", "8%", "4%", "6%", "6%", "5%");
+		$synctable->style = array("3%", "10%", "9%", "9%", "10%", "10%", "10%", "10%", "6%", "4%", "6%", "6%", "5%");
 		$synctable->no_sorting("number", "status", "manual", "self", "edit", "delete");
 	}
 	
 	$synctable->sortable(true, "timecreated", SORT_DESC);
 	$synctable->setup();
 	if ($synctable->get_sql_sort()) {
-		$sort = 'ORDER BY '. $synctable->get_sql_sort();
+		$sort = "ORDER BY ". $synctable->get_sql_sort();
 	} else {
-		$sort = '';
+		$sort = "";
 	}
 	
 	list($where, $params) = $synctable->get_sql_where();
@@ -262,8 +260,6 @@ if ($action == "view") {
 	if ($where) {
 		$where = "WHERE ". $where;
 	}
-	
-	$querycount = "SELECT count(*) FROM {sync_data} AS s";
 
 	$query = "SELECT s.id AS id,
 		s.timecreated,
@@ -283,20 +279,28 @@ if ($action == "view") {
 	$datos = $DB->get_records_sql($query,
 			$params,
 			$page * $perpage,
-			($page + 1) * $perpage);
+			($page + 1) * $perpage
+	);
 
-	$synccount = $DB->count_records_sql($querycount, $params);
+	$querycount = "SELECT count(*) 
+			FROM {sync_data} AS s
+			WHERE status = ?";
+	$countenable = $DB->count_records_sql($querycount, array(1));
+	$countdisable = $DB->count_records_sql($querycount, array(0));;
 	
 	foreach($datos as $dato){	 
 		//Define activation icon and url
 		if ($dato->status == 1){
 			$activateicon_sync = new pix_icon("e/preview", get_string("deactivate", "local_sync"));
 			$actionsent = "deactivate";
+			$pop = new confirm_action(get_string("activesync", "local_sync"));
 		}
 		else if ($dato->status == 0){
 			$activateicon_sync = new pix_icon("e/accessibility_checker", get_string("activate","local_sync"));
 			$actionsent = "activate";
+			$pop = new confirm_action(get_string("desactivatesync", "local_sync"));
 		}
+		
 		$activateurl_sync= new moodle_url("/local/sync/record.php", array(
 				"action" => $actionsent,
 				"syncid" => $dato->id
@@ -305,7 +309,7 @@ if ($action == "view") {
 		$activatection_sync = $OUTPUT->action_icon(
 				$activateurl_sync,
 				$activateicon_sync,
-				new confirm_action(get_string("deletesync", "local_sync"))
+				$pop
 		);
 		
 		//Define manual_unsub icon and url
@@ -318,7 +322,7 @@ if ($action == "view") {
 		$manualaction_sync = $OUTPUT->action_icon(
 				$manualurl_sync,
 				$manualicon_sync,
-				new confirm_action(get_string("deletesync", "local_sync"))
+				new confirm_action(get_string("deletemanual", "local_sync"))
 		);
 		
 		//Define icon and url to eliminate self enrolled
@@ -331,7 +335,7 @@ if ($action == "view") {
 		$selfaction_sync = $OUTPUT->action_icon(
 				$selfurl_sync,
 				$selficon_sync,
-				new confirm_action(get_string("deletesync", "local_sync"))
+				new confirm_action(get_string("deleteself", "local_sync"))
 		);
 		
 		$editurl_sync = new moodle_url("/local/sync/record.php", array(
@@ -378,11 +382,47 @@ if ($action == "view") {
 		$synctable->add_data($extra);
 		$tablecount++;
 	}
-
+	if($insert == "success") {
+		$datasql = "SELECT d.id,
+				d.academicperiodname,
+				c.name,
+				d.status
+				FROM {course_categories} AS c INNER JOIN {sync_data} AS d 
+				ON (c.id = d.categoryid AND d.id = ?)";
+		$data = $DB->get_record_sql($datasql, array($dataid));
+		$datastatus = ($data->status == 0) ? "desactivada" : "activada";
+		$successtext = ". ";
+		$successtext .= get_string("status", "local_sync");
+		$successtext .= html_writer::nonempty_tag(
+				"b",
+				" ".$datastatus
+		);
+		$successtext .= ". ";
+		$successtext .= get_string("category", "local_sync");
+		$successtext .= html_writer::nonempty_tag(
+				"b",
+				" ".$data->name
+		);
+		$successtext .= " - ";
+		$successtext .= get_string("omega", "local_sync");
+		$successtext .= html_writer::nonempty_tag(
+				"b",
+				" ".$data->academicperiodname."."
+		);
+				
+		echo $OUTPUT->notification(get_string("sync_success", "local_sync").$successtext, "notifysuccess");
+	}
+	
 	$synctable->finish_html();
-	echo $OUTPUT->paging_bar($synccount, $page, $perpage,
-			$CFG->wwwroot . '/local/sync/record.php');
+	
+	if($view == "active") {
+		echo $OUTPUT->paging_bar($countenable, $page, $perpage,
+			$CFG->wwwroot . '/local/sync/record.php?view=active');
+	} else if($view == "inactive") {
+		echo $OUTPUT->paging_bar($countdisable, $page, $perpage,
+			$CFG->wwwroot . '/local/sync/record.php?view=inactive');
+	}
+	
 }
 
-//fin de la pagina	
 echo $OUTPUT->footer();
