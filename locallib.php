@@ -68,7 +68,7 @@ function sync_getusers_fromomega($academicids, $syncinfo){
 		$insertdata->user = strtolower($user->Email);
 		$insertdata->role = $user->Tipo;
 	
-		if($insertdata->course != NULL){
+		if($insertdata->course != NULL && $insertdata->role != NULL){
 			$users[] = $insertdata;
 			$syncinfo[$academicid]["enrol"] += 1;
 		}
@@ -227,11 +227,9 @@ function sync_delete_enrolments($enrol, $categoryid){
 	if($enrol == "manual" || $enrol == "self") {
 		$sql = "SELECT ue.id
 				FROM {user_enrolments} AS ue
-				INNER JOIN {enrol} AS e ON (e.id = ue.enrolid)
+				INNER JOIN {enrol} AS e ON (e.id = ue.enrolid AND e.enrol = ?)
 				INNER JOIN {course} AS c ON (c.id = e.courseid)
-				INNER JOIN {course_categories} AS cc ON (cc.id = c.category)
-				WHERE e.enrol = ?
-				AND cc.id = ?";
+				INNER JOIN {course_categories} AS cc ON (cc.id = c.category AND cc.id = ?)";
 	
 		$todelete = $DB->get_records_sql($sql, array($enrol, $categoryid));
 		
@@ -306,10 +304,9 @@ function sync_validate_deletion($syncid) {
 					c.fullname AS coursefullname,
 					c.shortname AS courseshortname
 					FROM {sync_data} AS sd
-					INNER JOIN {course} AS c ON (sd.categoryid = c.category)
+					INNER JOIN {course} AS c ON (sd.categoryid = c.category AND c.category = ?)
 					INNER JOIN {enrol} AS e ON (c.id = e.courseid)
 					INNER JOIN {user_enrolments} AS ue ON (e.id = ue.enrolid)
-					WHERE sd.categoryid = ?
 					GROUP BY c.id";
 			
 			$enrolmentsparams = array($categoryid);
@@ -322,11 +319,9 @@ function sync_validate_deletion($syncid) {
 					c.fullname AS coursefullname,
 					c.shortname AS courseshortname
 					FROM {sync_data} AS sd
-					INNER JOIN {course} AS c ON (sd.categoryid = c.category)
+					INNER JOIN {course} AS c ON (sd.categoryid = c.category AND c.category = ?)
 					INNER JOIN {course_modules} AS cm ON (c.id = cm.course)
-					INNER JOIN {modules} AS m ON (m.id = cm.module)
-					WHERE sd.categoryid = ?
-					AND m.name != ?
+					INNER JOIN {modules} AS m ON (m.id = cm.module AND m.name <> ?)
 					GROUP BY c.id";
 			
 			$modulesparams = array($categoryid, MODULE_FORUM);

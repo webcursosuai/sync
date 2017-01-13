@@ -27,21 +27,20 @@
 * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
 */
 
-//Configuraciones globales
 require_once(dirname(dirname(dirname(__FILE__))) . '/config.php');
 require_once ($CFG->dirroot . "/local/sync/locallib.php");
 require_once($CFG->libdir . '/tablelib.php');
 require_once($CFG->dirroot . "/local/sync/forms/edit_form.php");
 global $CFG, $DB, $OUTPUT, $PAGE;
 
-$page = optional_param('page', 0, PARAM_INT);
-$perpage = 10;
 $insert = optional_param("insert", "", PARAM_TEXT);
 $action = optional_param("action", "view", PARAM_TEXT);
 $syncid = optional_param("syncid", null, PARAM_INT);
 $unenrol = optional_param("unenrol", null, PARAM_TEXT);
 $view = optional_param("view", "active", PARAM_TEXT);
 $dataid = optional_param("dataid", 0, PARAM_INT);
+$page = optional_param('page', 0, PARAM_INT);
+$perpage = 10;
 
 // User must be logged in.
 require_login();
@@ -149,11 +148,11 @@ if ($action == "manual" || $action == "self") {
 			list($success, $message) = sync_delete_enrolments($action, $checkstatus->categoryid);
 		} else {
 			$success = false;
-			$message = $OUTPUT->notification(get_string("unenrol_error_status", "local_sync"));
+			$message .= $OUTPUT->notification(get_string("unenrol_error_status", "local_sync"));
 		}
 	} else {
 		$success = false;
-		$message = $OUTPUT->notification(get_string("unenrol_fail", "local_sync"));
+		$message .= $OUTPUT->notification(get_string("unenrol_fail", "local_sync"));
 	}
 	$action = "view";
 }
@@ -366,8 +365,14 @@ if ($action == "view") {
 		$extra[] = date("Y-m-d", $dato->timecreated);
 		$extra[] = $dato->academicperiodname;
 		$extra[] = $dato->academicperiodid;
-		$extra[] = $dato->category;
-		$extra[] = $dato->categoryid;
+		$extra[] = $OUTPUT->action_link(
+				new moodle_url($CFG->wwwroot."/course/index.php", array("categoryid" => $dato->categoryid)),
+				$dato->category
+		);
+		$extra[] = $OUTPUT->action_link(
+				new moodle_url($CFG->wwwroot."/course/index.php", array("categoryid" => $dato->categoryid)),
+				$dato->categoryid
+		);
 		$extra[] = $dato->campus;
 		$extra[] = $dato->responsible;
 		$extra[] = $activatection_sync;
