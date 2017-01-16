@@ -74,7 +74,11 @@ else if($creationdata = $addform->get_data()) {
 	$record->academicperiodname = $perioddata[4];
 	$record->categoryid = $creationdata->category;
 	$record->campus = $perioddata[1];
-	$record->campusshort = explode("-", $perioddata[1])[1];
+	if(isset(explode("-", $perioddata[1])[1])){
+		$record->campusshort = explode("-", $perioddata[1])[1];
+	}else{
+		$record->campusshort = $perioddata[1];
+	}
 	$record->type = $perioddata[2];
 	$record->year = $perioddata[3];
 	$record->semester = $perioddata[5];

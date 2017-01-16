@@ -64,8 +64,12 @@ function sync_getusers_fromomega($academicids, $syncinfo){
 	foreach($result as $user) {
 		$insertdata = new stdClass();
 		$academicid = $user->PeriodoAcademicoId;
-		$insertdata->course = $academicdbycourseid[$user->SeccionId];
-		$insertdata->user = strtolower($user->Email);
+		if(!isset($academicdbycourseid[$user->SeccionId]) || empty($academicdbycourseid[$user->SeccionId])){
+			$insertdata->course = NULL;
+		}else{
+			$insertdata->course = $academicdbycourseid[$user->SeccionId];
+		}
+		$insertdata->user = strtolower(explode("@", $user->Email)[0]);
 		$insertdata->role = $user->Tipo;
 	
 		if($insertdata->course != NULL && $insertdata->role != NULL){
