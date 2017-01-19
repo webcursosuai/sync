@@ -31,7 +31,7 @@ require_once(dirname(dirname(dirname(__FILE__))) . '/config.php');
 require_once($CFG->libdir . "/tablelib.php");
 require_once ($CFG->dirroot . "/local/sync/locallib.php");
 require_once($CFG->dirroot . "/local/sync/forms/edit_form.php");
-global $CFG, $DB, $OUTPUT, $PAGE;
+global $CFG, $DB, $OUTPUT, $PAGE, $USER;
 
 // User must be logged in.
 require_login();
@@ -45,7 +45,8 @@ $syncid = optional_param("syncid", null, PARAM_INT);
 $unenrol = optional_param("unenrol", null, PARAM_TEXT);
 $view = optional_param("view", "active", PARAM_TEXT);
 $dataid = optional_param("dataid", 0, PARAM_INT);
-$page = optional_param('page', 0, PARAM_INT);
+$page = optional_param("page", 0, PARAM_INT);
+$sesskey = optional_param("sesskey", "", PARAM_ALPHANUM);
 $perpage = 10;
 
 //User needs capability to access
@@ -63,7 +64,7 @@ $PAGE->set_pagelayout("standard");
 $PAGE->set_title(get_string("sync_page", "local_sync"));
 $PAGE->set_heading(get_string("sync_heading", "local_sync"));
 
-if($action == "delete") {
+if($action == "delete" && $USER->sesskey == $sesskey) {
 	echo $OUTPUT->header();
 	echo $OUTPUT->heading(get_string("delete", "local_sync"));
 	
@@ -83,7 +84,7 @@ if($action == "delete") {
 	echo $OUTPUT->action_link($recordsurl, get_string("back", "local_sync"));
 }
 
-if ($action == "edit") {
+if ($action == "edit" && $USER->sesskey == $sesskey) {
 	if ($syncid == null) {
 		print_error(get_string("syncdoesnotexist", "local_sync"));
 		$action = "view";
@@ -113,13 +114,13 @@ if ($action == "edit") {
 	}
 }
 
-if($action == "activate") {
+if($action == "activate" && $USER->sesskey == $sesskey) {
 	$updatedata = new stdClass();	
 	$updatedata->id = $syncid;
 	$updatedata->status = 1;
 	$DB->update_record("sync_data", $updatedata);
 	$action = "view";
-} else if($action == "deactivate") {
+} else if($action == "deactivate" && $USER->sesskey == $sesskey) {
 	$updatedata = new stdClass();	
 	$updatedata->id = $syncid;
 	$updatedata->status = 0;
@@ -127,7 +128,7 @@ if($action == "activate") {
 	$action = "view";
 }
 
-if ($action == "manual" || $action == "self") {
+if (($action == "manual" || $action == "self") && $USER->sesskey == $sesskey) {
 	$success = false;
 	if ($checkstatus = $DB->get_record("sync_data", array("id" => $syncid))) {
 		if ($checkstatus->status == 0) {
@@ -161,7 +162,7 @@ if ($action == "view") {
 	
 	$tablecount = 10 * $page;
 	$synctable = new flexible_table("sync");
-	$synctable->define_baseurl(new moodle_url("/local/sync/record.php"));
+	$synctable->define_baseurl(new moodle_url("/local/sync/record.php"), array("view" => $view));
 	
 	if($view == "active") {
 		$synctable->define_columns(array(
@@ -315,7 +316,8 @@ if ($action == "view") {
 		
 		$activateurl_sync= new moodle_url("/local/sync/record.php", array(
 				"action" => $actionsent,
-				"syncid" => $dato->id
+				"syncid" => $dato->id,
+				"sesskey" => $USER->sesskey
 		));
 		
 		$activatection_sync = $OUTPUT->action_icon(
@@ -327,7 +329,9 @@ if ($action == "view") {
 		//Define manual_unsub icon and url
 		$manualurl_sync= new moodle_url("/local/sync/record.php", array(
 				"action" => "manual",
-				"syncid" => $dato->id
+				"syncid" => $dato->id,
+				"sesskey" => $USER->sesskey,
+				"view" => "inactive"
 		));
 		
 		$manualicon_sync = new pix_icon("t/delete", get_string("unenrol","local_sync"));
@@ -340,7 +344,9 @@ if ($action == "view") {
 		//Define icon and url to eliminate self enrolled
 		$selfurl_sync= new moodle_url("/local/sync/record.php", array(
 				"action" => "self",
-				"syncid" => $dato->id
+				"syncid" => $dato->id,
+				"sesskey" => $USER->sesskey,
+				"view" => "inactive"
 		));
 		
 		$selficon_sync = new pix_icon("t/delete", get_string("unenrol","local_sync"));
@@ -352,7 +358,8 @@ if ($action == "view") {
 		
 		$editurl_sync = new moodle_url("/local/sync/record.php", array(
 				"action" => "edit",
-				"syncid" => $dato->id
+				"syncid" => $dato->id,
+				"sesskey" => $USER->sesskey
 		));
 		
 		$editicon_sync = new pix_icon("i/edit", "Editar");
@@ -365,7 +372,9 @@ if ($action == "view") {
 		$deleteicon = new pix_icon("t/delete", get_string("delete_detail", "local_sync"));
 		$deleteurl = new moodle_url("/local/sync/record.php", array(
 				"action" => "delete",
-				"syncid" => $dato->id
+				"syncid" => $dato->id,
+				"sesskey" => $USER->sesskey,
+				"view" => "inactive"
 		));
 		$deleteaction = $OUTPUT->action_icon(
 				$deleteurl,
