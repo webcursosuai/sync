@@ -37,8 +37,6 @@ class sync_editmodule_form extends moodleform {
 		$instance = $this->_customdata;
 		$syncdata = $instance["datossync"];
 	
-		//edit form
-		//responsible
 		$mform->addElement("text", "responsible", get_string("in_charge", "local_sync"));
 		$mform->setDefault("responsible",$syncdata->responsible);
 		$mform->setType("responsible", PARAM_TEXT);                  
@@ -51,21 +49,18 @@ class sync_editmodule_form extends moodleform {
 		
 		$this->add_action_buttons(true);
 	}
-	//validacion de uso del formulario
 	public function validation($data, $files) {
 		global $DB;
 		$errors = array();
 		
-		$responsible = $data["responsible"];
-		
+		$responsible = $data["responsible"];	
 		if($responsible != "") {
 			if(explode("@", $responsible)[1] != "uai.cl") {
 				$errors["responsible"] = get_string("error_responsible_invalid", "local_sync");
 			} else if(!$DB->record_exists("user", array("email" => $responsible))) {
 				$errors["responsible"] = get_string("error_responsible_nonexistent", "local_sync");
 			}
-		}
-		
+		}	
 		return $errors;
 	}
 }

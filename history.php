@@ -18,16 +18,20 @@
  * @package local
  * @subpackage sync
  * @copyright Javier Gonzalez (javiergonzalez@alumnos.uai.cl)
+ * @copyright Hans Jeria (hansjeria@gmail.com)
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-
 require_once(dirname(__FILE__) . '/../../config.php');
-require_once($CFG->dirroot."/local/sync/locallib.php");
-require "$CFG->libdir/tablelib.php";
+require_once($CFG->libdir . "/tablelib.php");
+require_once($CFG->dirroot . "/local/sync/locallib.php");
 global $PAGE, $CFG, $OUTPUT, $DB;
 
+// User must be logged in.
 require_login();
+if (isguestuser()) {
+    die();
+}
 
 $dataid = optional_param("dataid", 1, PARAM_INT);
 $tsort = optional_param('tsort', '', PARAM_ALPHA);
@@ -37,22 +41,19 @@ $perpage = 10;
 
 $url = new moodle_url('/local/sync/history.php');
 $context = context_system::instance();
-
-$PAGE->navbar->add(get_string("sync_title", "local_sync"));
-$PAGE->navbar->add(get_string("h_tabletitle", "local_sync"),$url);
-$PAGE->set_context($context);
-//User needs capability to access
 if(!has_capability("local/sync:history", $context)) {
 	print_error("ACCESS DENIED");
 }
+$PAGE->navbar->add(get_string("sync_title", "local_sync"));
+$PAGE->navbar->add(get_string("h_tabletitle", "local_sync"),$url);
+$PAGE->set_context($context);
 $PAGE->set_url($url);
 $PAGE->set_pagelayout('standard');
 $PAGE->set_title(get_string("h_title", "local_sync"));
 $PAGE->set_heading(get_string("h_title", "local_sync"));
 
 $table = new html_table("p"); 
-
-$table->head =array(
+$table->head = array(
 		get_string("h_id", "local_sync"),
 		get_string("h_catid", "local_sync"),
 		get_string("h_catname", "local_sync"),
@@ -62,7 +63,6 @@ $table->head =array(
 		get_string("h_synccourses", "local_sync"),
 		get_string("h_syncenrols", "local_sync")
 );
-
 $table->size = array(
 		"7%",
 		"7%",
@@ -107,7 +107,6 @@ foreach($lastthirtysync as $last){
 			$last->countenrols
 	);
 }
-
 
 echo $OUTPUT->header();
 echo $OUTPUT->heading(get_string("h_tabletitle", "local_sync"));

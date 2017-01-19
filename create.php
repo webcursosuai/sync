@@ -26,12 +26,9 @@
 * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
 */
 
-//Configuraciones globales
 require_once(dirname(dirname(dirname(__FILE__))) . "/config.php");
-require_once ($CFG->dirroot . "/repository/lib.php");
 require_once($CFG->dirroot . "/local/sync/forms/sync_form.php");
 global $CFG, $DB, $OUTPUT, $PAGE;
-
 
 // User must be logged in.
 require_login();
@@ -39,16 +36,15 @@ if (isguestuser()) {
     die();
 }
 
-//Pagina moodle basico
-$context = context_system::instance();
+$insert = optional_param("insert", "", PARAM_TEXT);
 
+$context = context_system::instance();
 // Blocks access if user doesn't have capability to create synchronizations
 if(!has_capability("local/sync:create", $context)) {
 	print_error("ACCESS DENIED");
 }
 
 $url = new moodle_url("/local/sync/create.php");
-
 $PAGE->navbar->add(get_string("sync_title", "local_sync"));
 $PAGE->navbar->add(get_string("sync_subtitle", "local_sync"),$url);
 $PAGE->set_context($context);
@@ -56,8 +52,6 @@ $PAGE->set_url($url);
 $PAGE->set_pagelayout("standard");
 $PAGE->set_title(get_string("sync_page", "local_sync"));
 $PAGE->set_heading(get_string("sync_heading", "local_sync"));
-
-$insert = optional_param("insert", "", PARAM_TEXT);
 
 $addform = new sync_form();
 

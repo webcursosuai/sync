@@ -37,10 +37,8 @@ class sync_form extends moodleform {
 		global $CFG, $DB, $OUTPUT;
 		
 		$mform = $this->_form;
-		
-		// Select academic period
-		$result = sync_getacademicperiodids_fromomega();
-		
+
+		$result = sync_getacademicperiodids_fromomega();		
 		if(count($result) == 0) {
 			echo $OUTPUT->notification(get_string("error_communication", "local_sync"));
 		} else {
@@ -70,10 +68,7 @@ class sync_form extends moodleform {
 			
 			$mform->addElement("select", "period", get_string("omega","local_sync"), $options);
 			$mform->setType("period" , PARAM_TEXT);
-			
-			//Link Periodos
-			
-			//select Webcursos
+
 			$categoriessql = "SELECT cc.id AS id,
 					cc.name AS name,
 					cc.path AS path
@@ -118,7 +113,6 @@ class sync_form extends moodleform {
 			$mform->addElement("select", "status", get_string("status", "local_sync"), $statusoptions);
 			$mform->setType("status", PARAM_INT);
 			
-			//text area encargado
 			$mform->addElement("text", "responsible", get_string("in_charge", "local_sync")); 
 	        $mform->setType("responsible", PARAM_NOTAGS);
 	        $mform->addHelpButton("responsible", "in_charge", "local_sync");

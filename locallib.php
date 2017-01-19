@@ -31,19 +31,16 @@ function sync_getusers_fromomega($academicids, $syncinfo){
 	
 	$curl = curl_init();
 	$url = $CFG->sync_urlgetalumnos;
-	$token = $CFG->sync_token;
-	
+	$token = $CFG->sync_token;	
 	$fields = array(
 			"token" => $token,
 			"PeriodosAcademicos" => $academicids
-	);
-	
+	);	
 	curl_setopt($curl, CURLOPT_URL, $url);
 	curl_setopt($curl, CURLOPT_RETURNTRANSFER, TRUE);
 	curl_setopt($curl, CURLOPT_POST, TRUE);
 	curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($fields));
-	curl_setopt($curl, CURLOPT_HTTPHEADER, array("Content-Type: application/json"));
-	
+	curl_setopt($curl, CURLOPT_HTTPHEADER, array("Content-Type: application/json"));	
 	$result = json_decode(curl_exec($curl));
 	curl_close($curl);
 	
@@ -76,8 +73,7 @@ function sync_getusers_fromomega($academicids, $syncinfo){
 			$users[] = $insertdata;
 			$syncinfo[$academicid]["enrol"] += 1;
 		}
-	}
-	
+	}	
 	return array($users, $syncinfo);
 }
 
@@ -87,18 +83,15 @@ function sync_getcourses_fromomega($academicids, $syncinfo){
 	$curl = curl_init();
 	$url = $CFG->sync_urlgetcursos;
 	$token = $CFG->sync_token;
-
 	$fields = array(
 			"token" => $token,
 			"PeriodosAcademicos" => $academicids
 	);
-
 	curl_setopt($curl, CURLOPT_URL, $url);
 	curl_setopt($curl, CURLOPT_RETURNTRANSFER, TRUE);
 	curl_setopt($curl, CURLOPT_POST, TRUE);
 	curl_setopt($curl, CURLOPT_POSTFIELDS,json_encode($fields));
 	curl_setopt($curl, CURLOPT_HTTPHEADER, array("Content-Type: application/json"));
-
 	$result = json_decode(curl_exec($curl));
 	curl_close($curl);
 
@@ -109,17 +102,13 @@ function sync_getcourses_fromomega($academicids, $syncinfo){
 		// Format ISO-8859-1 Fullname
 		$insertdata->fullname = $course->FullName;
 		// Validate encode Fullname
-		//mtrace(mb_detect_encoding($course->FullName,"ISO-8859-1, GBK, UTF-8"));
-		
+		//mtrace(mb_detect_encoding($course->FullName,"ISO-8859-1, GBK, UTF-8"));		
 		$insertdata->shortname = $course->ShortName;
 		$insertdata->idnumber = $course->SeccionId;
 		$insertdata->categoryid = $syncinfo[$course->PeriodoAcademicoId]["categoryid"];
-
-		$courses[] = $insertdata;
-		
+		$courses[] = $insertdata;		
 		$syncinfo[$course->PeriodoAcademicoId]["course"] += 1;
 	}
-
 	return array($courses, $syncinfo);
 }
 
@@ -153,15 +142,13 @@ function sync_getacademicbycourseids($coursesids){
 	global $DB;
 	
 	// get_in_or_equal used after in the IN ('') clause of multiple querys
-	list($sqlin, $param) = $DB->get_in_or_equal($coursesids);
-	
+	list($sqlin, $param) = $DB->get_in_or_equal($coursesids);	
 	$sqlgetacademic = "SELECT c.id, 
 			c.shortname, 
 			c.idnumber, 
 			s.academicperiodid
 			FROM {sync_course} AS c INNER JOIN {sync_data} AS s ON (c.dataid = s.id)
 			WHERE c. idnumber $sqlin";
-	
 	$academicinfo = $DB->get_records_sql($sqlgetacademic, $param);
 	// Check the version to use the corrects functions
 	if(PHP_MAJOR_VERSION < 7){
@@ -180,18 +167,15 @@ function sync_getacademicperiodids_fromomega() {
 	
 	$curl = curl_init();
 	$url = $CFG->sync_urlgetacademicperiods;
-	$token = $CFG->sync_token;
-	
+	$token = $CFG->sync_token;	
 	$fields = array(
 			"token" => $token
-	);
-		
+	);		
 	curl_setopt($curl, CURLOPT_URL, $url);
 	curl_setopt($curl, CURLOPT_RETURNTRANSFER, TRUE);
 	curl_setopt($curl, CURLOPT_POST, TRUE);
 	curl_setopt($curl, CURLOPT_POSTFIELDS,json_encode($fields));
 	curl_setopt($curl, CURLOPT_HTTPHEADER, array("Content-Type: application/json"));
-	
 	$result = json_decode(curl_exec($curl));
 	curl_close($curl);
 	
@@ -218,7 +202,6 @@ function sync_tabs() {
 			new moodle_url("/local/sync/history.php"),
 			get_string("history", "local_sync")
 	);
-
 	return $tabs;
 }
 
@@ -234,7 +217,6 @@ function sync_delete_enrolments($enrol, $categoryid){
 				INNER JOIN {enrol} AS e ON (e.id = ue.enrolid AND e.enrol = ?)
 				INNER JOIN {course} AS c ON (c.id = e.courseid)
 				INNER JOIN {course_categories} AS cc ON (cc.id = c.category AND cc.id = ?)";
-	
 		$todelete = $DB->get_records_sql($sql, array($enrol, $categoryid));
 		
 		$userenrolmentsid = array();
@@ -270,7 +252,6 @@ function sync_deletecourses($syncid) {
 	$data = $DB->get_record("sync_data", array(
 			"id" => $syncid
 	));
-	
 	$categoryid = $data->categoryid;
 	
 	if($categoryid != 0) {
@@ -291,16 +272,15 @@ function sync_validate_deletion($syncid) {
 	if($syncdata = $DB->get_record("sync_data", array(
 			"id" => $syncid
 		))) {
-		$categoryid = $syncdata->categoryid;
-	
-		// Categoría sin hijos
+		$categoryid = $syncdata->categoryid;	
+		// Category without children
 		if($DB->record_exists("course_categories", array(
 				"parent" => $categoryid
 		))) {
 			$capable = false;
 			$message .= $OUTPUT->notification(get_string("category_haschildren", "local_sync"));
 		} else {
-			// Cursos sin gente enrolada
+			// Course without users
 			$enrolmentssql = "SELECT ue.id,
 					COUNT(ue.id) AS instances,
 					sd.academicperiodid AS periodid,
@@ -314,8 +294,7 @@ function sync_validate_deletion($syncid) {
 					GROUP BY c.id";
 			
 			$enrolmentsparams = array($categoryid);
-	
-			// Cursos sin módulos aparte del foro principal
+			// Course without modules
 			$modulessql = "SELECT cm.id,
 					COUNT(cm.id) AS instances,
 					sd.academicperiodid AS periodid,
@@ -327,7 +306,6 @@ function sync_validate_deletion($syncid) {
 					INNER JOIN {course_modules} AS cm ON (c.id = cm.course)
 					INNER JOIN {modules} AS m ON (m.id = cm.module AND m.name <> ?)
 					GROUP BY c.id";
-			
 			$modulesparams = array($categoryid, MODULE_FORUM);
 			
 			$enrolments = $DB->get_records_sql($enrolmentssql, $enrolmentsparams);
@@ -378,14 +356,12 @@ function sync_validate_deletion($syncid) {
 	} else {
 		$capable = false;
 		$message .= $OUTPUT->notification(get_string("courses_missingid", "local_sync"));
-	}
-		
+	}		
 	return array($capable, $message);
 }
 
 function sync_records_tabs() {
 	$tabs = array();
-	
 	// Active
 	$tabs[] = new tabobject(
 			"active",
@@ -393,8 +369,7 @@ function sync_records_tabs() {
 					"view" => "active"
 			)),
 			get_string("active", "local_sync")
-	);
-	
+	);	
 	// Inactive
 	$tabs[] = new tabobject(
 			"inactive",
@@ -402,7 +377,6 @@ function sync_records_tabs() {
 					"view" => "inactive"
 			)),
 			get_string("inactive", "local_sync")
-	);
-	
+	);	
 	return $tabs;
 }

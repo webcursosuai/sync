@@ -29,15 +29,6 @@ if ($hassiteconfig) {
 	$settings = new admin_settingpage('local_sync', 'Sync Omega');
 
 	$ADMIN->add('localplugins', $settings);
-	/*
-	 $settings->add(new admin_setting_configtext(
-	 	name for $CFG - example $CFG->appname,
-	 	Text for field,
-	 	Description text,
-	 	Default value,
-	 	Type value - example PARAM_TEXT
-	 ));
-	 */
 	$settings->add(
 			new admin_setting_configtext(
 				"sync_token",
@@ -45,8 +36,7 @@ if ($hassiteconfig) {
 				get_string("tokendesc", "local_sync"),
 				"",
 				PARAM_ALPHANUM
-	));
-	
+	));	
 	$settings->add(
 			new admin_setting_configtext(
 				"sync_urlgetalumnos",
@@ -63,8 +53,7 @@ if ($hassiteconfig) {
 				get_string("urlgetcursosdesc", "local_sync"),
 				"",
 				PARAM_URL
-	));
-	
+	));	
 	$settings->add(
 			new admin_setting_configtext(
 				"sync_urlgetacademicperiods",
