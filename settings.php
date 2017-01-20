@@ -62,4 +62,12 @@ if ($hassiteconfig) {
 				"",
 				PARAM_URL
 	));
+	$settings->add(
+			new admin_setting_configtext(
+				"sync_execcommand",
+				get_string("urlexeccommand", "local_sync"),
+				get_string("urlexeccommanddesc", "local_sync"),
+				"",
+				PARAM_URL
+			));
 }

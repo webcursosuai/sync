@@ -98,8 +98,9 @@ if($academicids){
 	}
 		
 	$DB->insert_records("sync_history", $historyrecords);
-	//exec("/Applications/MAMP/bin/php/php7.0.0/bin/php /Applications/MAMP/htdocs/moodle/enrol/database/cli/sync.php");
-	exec("/usr/bin/php /Datos/moodle/moodle/enrol/database/cli/sync.php ");
+	// exec("/Applications/MAMP/bin/php/php7.0.0/bin/php /Applications/MAMP/htdocs/moodle/enrol/database/cli/sync.php");
+	// exec("/usr/bin/php /Datos/moodle/moodle/enrol/database/cli/sync.php");
+	exec($CFG->sync_execcommand);
 }else{
 	mtrace("No se encontraron Periodos académicos activos para sincronizar.");
 }

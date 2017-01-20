@@ -92,6 +92,8 @@ $string["urlgetcursos"] = "Url GetCursos Service";
 $string["urlgetcursosdesc"] = "Url Omega Webapi to get courses to sync.";
 $string["urlgetacademicperiods"] = "Url GetPeriodosAcademicos service";
 $string["urlgetacademicperiodsdesc"] = "Url Omega Webapi to get academic periods to sync.";
+$string["urlexeccommand"] = "Command execution CLI enrol database.";
+$string["urlexeccommanddesc"] = "CLI, example usr/bin/php /Datos/moodle/moodle/enrol/database/cli/sync.php";
 
 // Functions outputs
 $string["category_haschildren"] = "The selected synchronization's category has other children categories and cannot be deleted.";
