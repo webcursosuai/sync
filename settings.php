@@ -68,6 +68,6 @@ if ($hassiteconfig) {
 				get_string("urlexeccommand", "local_sync"),
 				get_string("urlexeccommanddesc", "local_sync"),
 				"",
-				PARAM_URL
+				PARAM_TEXT
 			));
 }
