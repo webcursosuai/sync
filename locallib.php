@@ -106,8 +106,10 @@ function sync_getcourses_fromomega($academicids, $syncinfo){
 		$insertdata->shortname = $course->ShortName;
 		$insertdata->idnumber = $course->SeccionId;
 		$insertdata->categoryid = $syncinfo[$course->PeriodoAcademicoId]["categoryid"];
-		$courses[] = $insertdata;		
-		$syncinfo[$course->PeriodoAcademicoId]["course"] += 1;
+		if($insertdata->fullname != NULL && $insertdata->shortname != NULL && $insertdata->idnumber != NULL){
+			$courses[] = $insertdata;		
+			$syncinfo[$course->PeriodoAcademicoId]["course"] += 1;
+		}
 	}
 	return array($courses, $syncinfo);
 }
