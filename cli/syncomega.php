@@ -57,13 +57,11 @@ if($options['help']) {
 cli_heading('Omega Sync'); // TODO: localize
 echo "\nStarting at ".date("F j, Y, G:i:s")."\n";
 
-
 // Get all ID from each academic period with status is active
 list($academicids, $syncinfo) = sync_getacademicperiod();
 
 // Check we have
-if($academicids){
-		
+if($academicids){		
 	// Courses from Omega
 	list($courses, $syncinfo) = sync_getcourses_fromomega($academicids, $syncinfo);
 	// Delete previous courses
@@ -72,8 +70,7 @@ if($academicids){
 	} else {
 		// Insert the  courses
 		$DB->insert_records("sync_course", $courses);
-	}
-		
+	}		
 	// Users from Omega
 	list($users, $syncinfo) = sync_getusers_fromomega($academicids, $syncinfo);
 	// Delete previous enrol
@@ -81,8 +78,7 @@ if($academicids){
 		mtrace("Truncate Table sync_enrol Failed");
 	}else{
 		$DB->insert_records("sync_enrol", $users);
-	}
-		
+	}		
 	// insert records in sync_history
 	$historyrecords = array();
 	$time = time();
@@ -96,15 +92,24 @@ if($academicids){
 		$historyrecords[] = $insert;
 		mtrace("Academic Period ".$academic.", Total courses ".$rowinfo["course"].", Total enrol ".$rowinfo["enrol"]."\n");
 	}
-		
 	$DB->insert_records("sync_history", $historyrecords);
-	// exec("/Applications/MAMP/bin/php/php7.0.0/bin/php /Applications/MAMP/htdocs/moodle/enrol/database/cli/sync.php");
-	// exec("/usr/bin/php /Datos/moodle/moodle/enrol/database/cli/sync.php");
-	if($CFG->sync_execcommand != NULL){
-		exec($CFG->sync_execcommand);
-	}
 }else{
 	mtrace("No se encontraron Periodos académicos activos para sincronizar.");
+	if(!$DB->execute("TRUNCATE TABLE {sync_course}")) {
+		mtrace("Truncate Table sync_course Failed");
+	}else{
+		mtrace("Truncate Table sync_course Success");
+	}
+	if(!$DB->execute("TRUNCATE TABLE {sync_enrol}")){
+		mtrace("Truncate Table sync_enrol Failed");
+	}else{
+		mtrace("Truncate Table sync_enrol Success");
+	}
+}
+// exec("/Applications/MAMP/bin/php/php7.0.0/bin/php /Applications/MAMP/htdocs/moodle/enrol/database/cli/sync.php");
+// exec("/usr/bin/php /Datos/moodle/moodle/enrol/database/cli/sync.php");
+if($CFG->sync_execcommand != NULL){
+	exec($CFG->sync_execcommand);
 }
 
 exit(0);
