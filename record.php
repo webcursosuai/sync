@@ -65,23 +65,20 @@ $PAGE->set_title(get_string("sync_page", "local_sync"));
 $PAGE->set_heading(get_string("sync_heading", "local_sync"));
 
 if($action == "delete" && $USER->sesskey == $sesskey) {
-	echo $OUTPUT->header();
-	echo $OUTPUT->heading(get_string("delete", "local_sync"));
 	
 	list($capable, $message) = sync_validate_deletion($syncid);
-	echo $message;
 
 	if($capable) {
 		if(sync_deletecourses($syncid)) {
-			echo $OUTPUT->notification(get_string("courses_delete_success", "local_sync"), "notifysuccess");
+			$message .= $OUTPUT->notification(get_string("courses_delete_success", "local_sync"), "notifysuccess");
 		} else {
-			echo $OUTPUT->notification(get_string("courses_delete_failed", "local_sync"));
+			$message .= $OUTPUT->notification(get_string("courses_delete_failed", "local_sync"));
 		}
 	} else {
-		echo $OUTPUT->notification(get_string("courses_delete_check", "local_sync"));
+		$message .= $OUTPUT->notification(get_string("courses_delete_check", "local_sync"));
 	}
 	$recordsurl = new moodle_url("/local/sync/record.php");
-	echo $OUTPUT->action_link($recordsurl, get_string("back", "local_sync"));
+	$message .= $OUTPUT->action_link($recordsurl, get_string("back", "local_sync"));
 }
 
 if ($action == "edit" && $USER->sesskey == $sesskey) {
@@ -147,7 +144,7 @@ if (($action == "manual" || $action == "self") && $USER->sesskey == $sesskey) {
 echo $OUTPUT->header();
 echo $OUTPUT->heading(get_string("synctable", "local_sync"));
 
-if($action == 'edit'){
+if($action == "edit"){
 	echo $OUTPUT->tabtree(sync_tabs(), "record");
 	$editform->display();
 }
