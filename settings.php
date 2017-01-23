@@ -63,11 +63,19 @@ if ($hassiteconfig) {
 				PARAM_URL
 	));
 	$settings->add(
+			new admin_setting_configcheckbox(
+					"sync_emailexplode",
+					get_string("emailexplode", "local_sync"),
+					get_string("emailexplodedes", "local_sync"),
+					0,
+					PARAM_BOOL
+	));
+	$settings->add(
 			new admin_setting_configtext(
 				"sync_execcommand",
 				get_string("urlexeccommand", "local_sync"),
 				get_string("urlexeccommanddesc", "local_sync"),
-				"",
+				NULL,
 				PARAM_TEXT
-			));
+	));
 }

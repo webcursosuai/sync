@@ -71,7 +71,9 @@ class sync_coursesandusers_from_omega extends \core\task\scheduled_task {
 			}			
 			$DB->insert_records("sync_history", $historyrecords);
 			// Excecute CLI moodle/enrol/database/cli/sync.php
-			exec($CFG->sync_execcommand);
+			if($CFG->sync_execcommand != NULL){
+				exec($CFG->sync_execcommand);
+			}
 		}else{
 			mtrace("No se encontraron Periodos académicos activos para sincronizar.");
 		}	
