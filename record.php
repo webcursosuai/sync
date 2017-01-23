@@ -144,7 +144,7 @@ if (($action == "manual" || $action == "self") && $USER->sesskey == $sesskey) {
 echo $OUTPUT->header();
 echo $OUTPUT->heading(get_string("synctable", "local_sync"));
 
-echo $deletemessage;
+echo (isset($deletemessage)) ? $deletemessage : "";
 
 if($action == "edit"){
 	echo $OUTPUT->tabtree(sync_tabs(), "record");
