@@ -44,8 +44,7 @@ if ($hassiteconfig) {
 				get_string("urlgetalumnosdesc", "local_sync"),
 				"",
 				PARAM_URL
-	));
-	
+	));	
 	$settings->add(
 			new admin_setting_configtext(
 				"sync_urlgetcursos",
@@ -78,4 +77,12 @@ if ($hassiteconfig) {
 				NULL,
 				PARAM_TEXT
 	));
+	$settings->add(
+			new admin_setting_configtext(
+					"sync_teachername",
+					get_string("teachername", "local_sync"),
+					get_string("teachernamedesc", "local_sync"),
+					'profesoreditor',
+					PARAM_TEXT
+			));
 }

@@ -67,7 +67,7 @@ function sync_getusers_fromomega($academicids, $syncinfo){
 			$insertdata->course = $academicdbycourseid[$user->SeccionId];
 		}
 		$insertdata->user = ($CFG->sync_emailexplode) ? strtolower(explode("@", $user->Email)[0]) : $user->Email;
-		$insertdata->role = ($user->Tipo == "EditingTeacher") ? "editingteacher" : strtolower($user->Tipo);
+		$insertdata->role = ($user->Tipo == "EditingTeacher") ? $CFG->sync_teachername : strtolower($user->Tipo);
 	
 		if($insertdata->course != NULL && $insertdata->role != NULL){
 			$users[] = $insertdata;

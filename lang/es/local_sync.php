@@ -96,7 +96,7 @@ $string["urlexeccommand"] = "Comando ejecución CLI matriculaciones database.";
 $string["urlexeccommanddesc"] = "CLI, ejemplo usr/bin/php /Datos/moodle/moodle/enrol/database/cli/sync.php";
 $string["emailexplode"] = "Explode de username";
 $string["emailexplodedes"] = "Campo de tabla mdl_user, si es el correo del usuario no habilitar.";
-
+$string["teachername"] = "Nombre corto del rol Profesor";
 
 // Functions outputs
 $string["category_haschildren"] = "La categoría de la sincronización seleccionada posee sub categorías, y no puede ser eliminada.";
