@@ -81,7 +81,7 @@ if ($hassiteconfig) {
 			new admin_setting_configtext(
 					"sync_teachername",
 					get_string("teachername", "local_sync"),
-					get_string("teachernamedesc", "local_sync"),
+					"",
 					'profesoreditor',
 					PARAM_TEXT
 			));
