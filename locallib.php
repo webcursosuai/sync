@@ -17,6 +17,7 @@
  * @package    local
  * @subpackage sync
  * @copyright  2016 Hans Jeria (hansjeria@gmail.com)
+ * @copyright  2017 Mark Michaelsen (mmichaelsen678@gmail.com)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -72,8 +73,17 @@ function sync_getusers_fromomega($academicids, $syncinfo){
 		if($insertdata->course != NULL && $insertdata->role != NULL){
 			$users[] = $insertdata;
 			$syncinfo[$academicid]["enrol"] += 1;
+		
+			$generalcoursedata = new StdClass();
+			$generalcoursedata->course = ($user->Tipo == "EditingTeacher") ? $academicid."-PROFESORES" : $academicid."-ALUMNOS";
+			$generalcoursedata->user = $insertdata->user;
+			$generalcoursedata->role = "student";
+			
+			if(!in_array($generalcoursedata, $users)) {
+				$users[] = $generalcoursedata;
+			}
 		}
-	}	
+	}
 	return array($users, $syncinfo);
 }
 
@@ -111,6 +121,27 @@ function sync_getcourses_fromomega($academicids, $syncinfo){
 			$syncinfo[$course->PeriodoAcademicoId]["course"] += 1;
 		}
 	}
+	
+	foreach($academicids as $periodid) {
+		// Build the academic period's general students course
+		$studentscourse = new StdClass();
+		$studentscourse->dataid = $syncinfo[$periodid]["dataid"];
+		$studentscourse->fullname = "Alumnos ".$syncinfo[$periodid]["periodname"];
+		$studentscourse->shortname = $periodid."-ALUMNOS";
+		$studentscourse->idnumber = NULL;
+		$studentscourse->categoryid = $syncinfo[$periodid]["categoryid"];
+		
+		// Build the academic period's general teachers course
+		$teacherscourse = new StdClass();
+		$teacherscourse->dataid = $syncinfo[$periodid]["dataid"];
+		$teacherscourse->fullname = "Profesores ".$syncinfo[$periodid]["periodname"];
+		$teacherscourse->shortname = $periodid."-PROFESORES";
+		$teacherscourse->idnumber = NULL;
+		$teacherscourse->categoryid = $syncinfo[$periodid]["categoryid"];
+		
+		$courses[] = $studentscourse;
+		$courses[] = $teacherscourse;
+	}
 	return array($courses, $syncinfo);
 }
 
@@ -131,7 +162,8 @@ function sync_getacademicperiod(){
 					"dataid" => $period->id,
 					"course" => 0,
 					"enrol" => 0,
-					"categoryid" => $period->categoryid
+					"categoryid" => $period->categoryid,
+					"periodname" => $period->academicperiodname
 			);
 		}
 		return array($academicids, $syncinfo);
