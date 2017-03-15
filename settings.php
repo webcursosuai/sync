@@ -85,4 +85,12 @@ if ($hassiteconfig) {
 					'profesoreditor',
 					PARAM_TEXT
 			));
+	$settings->add(
+			new admin_setting_configtext(
+					"sync_studentname",
+					get_string("studentname", "local_sync"),
+					"",
+					"student",
+					PARAM_TEXT
+			));
 }

@@ -58,6 +58,7 @@ function sync_getusers_fromomega($academicids, $syncinfo){
 	
 	$academicdbycourseid = sync_getacademicbycourseids($coursesids);
 	
+	mtrace("#### Adding Enrollments ####");
 	$users = array();
 	foreach($result as $user) {
 		$insertdata = new stdClass();
@@ -67,21 +68,33 @@ function sync_getusers_fromomega($academicids, $syncinfo){
 		}else{
 			$insertdata->course = $academicdbycourseid[$user->SeccionId];
 		}
-		$insertdata->user = ($CFG->sync_emailexplode) ? strtolower(explode("@", $user->Email)[0]) : $user->Email;
-		$insertdata->role = ($user->Tipo == "EditingTeacher") ? $CFG->sync_teachername : strtolower($user->Tipo);
+		$insertdata->user = ($CFG->sync_emailexplode) ? explode("@", $user->Email)[0] : $user->Email;
+		switch ($user->Tipo) {
+			case 'EditingTeacher':
+				$insertdata->role = $CFG->sync_teachername;
+				break;
+			case 'Student':
+				$insertdata->role = $CFG->sync_studentname;
+				break;
+			default:
+				$insertdata->role = $CFG->sync_studentname;
+				break;
+		};
 	
-		if($insertdata->course != NULL && $insertdata->role != NULL){
+		if($insertdata->course != NULL){
 			$users[] = $insertdata;
 			$syncinfo[$academicid]["enrol"] += 1;
+			mtrace("USER: ".$insertdata->user." TYPE: ".$insertdata->role." COURSE: ".$insertdata->course);
+		}
 		
-			$generalcoursedata = new StdClass();
-			$generalcoursedata->course = ($user->Tipo == "EditingTeacher") ? $academicid."-PROFESORES" : $academicid."-ALUMNOS";
-			$generalcoursedata->user = $insertdata->user;
-			$generalcoursedata->role = "student";
+		$generalcoursedata = new stdClass();
+		$generalcoursedata->course = ($insertdata->role == $CFG->sync_teachername) ? $academicid."-PROFESORES" : $academicid."-ALUMNOS";
+		$generalcoursedata->user = $insertdata->user;
+		$generalcoursedata->role = $CFG->sync_studentname;
 			
-			if(!in_array($generalcoursedata, $users)) {
-				$users[] = $generalcoursedata;
-			}
+		if(!in_array($generalcoursedata, $users)) {
+			$users[] = $generalcoursedata;
+			mtrace("USER: ".$insertdata->user." TYPE: ".$generalcoursedata->role." COURSE: ".$generalcoursedata->course);
 		}
 	}
 	return array($users, $syncinfo);
@@ -104,7 +117,7 @@ function sync_getcourses_fromomega($academicids, $syncinfo){
 	curl_setopt($curl, CURLOPT_HTTPHEADER, array("Content-Type: application/json"));
 	$result = json_decode(curl_exec($curl));
 	curl_close($curl);
-
+	mtrace("#### Adding Courses ####");
 	$courses = array();
 	foreach($result as $course) {
 		$insertdata = new stdClass();
@@ -119,6 +132,7 @@ function sync_getcourses_fromomega($academicids, $syncinfo){
 		if($insertdata->fullname != NULL && $insertdata->shortname != NULL && $insertdata->idnumber != NULL){
 			$courses[] = $insertdata;		
 			$syncinfo[$course->PeriodoAcademicoId]["course"] += 1;
+			mtrace("COURSE: ".$insertdata->shortname." IDNUMBER: ".$insertdata->idnumber." CATEGORY: ".$insertdata->categoryid);
 		}
 	}
 	
@@ -138,7 +152,8 @@ function sync_getcourses_fromomega($academicids, $syncinfo){
 		$teacherscourse->shortname = $periodid."-PROFESORES";
 		$teacherscourse->idnumber = NULL;
 		$teacherscourse->categoryid = $syncinfo[$periodid]["categoryid"];
-		
+		mtrace("COURSE: ".$studentscourse->shortname." CATEGORY: ".$studentscourse->categoryid);
+		mtrace("COURSE: ".$teacherscourse->shortname." CATEGORY: ".$teacherscourse->categoryid);
 		$courses[] = $studentscourse;
 		$courses[] = $teacherscourse;
 	}
@@ -152,7 +167,7 @@ function sync_getacademicperiod(){
 	$periods = $DB->get_records("sync_data", array(
 			"status" => SYNC_STATUS_ACTIVE
 	));
-	
+	mtrace("Academic Period to synchronize \n");
 	$academicids = array();
 	$syncinfo = array();
 	if(count($periods) > 0){
@@ -165,6 +180,7 @@ function sync_getacademicperiod(){
 					"categoryid" => $period->categoryid,
 					"periodname" => $period->academicperiodname
 			);
+			mtrace("ID: ".$period->academicperiodid." NAME: ".$period->academicperiodname." CATEGORY: ".$period->categoryid." \n");
 		}
 		return array($academicids, $syncinfo);
 	}else{
