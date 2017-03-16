@@ -33,10 +33,13 @@ require_once ($CFG->libdir . '/clilib.php');
 global $DB, $CFG;
 
 // Now get cli options
-list($options, $unrecognized) = cli_get_params(
-		array('help'=>false),
-		array('h'=>'help')
-);
+list($options, $unrecognized) = cli_get_params(array(
+		'help' => false,
+		'debug' => false,
+), array(
+		'h' => 'help',
+		'd' => 'debug'
+));
 if($unrecognized) {
 	$unrecognized = implode("\n  ", $unrecognized);
 	cli_error(get_string('cliunknowoption', 'admin', $unrecognized));
@@ -63,7 +66,7 @@ list($academicids, $syncinfo) = sync_getacademicperiod();
 // Check we have
 if($academicids){		
 	// Courses from Omega
-	list($courses, $syncinfo) = sync_getcourses_fromomega($academicids, $syncinfo);
+	list($courses, $syncinfo) = sync_getcourses_fromomega($academicids, $syncinfo, $options["debug"]);
 	// Delete previous courses
 	if(!$DB->execute("TRUNCATE TABLE {sync_course}")) {
 		mtrace("Truncate Table sync_course Failed");
@@ -72,7 +75,7 @@ if($academicids){
 		$DB->insert_records("sync_course", $courses);
 	}		
 	// Users from Omega
-	list($users, $syncinfo) = sync_getusers_fromomega($academicids, $syncinfo);
+	list($users, $syncinfo) = sync_getusers_fromomega($academicids, $syncinfo, $options["debug"]);
 	// Delete previous enrol
 	if(!$DB->execute("TRUNCATE TABLE {sync_enrol}")){
 		mtrace("Truncate Table sync_enrol Failed");

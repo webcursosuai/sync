@@ -27,7 +27,7 @@ define('SYNC_STATUS_INACTIVE', 0);
 define('SYNC_STATUS_ACTIVE', 1);
 define('MODULE_FORUM', 'forum');
 
-function sync_getusers_fromomega($academicids, $syncinfo){
+function sync_getusers_fromomega($academicids, $syncinfo, $options){
 	global $DB, $CFG;
 	
 	$curl = curl_init();
@@ -57,8 +57,9 @@ function sync_getusers_fromomega($academicids, $syncinfo){
 	}
 	
 	$academicdbycourseid = sync_getacademicbycourseids($coursesids);
-	
-	mtrace("#### Adding Enrollments ####");
+	if ($options) {
+		mtrace("#### Adding Enrollments ####");
+	}
 	$users = array();
 	foreach($result as $user) {
 		$insertdata = new stdClass();
@@ -84,7 +85,9 @@ function sync_getusers_fromomega($academicids, $syncinfo){
 		if($insertdata->course != NULL){
 			$users[] = $insertdata;
 			$syncinfo[$academicid]["enrol"] += 1;
-			mtrace("USER: ".$insertdata->user." TYPE: ".$insertdata->role." COURSE: ".$insertdata->course);
+			if ($options) {
+				mtrace("USER: ".$insertdata->user." TYPE: ".$insertdata->role." COURSE: ".$insertdata->course);
+			}
 		}
 		
 		$generalcoursedata = new stdClass();
@@ -94,13 +97,15 @@ function sync_getusers_fromomega($academicids, $syncinfo){
 			
 		if(!in_array($generalcoursedata, $users)) {
 			$users[] = $generalcoursedata;
-			mtrace("USER: ".$insertdata->user." TYPE: ".$generalcoursedata->role." COURSE: ".$generalcoursedata->course);
+			if ($options) {
+				mtrace("USER: ".$insertdata->user." TYPE: ".$generalcoursedata->role." COURSE: ".$generalcoursedata->course);
+			}
 		}
 	}
 	return array($users, $syncinfo);
 }
 
-function sync_getcourses_fromomega($academicids, $syncinfo){
+function sync_getcourses_fromomega($academicids, $syncinfo, $options){
 	global $CFG;
 
 	$curl = curl_init();
@@ -117,7 +122,9 @@ function sync_getcourses_fromomega($academicids, $syncinfo){
 	curl_setopt($curl, CURLOPT_HTTPHEADER, array("Content-Type: application/json"));
 	$result = json_decode(curl_exec($curl));
 	curl_close($curl);
-	mtrace("#### Adding Courses ####");
+	if ($options) {
+		mtrace("#### Adding Courses ####");
+	}
 	$courses = array();
 	foreach($result as $course) {
 		$insertdata = new stdClass();
@@ -132,7 +139,9 @@ function sync_getcourses_fromomega($academicids, $syncinfo){
 		if($insertdata->fullname != NULL && $insertdata->shortname != NULL && $insertdata->idnumber != NULL){
 			$courses[] = $insertdata;		
 			$syncinfo[$course->PeriodoAcademicoId]["course"] += 1;
-			mtrace("COURSE: ".$insertdata->shortname." IDNUMBER: ".$insertdata->idnumber." CATEGORY: ".$insertdata->categoryid);
+			if ($options) {
+				mtrace("COURSE: ".$insertdata->shortname." IDNUMBER: ".$insertdata->idnumber." CATEGORY: ".$insertdata->categoryid);
+			}
 		}
 	}
 	
@@ -152,8 +161,10 @@ function sync_getcourses_fromomega($academicids, $syncinfo){
 		$teacherscourse->shortname = $periodid."-PROFESORES";
 		$teacherscourse->idnumber = NULL;
 		$teacherscourse->categoryid = $syncinfo[$periodid]["categoryid"];
-		mtrace("COURSE: ".$studentscourse->shortname." CATEGORY: ".$studentscourse->categoryid);
-		mtrace("COURSE: ".$teacherscourse->shortname." CATEGORY: ".$teacherscourse->categoryid);
+		if ($options) {
+			mtrace("COURSE: ".$studentscourse->shortname." CATEGORY: ".$studentscourse->categoryid);
+			mtrace("COURSE: ".$teacherscourse->shortname." CATEGORY: ".$teacherscourse->categoryid);
+		}
 		$courses[] = $studentscourse;
 		$courses[] = $teacherscourse;
 	}
