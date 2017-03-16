@@ -68,8 +68,8 @@ if($academicids){
 	// Courses from Omega
 	list($courses, $syncinfo) = sync_getcourses_fromomega($academicids, $syncinfo, $options["debug"]);
 	// Delete previous courses
-	if(!$DB->execute("TRUNCATE TABLE {sync_course}")) {
-		mtrace("Truncate Table sync_course Failed");
+	if(!$DB->execute("DELETE FROM {sync_course} WHERE id > 0")) {
+		mtrace("Delete records from sync_course table Failed");
 	} else {
 		// Insert the  courses
 		$DB->insert_records("sync_course", $courses);
@@ -77,8 +77,8 @@ if($academicids){
 	// Users from Omega
 	list($users, $syncinfo) = sync_getusers_fromomega($academicids, $syncinfo, $options["debug"]);
 	// Delete previous enrol
-	if(!$DB->execute("TRUNCATE TABLE {sync_enrol}")){
-		mtrace("Truncate Table sync_enrol Failed");
+	if(!$DB->execute("DELETE FROM {sync_enrol} WHERE id > 0")){
+		mtrace("Delete records from sync_enrol table Failed");
 	}else{
 		$DB->insert_records("sync_enrol", $users);
 	}		
