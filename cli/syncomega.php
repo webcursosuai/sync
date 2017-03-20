@@ -14,7 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-
 /**
  *
 *
@@ -68,20 +67,34 @@ if($academicids){
 	// Courses from Omega
 	list($courses, $syncinfo) = sync_getcourses_fromomega($academicids, $syncinfo, $options["debug"]);
 	// Delete previous courses
-	if(!$DB->execute("DELETE FROM {sync_course} WHERE id > 0")) {
-		mtrace("Delete records from sync_course table Failed");
+	if(!$DB->execute("TRUNCATE TABLE {sync_course}")) {
+		mtrace("Truncate Table sync_course Failed");
 	} else {
 		// Insert the  courses
 		$DB->insert_records("sync_course", $courses);
 	}		
 	// Users from Omega
 	list($users, $syncinfo) = sync_getusers_fromomega($academicids, $syncinfo, $options["debug"]);
+	try {
+		$transaction = $DB->start_delegated_transaction();
+		if(!$DB->execute("TRUNCATE TABLE {sync_enrol}")){
+			mtrace("Truncate Table sync_enrol Failed");
+		}else{
+			$DB->insert_records("sync_enrol", $users);
+		}	
+		// Assuming the both inserts work, we get to the following line.
+		$transaction->allow_commit();
+	} catch(Exception $e) {
+		$transaction->rollback($e);
+	}
+	/*
 	// Delete previous enrol
 	if(!$DB->execute("DELETE FROM {sync_enrol} WHERE id > 0")){
 		mtrace("Delete records from sync_enrol table Failed");
 	}else{
 		$DB->insert_records("sync_enrol", $users);
-	}		
+	}
+	*/
 	// insert records in sync_history
 	$historyrecords = array();
 	$time = time();
