@@ -19,8 +19,8 @@
 *
 * @package    local
 * @subpackage sync
-* @copyright  2016 Hans Jeria (hansjeria@gmail.com)
-* @copyright  2016 Mark Michaelsen (mmichaelsen678@gmail.com)
+* @copyright  2016-2017 Hans Jeria (hansjeria@gmail.com)
+* @copyright  2016-2017 Mark Michaelsen (mmichaelsen678@gmail.com)
 * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
 */
 
@@ -63,38 +63,33 @@ echo "\nStarting at ".date("F j, Y, G:i:s")."\n";
 list($academicids, $syncinfo) = sync_getacademicperiod();
 
 // Check we have
-if($academicids){		
-	// Courses from Omega
-	list($courses, $syncinfo) = sync_getcourses_fromomega($academicids, $syncinfo, $options["debug"]);
+if($academicids){
 	// Delete previous courses
 	if(!$DB->execute("TRUNCATE TABLE {sync_course}")) {
-		mtrace("Truncate Table sync_course Failed");
+		mtrace("Truncate Table sync_course: Failed");
 	} else {
+		mtrace("Truncate Table sync_course: Success");
+	}
+	// Delete previous enrol
+	if(!$DB->execute("TRUNCATE TABLE {sync_enrol}")){
+		mtrace("Truncate Table sync_enrol: Failed");
+	}else{
+		mtrace("Truncate Table sync_enrol: Success");
+	}
+	
+	foreach ($academicids as $academicid) {	
+		// Courses from Omega
+		list($courses, $syncinfo) = sync_getcourses_fromomega($academicid, $syncinfo, $options["debug"]);
 		// Insert the  courses
 		$DB->insert_records("sync_course", $courses);
-	}		
-	// Users from Omega
-	list($users, $syncinfo) = sync_getusers_fromomega($academicids, $syncinfo, $options["debug"]);
-	try {
-		$transaction = $DB->start_delegated_transaction();
-		if(!$DB->execute("TRUNCATE TABLE {sync_enrol}")){
-			mtrace("Truncate Table sync_enrol Failed");
-		}else{
-			$DB->insert_records("sync_enrol", $users);
-		}	
-		// Assuming the both inserts work, we get to the following line.
-		$transaction->allow_commit();
-	} catch(Exception $e) {
-		$transaction->rollback($e);
-	}
-	/*
-	// Delete previous enrol
-	if(!$DB->execute("DELETE FROM {sync_enrol} WHERE id > 0")){
-		mtrace("Delete records from sync_enrol table Failed");
-	}else{
+		// Users from Omega
+		list($users, $syncinfo) = sync_getusers_fromomega($academicid, $syncinfo, $options["debug"]);
+		// Insert the enrolments
 		$DB->insert_records("sync_enrol", $users);
+			/*mtrace("Error try to insert the enrolments into the database");
+			mtrace("Forcing exit");
+			exit(0);*/
 	}
-	*/
 	// insert records in sync_history
 	$historyrecords = array();
 	$time = time();
@@ -104,7 +99,7 @@ if($academicids){
 		$insert->executiondate = $time;
 		$insert->countcourses = $rowinfo["course"];
 		$insert->countenrols = $rowinfo["enrol"];
-
+	
 		$historyrecords[] = $insert;
 		mtrace("Academic Period ".$academic.", Total courses ".$rowinfo["course"].", Total enrol ".$rowinfo["enrol"]."\n");
 	}
@@ -127,5 +122,4 @@ if($academicids){
 if($CFG->sync_execcommand != NULL){
 	exec($CFG->sync_execcommand);
 }
-
 exit(0);

@@ -35,7 +35,7 @@ function sync_getusers_fromomega($academicids, $syncinfo, $options){
 	$token = $CFG->sync_token;	
 	$fields = array(
 			"token" => $token,
-			"PeriodosAcademicos" => $academicids
+			"PeriodosAcademicos" => array($academicids)
 	);	
 	curl_setopt($curl, CURLOPT_URL, $url);
 	curl_setopt($curl, CURLOPT_RETURNTRANSFER, TRUE);
@@ -113,7 +113,7 @@ function sync_getcourses_fromomega($academicids, $syncinfo, $options){
 	$token = $CFG->sync_token;
 	$fields = array(
 			"token" => $token,
-			"PeriodosAcademicos" => $academicids
+			"PeriodosAcademicos" => array($academicids)
 	);
 	curl_setopt($curl, CURLOPT_URL, $url);
 	curl_setopt($curl, CURLOPT_RETURNTRANSFER, TRUE);
@@ -143,31 +143,30 @@ function sync_getcourses_fromomega($academicids, $syncinfo, $options){
 				mtrace("COURSE: ".$insertdata->shortname." IDNUMBER: ".$insertdata->idnumber." CATEGORY: ".$insertdata->categoryid);
 			}
 		}
-	}
+	}	
+
+	// Build the academic period's general students course
+	$studentscourse = new StdClass();
+	$studentscourse->dataid = $syncinfo[$academicids]["dataid"];
+	$studentscourse->fullname = "Alumnos ".$syncinfo[$academicids]["periodname"];
+	$studentscourse->shortname = $academicids."-ALUMNOS";
+	$studentscourse->idnumber = NULL;
+	$studentscourse->categoryid = $syncinfo[$academicids]["categoryid"];
 	
-	foreach($academicids as $periodid) {
-		// Build the academic period's general students course
-		$studentscourse = new StdClass();
-		$studentscourse->dataid = $syncinfo[$periodid]["dataid"];
-		$studentscourse->fullname = "Alumnos ".$syncinfo[$periodid]["periodname"];
-		$studentscourse->shortname = $periodid."-ALUMNOS";
-		$studentscourse->idnumber = NULL;
-		$studentscourse->categoryid = $syncinfo[$periodid]["categoryid"];
-		
-		// Build the academic period's general teachers course
-		$teacherscourse = new StdClass();
-		$teacherscourse->dataid = $syncinfo[$periodid]["dataid"];
-		$teacherscourse->fullname = "Profesores ".$syncinfo[$periodid]["periodname"];
-		$teacherscourse->shortname = $periodid."-PROFESORES";
-		$teacherscourse->idnumber = NULL;
-		$teacherscourse->categoryid = $syncinfo[$periodid]["categoryid"];
-		if ($options) {
-			mtrace("COURSE: ".$studentscourse->shortname." CATEGORY: ".$studentscourse->categoryid);
-			mtrace("COURSE: ".$teacherscourse->shortname." CATEGORY: ".$teacherscourse->categoryid);
-		}
-		$courses[] = $studentscourse;
-		$courses[] = $teacherscourse;
+	// Build the academic period's general teachers course
+	$teacherscourse = new StdClass();
+	$teacherscourse->dataid = $syncinfo[$academicids]["dataid"];
+	$teacherscourse->fullname = "Profesores ".$syncinfo[$academicids]["periodname"];
+	$teacherscourse->shortname = $academicids."-PROFESORES";
+	$teacherscourse->idnumber = NULL;
+	$teacherscourse->categoryid = $syncinfo[$academicids]["categoryid"];
+	if ($options) {
+		mtrace("COURSE: ".$studentscourse->shortname." CATEGORY: ".$studentscourse->categoryid);
+		mtrace("COURSE: ".$teacherscourse->shortname." CATEGORY: ".$teacherscourse->categoryid);
 	}
+	$courses[] = $studentscourse;
+	$courses[] = $teacherscourse;
+
 	return array($courses, $syncinfo);
 }
 
