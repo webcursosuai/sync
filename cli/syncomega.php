@@ -77,18 +77,25 @@ if($academicids){
 		mtrace("Truncate Table sync_enrol: Success");
 	}
 	
-	foreach ($academicids as $academicid) {	
-		// Courses from Omega
-		list($courses, $syncinfo) = sync_getcourses_fromomega($academicid, $syncinfo, $options["debug"]);
-		// Insert the  courses
-		$DB->insert_records("sync_course", $courses);
-		// Users from Omega
-		list($users, $syncinfo) = sync_getusers_fromomega($academicid, $syncinfo, $options["debug"]);
-		// Insert the enrolments
-		$DB->insert_records("sync_enrol", $users);
+	foreach ($academicids as $academicid) {
+		$transaction = $DB->start_delegated_transaction();
+		try {
+			// Courses from Omega
+			list($courses, $syncinfo) = sync_getcourses_fromomega($academicid, $syncinfo, $options["debug"]);
+			// Insert the  courses
+			$DB->insert_records("sync_course", $courses);
+			// Users from Omega
+			list($users, $syncinfo) = sync_getusers_fromomega($academicid, $syncinfo, $options["debug"]);
+			// Insert the enrolments
+			$DB->insert_records("sync_enrol", $users);
 			/*mtrace("Error try to insert the enrolments into the database");
 			mtrace("Forcing exit");
 			exit(0);*/
+		} catch (moodle_exception $exception) {
+			$DB->rollback_delegated_transaction($transaction, $exception);
+			return false;
+		}
+		
 	}
 	// insert records in sync_history
 	$historyrecords = array();
@@ -104,6 +111,7 @@ if($academicids){
 		mtrace("Academic Period ".$academic.", Total courses ".$rowinfo["course"].", Total enrol ".$rowinfo["enrol"]."\n");
 	}
 	$DB->insert_records("sync_history", $historyrecords);
+	$DB->commit_delegated_transaction($transaction);
 }else{
 	mtrace("No se encontraron Periodos académicos activos para sincronizar.");
 	if(!$DB->execute("TRUNCATE TABLE {sync_course}")) {
