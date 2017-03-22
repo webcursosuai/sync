@@ -95,7 +95,6 @@ if($academicids){
 			$DB->rollback_delegated_transaction($transaction, $exception);
 			return false;
 		}
-		
 	}
 	// insert records in sync_history
 	$historyrecords = array();

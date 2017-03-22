@@ -89,7 +89,7 @@ function sync_getusers_fromomega($academicids, $syncinfo, $options){
 				mtrace("USER: ".$insertdata->user." TYPE: ".$insertdata->role." COURSE: ".$insertdata->course);
 			}
 		}
-		
+		/*
 		$generalcoursedata = new stdClass();
 		$generalcoursedata->course = ($insertdata->role == $CFG->sync_teachername) ? $academicid."-PROFESORES" : $academicid."-ALUMNOS";
 		$generalcoursedata->user = $insertdata->user;
@@ -100,7 +100,7 @@ function sync_getusers_fromomega($academicids, $syncinfo, $options){
 			if ($options) {
 				mtrace("USER: ".$insertdata->user." TYPE: ".$generalcoursedata->role." COURSE: ".$generalcoursedata->course);
 			}
-		}
+		}*/
 	}
 	return array($users, $syncinfo);
 }
@@ -144,7 +144,7 @@ function sync_getcourses_fromomega($academicids, $syncinfo, $options){
 			}
 		}
 	}	
-
+	/*
 	// Build the academic period's general students course
 	$studentscourse = new StdClass();
 	$studentscourse->dataid = $syncinfo[$academicids]["dataid"];
@@ -166,7 +166,7 @@ function sync_getcourses_fromomega($academicids, $syncinfo, $options){
 	}
 	$courses[] = $studentscourse;
 	$courses[] = $teacherscourse;
-
+	*/
 	return array($courses, $syncinfo);
 }
 
