@@ -27,7 +27,7 @@ define('SYNC_STATUS_INACTIVE', 0);
 define('SYNC_STATUS_ACTIVE', 1);
 define('MODULE_FORUM', 'forum');
 
-function sync_getusers_fromomega($academicids, $syncinfo, $options){
+function sync_getusers_fromomega($academicids, $syncinfo, $options = null){
 	global $DB, $CFG;
 	
 	$curl = curl_init();
@@ -105,7 +105,7 @@ function sync_getusers_fromomega($academicids, $syncinfo, $options){
 	return array($users, $syncinfo);
 }
 
-function sync_getcourses_fromomega($academicids, $syncinfo, $options){
+function sync_getcourses_fromomega($academicids, $syncinfo, $options = null){
 	global $CFG;
 
 	$curl = curl_init();
