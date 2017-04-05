@@ -62,45 +62,50 @@ function sync_getusers_fromomega($academicids, $syncinfo, $options = null){
 	}
 	$users = array();
 	foreach($result as $user) {
-		$insertdata = new stdClass();
-		$academicid = $user->PeriodoAcademicoId;
-		if(!isset($academicdbycourseid[$user->SeccionId]) || empty($academicdbycourseid[$user->SeccionId])){
-			$insertdata->course = NULL;
-		}else{
-			$insertdata->course = $academicdbycourseid[$user->SeccionId];
-		}
-		$insertdata->user = ($CFG->sync_emailexplode) ? explode("@", $user->Email)[0] : $user->Email;
-		switch ($user->Tipo) {
-			case 'EditingTeacher':
-				$insertdata->role = $CFG->sync_teachername;
-				break;
-			case 'Student':
-				$insertdata->role = $CFG->sync_studentname;
-				break;
-			default:
-				$insertdata->role = $CFG->sync_studentname;
-				break;
-		};
-	
-		if($insertdata->course != NULL){
-			$users[] = $insertdata;
-			$syncinfo[$academicid]["enrol"] += 1;
-			if ($options) {
-				mtrace("USER: ".$insertdata->user." TYPE: ".$insertdata->role." COURSE: ".$insertdata->course);
+		if($user->Email !== ""){
+			$insertdata = new stdClass();
+			$academicid = $user->PeriodoAcademicoId;
+			if(!isset($academicdbycourseid[$user->SeccionId]) || empty($academicdbycourseid[$user->SeccionId])){
+				$insertdata->course = NULL;
+			}else{
+				$insertdata->course = $academicdbycourseid[$user->SeccionId];
 			}
-		}
-		/*
-		$generalcoursedata = new stdClass();
-		$generalcoursedata->course = ($insertdata->role == $CFG->sync_teachername) ? $academicid."-PROFESORES" : $academicid."-ALUMNOS";
-		$generalcoursedata->user = $insertdata->user;
-		$generalcoursedata->role = $CFG->sync_studentname;
+			$insertdata->user = ($CFG->sync_emailexplode) ? explode("@", $user->Email)[0] : $user->Email;
 			
-		if(!in_array($generalcoursedata, $users)) {
-			$users[] = $generalcoursedata;
-			if ($options) {
-				mtrace("USER: ".$insertdata->user." TYPE: ".$generalcoursedata->role." COURSE: ".$generalcoursedata->course);
+			switch ($user->Tipo) {
+				case 'EditingTeacher':
+					$insertdata->role = $CFG->sync_teachername;
+					break;
+				case 'Student':
+					$insertdata->role = $CFG->sync_studentname;
+					break;
+				default:
+					$insertdata->role = $CFG->sync_studentname;
+					break;
+			};
+		
+			if($insertdata->course != NULL){
+				$users[] = $insertdata;
+				$syncinfo[$academicid]["enrol"] += 1;
+				if ($options) {
+					mtrace("USER: ".$insertdata->user." TYPE: ".$insertdata->role." COURSE: ".$insertdata->course);
+				}
 			}
-		}*/
+			/*
+			$generalcoursedata = new stdClass();
+			$generalcoursedata->course = ($insertdata->role == $CFG->sync_teachername) ? $academicid."-PROFESORES" : $academicid."-ALUMNOS";
+			$generalcoursedata->user = $insertdata->user;
+			$generalcoursedata->role = $CFG->sync_studentname;
+				
+			if(!in_array($generalcoursedata, $users)) {
+				$users[] = $generalcoursedata;
+				if ($options) {
+					mtrace("USER: ".$insertdata->user." TYPE: ".$generalcoursedata->role." COURSE: ".$generalcoursedata->course);
+				}
+			}*/
+		}elseif($options){
+			mtrace("Skipping empty..");
+		}
 	}
 	return array($users, $syncinfo);
 }
@@ -200,24 +205,26 @@ function sync_getacademicperiod(){
 
 function sync_getacademicbycourseids($coursesids){
 	global $DB;
-	
-	// get_in_or_equal used after in the IN ('') clause of multiple querys
-	list($sqlin, $param) = $DB->get_in_or_equal($coursesids);	
-	$sqlgetacademic = "SELECT c.id, 
-			c.shortname, 
-			c.idnumber, 
-			s.academicperiodid
-			FROM {sync_course} AS c INNER JOIN {sync_data} AS s ON (c.dataid = s.id)
-			WHERE c. idnumber $sqlin";
-	$academicinfo = $DB->get_records_sql($sqlgetacademic, $param);
-	// Check the version to use the corrects functions
-	if(PHP_MAJOR_VERSION < 7){
-		$shortnamebycourseid = array();
-		foreach ($academicinfo as $academic){
-			$shortnamebycourseid[$academic->idnumber] = $academic->shortname;
+	$shortnamebycourseid = array();
+		if(!empty($coursesids)){
+		// get_in_or_equal used after in the IN ('') clause of multiple querys
+		list($sqlin, $param) = $DB->get_in_or_equal($coursesids);	
+		$sqlgetacademic = "SELECT c.id, 
+				c.shortname, 
+				c.idnumber, 
+				s.academicperiodid
+				FROM {sync_course} AS c INNER JOIN {sync_data} AS s ON (c.dataid = s.id)
+				WHERE c. idnumber $sqlin";
+		$academicinfo = $DB->get_records_sql($sqlgetacademic, $param);
+		// Check the version to use the corrects functions
+		if(PHP_MAJOR_VERSION < 7){
+			
+			foreach ($academicinfo as $academic){
+				$shortnamebycourseid[$academic->idnumber] = $academic->shortname;
+			}
+		}else{
+			$shortnamebycourseid = array_column($academicinfo, 'shortname', 'idnumber');
 		}
-	}else{
-		$shortnamebycourseid = array_column($academicinfo, 'shortname', 'idnumber');
 	}
 	return $shortnamebycourseid;
 }
