@@ -207,6 +207,9 @@ function sync_getacademicbycourseids($coursesids){
 	global $DB;
 	
 	// get_in_or_equal used after in the IN ('') clause of multiple querys
+	if(empty($courseids)){
+		mtrace("Courseid EMPTY!")
+	}
 	list($sqlin, $param) = $DB->get_in_or_equal($coursesids);	
 	$sqlgetacademic = "SELECT c.id, 
 			c.shortname, 
