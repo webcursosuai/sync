@@ -205,26 +205,26 @@ function sync_getacademicperiod(){
 
 function sync_getacademicbycourseids($coursesids){
 	global $DB;
-	if($coursesids){
-		mtrace(print_r($coursesids));
-	}
-	// get_in_or_equal used after in the IN ('') clause of multiple querys
-	list($sqlin, $param) = $DB->get_in_or_equal($coursesids);	
-	$sqlgetacademic = "SELECT c.id, 
-			c.shortname, 
-			c.idnumber, 
-			s.academicperiodid
-			FROM {sync_course} AS c INNER JOIN {sync_data} AS s ON (c.dataid = s.id)
-			WHERE c. idnumber $sqlin";
-	$academicinfo = $DB->get_records_sql($sqlgetacademic, $param);
-	// Check the version to use the corrects functions
-	if(PHP_MAJOR_VERSION < 7){
-		$shortnamebycourseid = array();
-		foreach ($academicinfo as $academic){
-			$shortnamebycourseid[$academic->idnumber] = $academic->shortname;
+	$shortnamebycourseid = array();
+		if(!empty($coursesids)){
+		// get_in_or_equal used after in the IN ('') clause of multiple querys
+		list($sqlin, $param) = $DB->get_in_or_equal($coursesids);	
+		$sqlgetacademic = "SELECT c.id, 
+				c.shortname, 
+				c.idnumber, 
+				s.academicperiodid
+				FROM {sync_course} AS c INNER JOIN {sync_data} AS s ON (c.dataid = s.id)
+				WHERE c. idnumber $sqlin";
+		$academicinfo = $DB->get_records_sql($sqlgetacademic, $param);
+		// Check the version to use the corrects functions
+		if(PHP_MAJOR_VERSION < 7){
+			
+			foreach ($academicinfo as $academic){
+				$shortnamebycourseid[$academic->idnumber] = $academic->shortname;
+			}
+		}else{
+			$shortnamebycourseid = array_column($academicinfo, 'shortname', 'idnumber');
 		}
-	}else{
-		$shortnamebycourseid = array_column($academicinfo, 'shortname', 'idnumber');
 	}
 	return $shortnamebycourseid;
 }
