@@ -18,6 +18,7 @@
  * @subpackage sync
  * @copyright  2016 Hans Jeria (hansjeria@gmail.com)
  * @copyright  2017 Mark Michaelsen (mmichaelsen678@gmail.com)
+ * @copyright  2017 Mihail Pozarski (mpozarski944@gmail.com)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -75,6 +76,9 @@ function sync_getusers_fromomega($academicids, $syncinfo, $options = null){
 			switch ($user->Tipo) {
 				case 'EditingTeacher':
 					$insertdata->role = $CFG->sync_teachername;
+					break;
+				case 'NonEditingTeacher':
+					$insertdata->role = $CFG->sync_noneditingteachername;
 					break;
 				case 'Student':
 					$insertdata->role = $CFG->sync_studentname;
