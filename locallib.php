@@ -153,7 +153,7 @@ function sync_getcourses_fromomega($academicids, $syncinfo, $options = null){
 			}
 		}
 	}	
-	/*
+	
 	// Build the academic period's general students course
 	$studentscourse = new StdClass();
 	$studentscourse->dataid = $syncinfo[$academicids]["dataid"];
@@ -175,7 +175,7 @@ function sync_getcourses_fromomega($academicids, $syncinfo, $options = null){
 	}
 	$courses[] = $studentscourse;
 	$courses[] = $teacherscourse;
-	*/
+	
 	return array($courses, $syncinfo);
 }
 
