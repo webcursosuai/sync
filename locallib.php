@@ -95,7 +95,7 @@ function sync_getusers_fromomega($academicids, $syncinfo, $options = null){
 					mtrace("USER: ".$insertdata->user." TYPE: ".$insertdata->role." COURSE: ".$insertdata->course);
 				}
 			}
-			/*
+			
 			$generalcoursedata = new stdClass();
 			$generalcoursedata->course = ($insertdata->role == $CFG->sync_teachername) ? $academicid."-PROFESORES" : $academicid."-ALUMNOS";
 			$generalcoursedata->user = $insertdata->user;
@@ -106,7 +106,7 @@ function sync_getusers_fromomega($academicids, $syncinfo, $options = null){
 				if ($options) {
 					mtrace("USER: ".$insertdata->user." TYPE: ".$generalcoursedata->role." COURSE: ".$generalcoursedata->course);
 				}
-			}*/
+			}
 		}elseif($options){
 			mtrace("Skipping empty..");
 		}
