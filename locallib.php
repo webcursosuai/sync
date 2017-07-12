@@ -62,6 +62,7 @@ function sync_getusers_fromomega($academicids, $syncinfo, $options = null){
 		mtrace("#### Adding Enrollments ####");
 	}
 	$users = array();
+	$metausers = array();
 	foreach($result as $user) {
 		if($user->Email !== "" && $user->Email !== NULL){
 			$insertdata = new stdClass();
@@ -101,8 +102,8 @@ function sync_getusers_fromomega($academicids, $syncinfo, $options = null){
 			$generalcoursedata->user = $insertdata->user;
 			$generalcoursedata->role = $CFG->sync_studentname;
 				
-			if(!in_array($generalcoursedata, $users)) {
-				$users[] = $generalcoursedata;
+			if(!in_array($generalcoursedata, $metausers)) {
+				$metausers[] = $generalcoursedata;
 				if ($options) {
 					mtrace("USER: ".$insertdata->user." TYPE: ".$generalcoursedata->role." COURSE: ".$generalcoursedata->course);
 				}
@@ -111,7 +112,7 @@ function sync_getusers_fromomega($academicids, $syncinfo, $options = null){
 			mtrace("Skipping empty..");
 		}
 	}
-	return array($users, $syncinfo);
+	return array($users,$metausers, $syncinfo);
 }
 
 function sync_getcourses_fromomega($academicids, $syncinfo, $options = null){
