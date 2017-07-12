@@ -90,9 +90,9 @@ if($academicids){
 		list($users, $syncinfo) = sync_getusers_fromomega($academicid, $syncinfo, $options["debug"]);
 		// Insert the enrolments
 		$DB->insert_records("sync_enrol", $users);
-		mtrace("Error try to insert the enrolments into the database");
+		/*mtrace("Error try to insert the enrolments into the database");
 		mtrace("Forcing exit");
-		exit(0);
+		exit(0);*/
 		// Generate meta enrolments
 		$metausers = sync_generate_metausers($academicid, $options["debug"]);
 		// Insert meta enrolments
