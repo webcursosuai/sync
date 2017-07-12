@@ -24,7 +24,7 @@
 * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
 */
 
-//define('CLI_SCRIPT', true);
+define('CLI_SCRIPT', true);
 require_once(dirname(dirname(dirname(dirname(__FILE__)))) . "/config.php");
 require_once($CFG->dirroot . "/local/sync/locallib.php");
 require_once ($CFG->libdir . '/clilib.php');
@@ -89,7 +89,17 @@ if($academicids){
 		/*mtrace("Error try to insert the enrolments into the database");
 		mtrace("Forcing exit");
 		exit(0);*/
+		// Generate meta courses
+		list($metacourses, $syncinfo) = sync_generate_metacourse($academicid, $syncinfo, $options["debug"]);
+		// Insert the meta courses
+		$DB->insert_records("sync_course", $metacourses);
+		// Generate meta enrolments
+		/*list($metausers, $syncinfo) = sync_generate_metausers($academicid, $syncinfo, $options["debug"]);
+		// Insert meta enrolments
+		$DB->insert_records("sync_enrol", $metausers);
+		*/
 	}
+	
 	// insert records in sync_history
 	$historyrecords = array();
 	$time = time();
