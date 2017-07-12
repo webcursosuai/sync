@@ -481,7 +481,7 @@ function sync_generate_metacourse($academicids, $syncinfo, $options = null){
 	
 	return array($courses, $syncinfo);
 }
-function sync_getusers_fromomega($academicids, $options = null){
+function sync_generate_metausers($academicids, $options = null){
 	global $DB, $CFG;
 	
 	$curl = curl_init();
