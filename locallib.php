@@ -481,3 +481,45 @@ function sync_generate_metacourse($academicids, $syncinfo, $options = null){
 	
 	return array($courses, $syncinfo);
 }
+function sync_getusers_fromomega($academicids, $options = null){
+	global $DB, $CFG;
+	
+	$curl = curl_init();
+	$url = $CFG->sync_urlgetalumnos;
+	$token = $CFG->sync_token;
+	$fields = array(
+			"token" => $token,
+			"PeriodosAcademicos" => array($academicids)
+	);
+	curl_setopt($curl, CURLOPT_URL, $url);
+	curl_setopt($curl, CURLOPT_RETURNTRANSFER, TRUE);
+	curl_setopt($curl, CURLOPT_POST, TRUE);
+	curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($fields));
+	curl_setopt($curl, CURLOPT_HTTPHEADER, array("Content-Type: application/json"));
+	$result = json_decode(curl_exec($curl));
+	curl_close($curl);
+	if ($options) {
+		mtrace("#### Adding Meta-Enrollments ####");
+	}
+	$users = array();
+	foreach($result as $user) {
+		if($user->Email !== "" && $user->Email !== NULL){
+			$insertdata = new stdClass();
+			$academicid = $user->PeriodoAcademicoId;
+			$generalcoursedata = new stdClass();
+			$generalcoursedata->course = ($insertdata->role == $CFG->sync_teachername) ? $academicid."-PROFESORES" : $academicid."-ALUMNOS";
+			$generalcoursedata->user = $insertdata->user;
+			$generalcoursedata->role = $CFG->sync_studentname;
+			 
+			if(!in_array($generalcoursedata, $users)) {
+				$users[] = $generalcoursedata;
+				if ($options) {
+					mtrace("USER: ".$insertdata->user." TYPE: ".$generalcoursedata->role." COURSE: ".$generalcoursedata->course);
+				}
+			}
+		}elseif($options){
+			mtrace("Skipping empty..");
+		}
+	}
+	return array($users);
+}

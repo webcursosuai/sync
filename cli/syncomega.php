@@ -82,6 +82,10 @@ if($academicids){
 		list($courses, $syncinfo) = sync_getcourses_fromomega($academicid, $syncinfo, $options["debug"]);
 		// Insert the  courses
 		$DB->insert_records("sync_course", $courses);
+		// Generate meta courses
+		list($metacourses, $syncinfo) = sync_generate_metacourse($academicid, $syncinfo, $options["debug"]);
+		// Insert the meta courses
+		$DB->insert_records("sync_course", $metacourses);
 		// Users from Omega
 		list($users, $syncinfo) = sync_getusers_fromomega($academicid, $syncinfo, $options["debug"]);
 		// Insert the enrolments
@@ -89,15 +93,10 @@ if($academicids){
 		/*mtrace("Error try to insert the enrolments into the database");
 		mtrace("Forcing exit");
 		exit(0);*/
-		// Generate meta courses
-		list($metacourses, $syncinfo) = sync_generate_metacourse($academicid, $syncinfo, $options["debug"]);
-		// Insert the meta courses
-		$DB->insert_records("sync_course", $metacourses);
 		// Generate meta enrolments
-		/*list($metausers, $syncinfo) = sync_generate_metausers($academicid, $syncinfo, $options["debug"]);
+		$metausers = sync_generate_metausers($academicid, $options["debug"]);
 		// Insert meta enrolments
 		$DB->insert_records("sync_enrol", $metausers);
-		*/
 	}
 	
 	// insert records in sync_history
