@@ -507,6 +507,11 @@ function sync_generate_metausers($academicids, $options = null){
 			$insertdata = new stdClass();
 			$academicid = $user->PeriodoAcademicoId;
 			$insertdata->user = ($CFG->sync_emailexplode) ? explode("@", $user->Email)[0] : $user->Email;
+			if($user->Tipo == 'EditingTeacher'){
+				$insertdata->role = $CFG->sync_teachername;
+			}else{
+				$insertdata->role = $CFG->sync_studentname;
+			}
 			$generalcoursedata = new stdClass();
 			$generalcoursedata->course = ($insertdata->role == $CFG->sync_teachername) ? $academicid."-PROFESORES" : $academicid."-ALUMNOS";
 			$generalcoursedata->user = $insertdata->user;
