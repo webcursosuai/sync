@@ -11,6 +11,7 @@ Authors:
 * Mark Michaelsen (mmichaelsen678@gmail.com) 
 * Joaquín Rivano (jrivano@alumnos.uai.cl)
 * Javier González (javiergonzalez@alumnos.uai.cl)
+* Mihail Pozarski (mpozarski944@gmail.com)
 
 Release notes
 -------------

@@ -21,6 +21,7 @@
 * @subpackage sync
 * @copyright  2016-2017 Hans Jeria (hansjeria@gmail.com)
 * @copyright  2017 Mark Michaelsen (mmichaelsen678@gmail.com)
+* @copyright  2017 Mihail Pozarski (mpozarski944@gmail.com)
 * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
 */
 
