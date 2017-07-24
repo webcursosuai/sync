@@ -104,6 +104,7 @@ function sync_getusers_fromomega($academicids, $syncinfo, $options = null){
 				
 			if(!in_array($generalcoursedata, $metausers)) {
 				$metausers[] = $generalcoursedata;
+				$syncinfo[$academicid]["enrol"] += 1;
 				if ($options) {
 					mtrace("USER: ".$insertdata->user." TYPE: ".$generalcoursedata->role." COURSE: ".$generalcoursedata->course);
 				}
@@ -175,7 +176,9 @@ function sync_getcourses_fromomega($academicids, $syncinfo, $options = null){
 		mtrace("COURSE: ".$teacherscourse->shortname." CATEGORY: ".$teacherscourse->categoryid);
 	}
 	$courses[] = $studentscourse;
+	$syncinfo[$course->PeriodoAcademicoId]["course"] += 1;
 	$courses[] = $teacherscourse;
+	$syncinfo[$course->PeriodoAcademicoId]["course"] += 1;
 	
 	return array($courses, $syncinfo);
 }
