@@ -20,7 +20,8 @@
 *
 * @package    local
 * @subpackage sync
-* @copyright  2016 Hans Jeria (hansjeria@gmail.com) 					
+* @copyright  2016 Hans Jeria (hansjeria@gmail.com) 	
+* @copyright  2017 Mihail Pozarski (mpozarski944@gmail.com)				
 * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
 */
 defined('MOODLE_INTERNAL') || die;
@@ -85,6 +86,14 @@ if ($hassiteconfig) {
 					'profesoreditor',
 					PARAM_TEXT
 			));
+	$settings->add(
+			new admin_setting_configtext(
+					"sync_noneditingteachername",
+					get_string("noneditingteachername", "local_sync"),
+					"",
+					'ayudante',
+					PARAM_TEXT
+					));
 	$settings->add(
 			new admin_setting_configtext(
 					"sync_studentname",

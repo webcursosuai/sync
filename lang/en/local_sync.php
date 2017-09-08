@@ -98,6 +98,7 @@ $string["emailexplode"] = "Explode of username";
 $string["emailexplodedes"] = "Field of mdl_user table, if it's user mail won't enable.";
 $string["teachername"] = "Shortname to teacher role";
 $string["studentname"] = "Shortname to student role";
+$string["noneditingteachername"] = "Shortname to non editing teacher role";
 
 // Functions outputs
 $string["category_haschildren"] = "The selected synchronization's category has other children categories and cannot be deleted.";

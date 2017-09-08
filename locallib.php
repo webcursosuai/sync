@@ -18,6 +18,7 @@
  * @subpackage sync
  * @copyright  2016 Hans Jeria (hansjeria@gmail.com)
  * @copyright  2017 Mark Michaelsen (mmichaelsen678@gmail.com)
+ * @copyright  2017 Mihail Pozarski (mpozarski944@gmail.com)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -61,6 +62,7 @@ function sync_getusers_fromomega($academicids, $syncinfo, $options = null){
 		mtrace("#### Adding Enrollments ####");
 	}
 	$users = array();
+	$metausers = array();
 	foreach($result as $user) {
 		if($user->Email !== "" && $user->Email !== NULL){
 			$insertdata = new stdClass();
@@ -75,6 +77,9 @@ function sync_getusers_fromomega($academicids, $syncinfo, $options = null){
 			switch ($user->Tipo) {
 				case 'EditingTeacher':
 					$insertdata->role = $CFG->sync_teachername;
+					break;
+				case 'NonEditingTeacher':
+					$insertdata->role = $CFG->sync_noneditingteachername;
 					break;
 				case 'Student':
 					$insertdata->role = $CFG->sync_studentname;
@@ -91,23 +96,26 @@ function sync_getusers_fromomega($academicids, $syncinfo, $options = null){
 					mtrace("USER: ".$insertdata->user." TYPE: ".$insertdata->role." COURSE: ".$insertdata->course);
 				}
 			}
-			/*
+			
 			$generalcoursedata = new stdClass();
 			$generalcoursedata->course = ($insertdata->role == $CFG->sync_teachername) ? $academicid."-PROFESORES" : $academicid."-ALUMNOS";
 			$generalcoursedata->user = $insertdata->user;
 			$generalcoursedata->role = $CFG->sync_studentname;
-				
-			if(!in_array($generalcoursedata, $users)) {
-				$users[] = $generalcoursedata;
-				if ($options) {
-					mtrace("USER: ".$insertdata->user." TYPE: ".$generalcoursedata->role." COURSE: ".$generalcoursedata->course);
+			
+			if($insertdata->role != $CFG->sync_noneditingteachername){
+				if(!in_array($generalcoursedata, $metausers)) {
+					$metausers[] = $generalcoursedata;
+					$syncinfo[$academicid]["enrol"] += 1;
+					if ($options) {
+						mtrace("USER: ".$insertdata->user." TYPE: ".$generalcoursedata->role." COURSE: ".$generalcoursedata->course);
+					}
 				}
-			}*/
+			}
 		}elseif($options){
 			mtrace("Skipping empty..");
 		}
 	}
-	return array($users, $syncinfo);
+	return array($users,$metausers, $syncinfo);
 }
 
 function sync_getcourses_fromomega($academicids, $syncinfo, $options = null){
@@ -149,7 +157,7 @@ function sync_getcourses_fromomega($academicids, $syncinfo, $options = null){
 			}
 		}
 	}	
-	/*
+	
 	// Build the academic period's general students course
 	$studentscourse = new StdClass();
 	$studentscourse->dataid = $syncinfo[$academicids]["dataid"];
@@ -170,8 +178,10 @@ function sync_getcourses_fromomega($academicids, $syncinfo, $options = null){
 		mtrace("COURSE: ".$teacherscourse->shortname." CATEGORY: ".$teacherscourse->categoryid);
 	}
 	$courses[] = $studentscourse;
+	$syncinfo[$course->PeriodoAcademicoId]["course"] += 1;
 	$courses[] = $teacherscourse;
-	*/
+	$syncinfo[$course->PeriodoAcademicoId]["course"] += 1;
+	
 	return array($courses, $syncinfo);
 }
 
