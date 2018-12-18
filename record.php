@@ -47,7 +47,7 @@ $view = optional_param("view", "active", PARAM_TEXT);
 $dataid = optional_param("dataid", 0, PARAM_INT);
 $page = optional_param("page", 0, PARAM_INT);
 $sesskey = optional_param("sesskey", "", PARAM_ALPHANUM);
-$perpage = 10;
+$perpage = 20;
 
 //User needs capability to access
 $context = context_system::instance();
@@ -159,7 +159,7 @@ if ($action == "view") {
 		echo $message;
 	}
 	
-	$tablecount = 10 * $page;
+	$tablecount = $perpage * $page;
 	$synctable = new flexible_table("sync");
 	$synctable->define_baseurl(new moodle_url("/local/sync/record.php"), array("view" => $view));
 	
