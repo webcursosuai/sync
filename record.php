@@ -292,7 +292,7 @@ if ($action == "view") {
 			$query,
 			$params,
 			$page * $perpage,
-			($page + 1) * $perpage
+			$perpage
 	);
 
 	$querycount = "SELECT count(*) 
