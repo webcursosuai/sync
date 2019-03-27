@@ -303,12 +303,12 @@ if ($action == "view") {
 	
 	foreach($datos as $dato){	 
 		if ($dato->status == 1){
-			$activateicon_sync = new pix_icon("e/preview", get_string("deactivate", "local_sync"));
+			$activateicon_sync = new pix_icon("i/hide", get_string("deactivate", "local_sync"));
 			$actionsent = "deactivate";
 			$pop = new confirm_action(get_string("activesync", "local_sync"));
 		}
 		else if ($dato->status == 0){
-			$activateicon_sync = new pix_icon("e/accessibility_checker", get_string("activate","local_sync"));
+			$activateicon_sync = new pix_icon("i/show", get_string("activate","local_sync"));
 			$actionsent = "activate";
 			$pop = new confirm_action(get_string("desactivatesync", "local_sync"));
 		}
