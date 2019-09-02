@@ -114,3 +114,5 @@ $string["courses_missingid"] = "Synchronization ID was not found in the database
 $string["courses_delete_success"] = "Courses were deleted successfuly.";
 $string["courses_delete_failed"] = "Failed to delete courses.";
 $string["courses_delete_check"] = "Please check the above requirements before deleting this synchronization's courses.";
+$string["syncwarning"] = "sync error messages.";
+$string["syncwarningdesc"] = "Email addresses where synchronization error alerts will be sent.";

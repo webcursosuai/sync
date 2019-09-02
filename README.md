@@ -12,6 +12,7 @@ Authors:
 * Joaquín Rivano (jrivano@alumnos.uai.cl)
 * Javier González (javiergonzalez@alumnos.uai.cl)
 * Mihail Pozarski (mpozarski944@gmail.com)
+* Joaquín Cerda (joaquin.cerda@uai.cl)
 
 Release notes
 -------------

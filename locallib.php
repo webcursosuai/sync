@@ -37,14 +37,23 @@ function sync_getusers_fromomega($academicids, $syncinfo, $options = null){
 	$fields = array(
 			"token" => $token,
 			"PeriodosAcademicos" => array($academicids)
-	);	
+	);
+
+    mtrace("\n\n## Obteniendo listado de usuarios desde Omega {$url} ##\n");
+    for ($i = 1; $i<=3; $i++){
+
+        mtrace("Intento de comunicacion {$i}");
+
 	curl_setopt($curl, CURLOPT_URL, $url);
 	curl_setopt($curl, CURLOPT_RETURNTRANSFER, TRUE);
 	curl_setopt($curl, CURLOPT_POST, TRUE);
 	curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($fields));
-	curl_setopt($curl, CURLOPT_HTTPHEADER, array("Content-Type: application/json"));	
+        curl_setopt($curl, CURLOPT_HTTPHEADER, array("Content-Type: application/json"));
 	$result = json_decode(curl_exec($curl));
 	curl_close($curl);
+
+        if (count($result) > 0) break;
+    }
 	
 	// Check the version to use the corrects functions
 	if(PHP_MAJOR_VERSION < 7){
@@ -128,6 +137,13 @@ function sync_getcourses_fromomega($academicids, $syncinfo, $options = null){
 			"token" => $token,
 			"PeriodosAcademicos" => array($academicids)
 	);
+    $result = array();
+
+    mtrace("\n\n## Obteniendo listado de cursos desde Omega {$url} ##\n");
+	for ($i = 1; $i<=3; $i++){
+
+        mtrace("Intento de comunicacion {$i}");
+
 	curl_setopt($curl, CURLOPT_URL, $url);
 	curl_setopt($curl, CURLOPT_RETURNTRANSFER, TRUE);
 	curl_setopt($curl, CURLOPT_POST, TRUE);
@@ -135,6 +151,10 @@ function sync_getcourses_fromomega($academicids, $syncinfo, $options = null){
 	curl_setopt($curl, CURLOPT_HTTPHEADER, array("Content-Type: application/json"));
 	$result = json_decode(curl_exec($curl));
 	curl_close($curl);
+
+        if (count($result) > 0) break;
+    }
+
 	if ($options) {
 		mtrace("#### Adding Courses ####");
 	}
@@ -185,13 +205,13 @@ function sync_getcourses_fromomega($academicids, $syncinfo, $options = null){
 	return array($courses, $syncinfo);
 }
 
-function sync_getacademicperiod(){
+function sync_getacademicperiod($academicperiodid = 0){
 	global $DB;
 	
 	// Get all ID from each academic period with status is active (value 1)
-	$periods = $DB->get_records("sync_data", array(
-			"status" => SYNC_STATUS_ACTIVE
-	));
+    if ($academicperiodid > 0) $periods = $DB->get_records("sync_data", array("status" => SYNC_STATUS_ACTIVE, "academicperiodid" => $academicperiodid));
+    else $periods = $DB->get_records("sync_data", array("status" => SYNC_STATUS_ACTIVE));
+
 	mtrace("Academic Period to synchronize \n");
 	$academicids = array();
 	$syncinfo = array();
@@ -456,4 +476,64 @@ function sync_records_tabs() {
 			get_string("inactive", "local_sync")
 	);	
 	return $tabs;
+}
+
+function sync_sendmail($userlist, $syncFail) {
+    GLOBAL $CFG, $USER, $DB;
+    $userfrom = core_user::get_noreply_user();
+    $userfrom->maildisplay = true;
+	
+	foreach ($userlist as $user){
+        $eventdata = new \core\message\message();
+
+        //subject
+        $eventdata->subject = "Get academic period sync error";
+        $messagehtml = "<html>".
+            "<p>Estimado: usuario,</p>".
+            "<p>Se ha completado la tarea de sincronización: " . date('d/m/Y h:i:s a', time()). "</p>".
+            "#DATAHERE#".
+            "<p>Atentamente,</p>".
+            "<p>Equipo de WebCursos</p>".
+        "</html>";
+
+        $messagetext = "Estimado usuario,\n".
+            "Se ha completado la tarea de sincronización: ". date('d/m/Y h:i:s a', time()). "\n\n".
+            "#DATAHERE#\n\n".
+            "Atentamente,\n".
+            "Equipo de WebCursos\n";
+
+        $messagehtml = str_replace("#DATAHERE#", sync_htmldata($syncFail), $messagehtml);
+        $messagetext = str_replace("#DATAHERE#", sync_htmldata($syncFail), $messagetext);
+
+        $eventdata->component = "local_sync"; // your component name
+        $eventdata->name = "sync_notification"; // this is the message name from messages.php
+        $eventdata->userfrom = $userfrom;
+        $eventdata->userto = $user;
+        $eventdata->subject = "Sync Error";
+        $eventdata->fullmessage = $messagetext;
+        $eventdata->fullmessageformat = FORMAT_HTML;
+        $eventdata->fullmessagehtml = $messagehtml;
+        $eventdata->smallmessage = "Sync error";
+        $eventdata->notification = 1; // this is only set to 0 for personal messages between users
+
+        $eventdata->contexturl = 'http://www.webcursos.uai.cl';
+        $eventdata->contexturlname = 'Context name';
+        //$eventdata->replyto = $mailto;
+        $content = array('*' => array('header' => ' ', 'footer' => ' This is an automated message. Do not reply. ')); // Extra content for specific processor
+        $eventdata->set_additional_content('email', $content);
+
+        $eventdata->courseid = 1;//the course id was needed according to the documentation.
+        //print_r($eventdata);
+        $messageid = message_send($eventdata);
+    }
+}
+
+function sync_htmldata ($syncFail) {
+    $table = "";
+
+    foreach ($syncFail as $fails){
+        $table .= "<p><b>Periodo Académico:</b> {$fails[0]} - <b>Cursos Sincronizados:</b> {$fails[1]} - <b>Enrols Totales:</b> {$fails[2]}</p>";
+    }
+
+    return $table;
 }

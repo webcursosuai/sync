@@ -13,21 +13,18 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
-
-
 /**
  *
-*
-* @package    local
-* @subpackage sync
-* @copyright  2016 Hans Jeria (hansjeria@gmail.com) 					
-* @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
-*/
-
+ *
+ * @package    local
+ * @subpackage sync
+ * @copyright  2019 Javier Gonzalez© (javiergonzalez@alumnos.uai.cl)
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->pluginname = "local_sync";
-$plugin->component = 'local_sync';
-$plugin->version   = 2019073102;
-$plugin->requires = 2015111600;
-
+$messageproviders = array (
+    // Notify teacher that a pdf has been processed
+    'sync_notification' => array (
+    )
+);
