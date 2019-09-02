@@ -115,3 +115,5 @@ $string["courses_missingid"] = "El ID de la sincronización no se encontró en l
 $string["courses_delete_success"] = "Los cursos se han eliminado satisfactoriamente.";
 $string["courses_delete_failed"] = "Ha fallado la eliminación de los cursos.";
 $string["courses_delete_check"] = "Por favor revise los requerimientos anteriores para eliminar los cursos de esta sincronización.";
+$string["syncwarning"] = "Mensajes de error de sincronización.";
+$string["syncwarningdesc"] = "Direcciones de correo donde las alertas de errores de sincronización serán enviadas.";

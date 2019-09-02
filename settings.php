@@ -102,4 +102,13 @@ if ($hassiteconfig) {
 					"student",
 					PARAM_TEXT
 			));
+    //Sync fail alert
+    $settings->add(
+        new admin_setting_configtext(
+            'sync_mailalert',
+            get_string('syncwarning', 'local_sync'),
+            get_string('syncwarningdesc', 'local_sync'),
+            'joaquin.cerda@uai.cl',
+            PARAM_TEXT
+        ));
 }
