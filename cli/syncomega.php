@@ -118,9 +118,11 @@ if($academicids) {
 		$insert->executiondate = $time;
 		$insert->countcourses = $rowinfo["course"];
 		$insert->countenrols = $rowinfo["enrol"];
-	
-		$historyrecords[] = $insert;
-		if ($insert->countcourses == 0 || $insert->countenrols == 0) array_push($syncfail,array($academic, $rowinfo["course"], $rowinfo["enrol"]));
+
+		if ($academic > 0) {
+            $historyrecords[] = $insert;
+            if ($insert->countcourses == 0 || $insert->countenrols == 0) array_push($syncfail,array($academic, $rowinfo["course"], $rowinfo["enrol"]));
+        }
 
 		mtrace("Academic Period ".$academic.", Total courses ".$rowinfo["course"].", Total enrol ".$rowinfo["enrol"]."\n");
 	}
