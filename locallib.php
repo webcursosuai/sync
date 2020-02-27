@@ -28,10 +28,50 @@ define('SYNC_STATUS_INACTIVE', 0);
 define('SYNC_STATUS_ACTIVE', 1);
 define('MODULE_FORUM', 'forum');
 
+function sync_validateomega_services($options = null){
+    global $DB, $CFG;
+
+    $registros = 0;
+    $url = $CFG->sync_urlvalidateserviceomega;
+    $token = $CFG->sync_token;
+    /*$fields = array(
+        "token" => $token
+    );*/
+
+    mtrace("\n\n## Validando servicios de Omega {$url} ##\n");
+    for ($i = 1; $i<=3; $i++){
+
+        mtrace("Intento de comunicacion {$i}");
+        $registros = 0;
+
+        try {
+
+            $curl = curl_init();
+            curl_setopt($curl, CURLOPT_URL, $url);
+            curl_setopt($curl, CURLOPT_RETURNTRANSFER, TRUE);
+            curl_setopt($curl, CURLOPT_POST, FALSE);
+            //curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($fields));
+            curl_setopt($curl, CURLOPT_HTTPHEADER, array("Content-Type: application/json"));
+            $result = json_decode(curl_exec($curl));
+            curl_close($curl);
+
+            $registros = count($result);
+
+        } catch (Exception $e) {
+            mtrace('Excepción capturada: ',  $e->getMessage());
+        }
+
+        if ($registros > 0) break;
+    }
+
+    return $result;
+}
+
 function sync_getusers_fromomega($academicids, $syncinfo, $options = null){
 	global $DB, $CFG;
-	
-	$curl = curl_init();
+
+    $registros = 0;
+
 	$url = $CFG->sync_urlgetalumnos;
 	$token = $CFG->sync_token;	
 	$fields = array(
@@ -40,19 +80,30 @@ function sync_getusers_fromomega($academicids, $syncinfo, $options = null){
 	);
 
     mtrace("\n\n## Obteniendo listado de usuarios desde Omega {$url} ##\n");
-    for ($i = 1; $i<=3; $i++){
+    for ($i = 1; $i<=3; $i++) {
 
         mtrace("Intento de comunicacion {$i}");
+        $registros = 0;
 
-	curl_setopt($curl, CURLOPT_URL, $url);
-	curl_setopt($curl, CURLOPT_RETURNTRANSFER, TRUE);
-	curl_setopt($curl, CURLOPT_POST, TRUE);
-	curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($fields));
-        curl_setopt($curl, CURLOPT_HTTPHEADER, array("Content-Type: application/json"));
-	$result = json_decode(curl_exec($curl));
-	curl_close($curl);
+        try {
 
-        if (count($result) > 0) break;
+            $curl = curl_init();
+            curl_setopt($curl, CURLOPT_URL, $url);
+            curl_setopt($curl, CURLOPT_RETURNTRANSFER, TRUE);
+            curl_setopt($curl, CURLOPT_POST, TRUE);
+            curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($fields));
+            curl_setopt($curl, CURLOPT_HTTPHEADER, array("Content-Type: application/json"));
+            $result = json_decode(curl_exec($curl));
+            curl_close($curl);
+
+            $registros = count($result);
+
+        } catch (Exception $e) {
+            mtrace('Excepción capturada: ',  $e->getMessage());
+        }
+
+        if ($registros > 0) break;
+
     }
 	
 	// Check the version to use the corrects functions
@@ -130,7 +181,7 @@ function sync_getusers_fromomega($academicids, $syncinfo, $options = null){
 function sync_getcourses_fromomega($academicids, $syncinfo, $options = null){
 	global $CFG;
 
-	$curl = curl_init();
+	$registros = 0;
 	$url = $CFG->sync_urlgetcursos;
 	$token = $CFG->sync_token;
 	$fields = array(
@@ -143,16 +194,25 @@ function sync_getcourses_fromomega($academicids, $syncinfo, $options = null){
 	for ($i = 1; $i<=3; $i++){
 
         mtrace("Intento de comunicacion {$i}");
+        $registros = 0;
 
-	curl_setopt($curl, CURLOPT_URL, $url);
-	curl_setopt($curl, CURLOPT_RETURNTRANSFER, TRUE);
-	curl_setopt($curl, CURLOPT_POST, TRUE);
-	curl_setopt($curl, CURLOPT_POSTFIELDS,json_encode($fields));
-	curl_setopt($curl, CURLOPT_HTTPHEADER, array("Content-Type: application/json"));
-	$result = json_decode(curl_exec($curl));
-	curl_close($curl);
+        try {
 
-        if (count($result) > 0) break;
+            $curl = curl_init();
+            curl_setopt($curl, CURLOPT_URL, $url);
+            curl_setopt($curl, CURLOPT_RETURNTRANSFER, TRUE);
+            curl_setopt($curl, CURLOPT_POST, TRUE);
+            curl_setopt($curl, CURLOPT_POSTFIELDS,json_encode($fields));
+            curl_setopt($curl, CURLOPT_HTTPHEADER, array("Content-Type: application/json"));
+            $result = json_decode(curl_exec($curl));
+            curl_close($curl);
+            $registros = count($result);
+
+        } catch (Exception $e) {
+            mtrace('Excepción capturada: ',  $e->getMessage());
+        }
+
+        if ($registros > 0) break;
     }
 
 	if ($options) {
@@ -261,7 +321,7 @@ function sync_getacademicbycourseids($coursesids){
 
 function sync_getacademicperiodids_fromomega() {
 	global $CFG;
-	
+
 	$curl = curl_init();
 	$url = $CFG->sync_urlgetacademicperiods;
 	$token = $CFG->sync_token;	

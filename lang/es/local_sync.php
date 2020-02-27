@@ -117,3 +117,6 @@ $string["courses_delete_failed"] = "Ha fallado la eliminación de los cursos.";
 $string["courses_delete_check"] = "Por favor revise los requerimientos anteriores para eliminar los cursos de esta sincronización.";
 $string["syncwarning"] = "Mensajes de error de sincronización.";
 $string["syncwarningdesc"] = "Direcciones de correo donde las alertas de errores de sincronización serán enviadas.";
+
+$string["urlvalidateomega"] = "URL validación de Servicios Omega.";
+$string["urlvalidateomegadesc"] = "URL Donde se validan que los servicios de Omega estén funcionando correctamente.";
