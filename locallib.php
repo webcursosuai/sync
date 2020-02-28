@@ -622,6 +622,14 @@ function validateEmarkingError () {
     global $OUTPUT, $DB;
 
     mtrace("\n\n## Validando errores de Emarking ##\n");
+    $moduleid = 0;
+
+    $sqlmodule = "select id from {modules} where name = ?";
+    $modules = $DB->get_records_sql($sqlmodule, array('emarking'));
+    foreach($modules as $module){
+        $moduleid = $module->id;
+    }
+    mtrace ("id = " . $moduleid);
 
     $sql = "SELECT c.id, c.shortname, ema.name, from_unixtime(ema.timecreated) AS FechaCreacion, ct.id AS contextid, ct.instanceid, ema.type
     FROM {context} AS ct
@@ -645,7 +653,7 @@ function validateEmarkingError () {
         AND ema.type != ?
     ORDER BY c.shortname";
 
-    $courseproblems = $DB->get_records_sql($sql, array(36, 70, 0));
+    $courseproblems = $DB->get_records_sql($sql, array($moduleid, 70, 0));
 
     return $courseproblems;
 
