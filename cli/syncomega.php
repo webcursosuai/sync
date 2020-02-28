@@ -101,7 +101,7 @@ if ($academicids) {
 	}
 
 	foreach ($academicids as $academicid) {
-        mtrace("\n\nSincronizando periodo academico: {$academicid} " . date("F j, Y, G:i:s"));
+        mtrace("\n\nSincronizando periodo academico: {$academicid} - " . date("F j, Y, G:i:s"));
 		// Courses from Omega
 		list($courses, $syncinfo) = sync_getcourses_fromomega($academicid, $syncinfo, $options["debug"]);
 		// Insert the  courses
@@ -161,8 +161,17 @@ else {
 
 }
 
+// Validate emarking grading methods error
+$courseproblems = validateEmarkingError();
+if (count($courseproblems) > 0) {
+    mtrace ("Se encontraron " . count($courseproblems) . " errores de Emarking\n");
+} else {
+    mtrace ("No se encontraron errores de Emarking\n");
+}
+
+
 // if we get at least one academic period with 0 courses or users, then we will send a mail to the users configured
-if (count($syncfail) > 0) {
+if (count($syncfail) > 0 || count($courseproblems) > 0) {
 	
 	// Add Script to get list o users who will receive the mail
 	$mails = explode("," ,$CFG->sync_mailalert);
@@ -176,7 +185,7 @@ if (count($syncfail) > 0) {
 	}
 	
 	mtrace("Enviando correos de error a usuarios");
-	sync_sendmail($userlist, $syncfail);
+	sync_sendmail($userlist, $syncfail, $courseproblems);
 }
 
 // exec("/Applications/MAMP/bin/php/php7.0.0/bin/php /Applications/MAMP/htdocs/moodle/enrol/database/cli/sync.php");

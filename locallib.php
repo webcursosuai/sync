@@ -538,7 +538,7 @@ function sync_records_tabs() {
 	return $tabs;
 }
 
-function sync_sendmail($userlist, $syncFail) {
+function sync_sendmail($userlist, $syncFail, $courseproblems) {
     GLOBAL $CFG, $USER, $DB;
     $userfrom = core_user::get_noreply_user();
     $userfrom->maildisplay = true;
@@ -552,6 +552,7 @@ function sync_sendmail($userlist, $syncFail) {
             "<p>Estimado: usuario,</p>".
             "<p>Se ha completado la tarea de sincronización: " . date('d/m/Y h:i:s a', time()). "</p>".
             "#DATAHERE#".
+            "#DATAHERECOURSES#".
             "<p>Atentamente,</p>".
             "<p>Equipo de WebCursos</p>".
         "</html>";
@@ -559,11 +560,15 @@ function sync_sendmail($userlist, $syncFail) {
         $messagetext = "Estimado usuario,\n".
             "Se ha completado la tarea de sincronización: ". date('d/m/Y h:i:s a', time()). "\n\n".
             "#DATAHERE#\n\n".
+            "#DATAHERECOURSES#\n\n".
             "Atentamente,\n".
             "Equipo de WebCursos\n";
 
         $messagehtml = str_replace("#DATAHERE#", sync_htmldata($syncFail), $messagehtml);
         $messagetext = str_replace("#DATAHERE#", sync_htmldata($syncFail), $messagetext);
+
+        $messagetext = str_replace("#DATAHERECOURSES#", sync_htmldatacourses($courseproblems), $messagetext);
+        $messagetext = str_replace("#DATAHERECOURSES#", sync_htmldatacourses($courseproblems), $messagetext);
 
         $eventdata->component = "local_sync"; // your component name
         $eventdata->name = "sync_notification"; // this is the message name from messages.php
@@ -591,9 +596,57 @@ function sync_sendmail($userlist, $syncFail) {
 function sync_htmldata ($syncFail) {
     $table = "";
 
-    foreach ($syncFail as $fails){
-        $table .= "<p><b>Periodo Académico:</b> {$fails[0]} - <b>Cursos Sincronizados:</b> {$fails[1]} - <b>Enrols Totales:</b> {$fails[2]}</p>";
+    if (count($syncFail) > 0) {
+        foreach ($syncFail as $fails) {
+            $table .= "<p><b>Periodo Académico:</b> {$fails[0]} - <b>Cursos Sincronizados:</b> {$fails[1]} - <b>Enrols Totales:</b> {$fails[2]}</p>";
+        }
     }
 
     return $table;
+}
+
+function sync_htmldatacourses($courseproblems) {
+    $table = "";
+
+    if (count($courseproblems) > 0) {
+        foreach ($courseproblems as $problem){
+            $table .= "<p><b>CourseId:</b> {$problem[0]} - <b>Shortname:</b> {$problem[1]} - <b>Emarking:</b> {$problem[2]} - <b>FechaCreación:</b> {$problem[3]}</p>";
+        }
+    }
+
+    return $table;
+}
+
+function validateEmarkingError () {
+
+    global $OUTPUT, $DB;
+
+    mtrace("\n\n## Validando errores de Emarking ##\n");
+
+    $sql = "SELECT c.id, c.shortname, ema.name, from_unixtime(ema.timecreated) AS FechaCreacion, ct.id AS contextid, ct.instanceid, ema.type
+    FROM {context} AS ct
+    INNER JOIN {course_modules} AS cm ON (cm.id = ct.instanceid AND module=?)
+    INNER JOIN {modules} AS m ON (m.id=cm.module)
+    INNER JOIN {course} AS c ON (c.id = cm.course)
+    INNER JOIN {emarking} AS ema ON (ema.id = cm.instance)
+    WHERE
+        ct.contextlevel=?
+        AND NOT EXISTS (
+            SELECT 1 FROM {grading_areas} x
+            WHERE
+                x.contextid = ct.id
+                AND x.component = 'mod_emarking'
+                AND x.areaname = 'attempt'
+        )
+        AND EXISTS (
+            SELECT 1 FROM {sync_enrol}
+            WHERE course = c.shortname
+        )
+        AND ema.type != ?
+    ORDER BY c.shortname";
+
+    $courseproblems = $DB->get_records_sql($sql, array(36, 70, 0));
+
+    return $courseproblems;
+
 }
