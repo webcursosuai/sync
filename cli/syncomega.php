@@ -170,23 +170,26 @@ if (count($courseproblems) > 0) {
 }
 
 
-// if we get at least one academic period with 0 courses or users, then we will send a mail to the users configured
+// send a mail to the users configured
+$error = 0;
 if (count($syncfail) > 0 || count($courseproblems) > 0) {
-	
-	// Add Script to get list o users who will receive the mail
-	$mails = explode("," ,$CFG->sync_mailalert);
-	$userlist = array();
-	foreach ($mails as $mail) {
-        $sqlmail = "Select id From {user} where username = ?";
-        $usercfg = $DB->get_records_sql($sqlmail,array($mail));
-        foreach ($usercfg as $user) {
-            array_push($userlist, $user->id);
-	    }
-	}
-	
-	mtrace("Enviando correos de error a usuarios");
-	sync_sendmail($userlist, $syncfail, $courseproblems);
+    $error = 1;
 }
+
+// Add Script to get list o users who will receive the mail
+$mails = explode("," ,$CFG->sync_mailalert);
+$userlist = array();
+foreach ($mails as $mail) {
+    $sqlmail = "Select id From {user} where username = ?";
+    $usercfg = $DB->get_records_sql($sqlmail,array($mail));
+    foreach ($usercfg as $user) {
+        array_push($userlist, $user->id);
+    }
+}
+
+mtrace("Enviando correos de a usuarios");
+sync_sendmail($userlist, $syncfail, $courseproblems, $error);
+
 
 // exec("/Applications/MAMP/bin/php/php7.0.0/bin/php /Applications/MAMP/htdocs/moodle/enrol/database/cli/sync.php");
 // exec("/usr/bin/php /Datos/moodle/moodle/enrol/database/cli/sync.php");
