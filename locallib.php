@@ -28,112 +28,170 @@ define('SYNC_STATUS_INACTIVE', 0);
 define('SYNC_STATUS_ACTIVE', 1);
 define('MODULE_FORUM', 'forum');
 
+function sync_validateomega_services($options = null){
+    global $DB, $CFG;
+
+    $registros = 0;
+    $url = $CFG->sync_urlvalidateserviceomega;
+    $token = $CFG->sync_token;
+    /*$fields = array(
+        "token" => $token
+    );*/
+
+    mtrace("\n\n## Validando servicios de Omega {$url} ##\n");
+    for ($i = 1; $i<=3; $i++){
+
+        mtrace("Intento de comunicacion {$i}");
+        $registros = 0;
+
+        try {
+
+            $curl = curl_init();
+            curl_setopt($curl, CURLOPT_URL, $url);
+            curl_setopt($curl, CURLOPT_RETURNTRANSFER, TRUE);
+            curl_setopt($curl, CURLOPT_POST, FALSE);
+            //curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($fields));
+            curl_setopt($curl, CURLOPT_HTTPHEADER, array("Content-Type: application/json"));
+            $result = json_decode(curl_exec($curl));
+            curl_close($curl);
+
+            $registros = count($result);
+
+        } catch (Exception $e) {
+            mtrace('Excepción capturada: ',  $e->getMessage());
+        }
+
+        if ($registros > 0) break;
+    }
+
+    return $result;
+}
+
 function sync_getusers_fromomega($academicids, $syncinfo, $options = null){
 	global $DB, $CFG;
-	
-	$curl = curl_init();
+
+    $registros = 0;
+
 	$url = $CFG->sync_urlgetalumnos;
-	$token = $CFG->sync_token;	
-	$fields = array(
+    $token = $CFG->sync_token;
+    $fields = array(
 			"token" => $token,
 			"PeriodosAcademicos" => array($academicids)
 	);
 
     mtrace("\n\n## Obteniendo listado de usuarios desde Omega {$url} ##\n");
-    for ($i = 1; $i<=3; $i++){
+    for ($i = 1; $i<=3; $i++) {
 
         mtrace("Intento de comunicacion {$i}");
+        $registros = 0;
 
-	curl_setopt($curl, CURLOPT_URL, $url);
-	curl_setopt($curl, CURLOPT_RETURNTRANSFER, TRUE);
-	curl_setopt($curl, CURLOPT_POST, TRUE);
-	curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($fields));
-        curl_setopt($curl, CURLOPT_HTTPHEADER, array("Content-Type: application/json"));
-	$result = json_decode(curl_exec($curl));
-	curl_close($curl);
+        try {
 
-        if (count($result) > 0) break;
+            $curl = curl_init();
+            curl_setopt($curl, CURLOPT_URL, $url);
+            curl_setopt($curl, CURLOPT_RETURNTRANSFER, TRUE);
+            curl_setopt($curl, CURLOPT_POST, TRUE);
+            curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($fields));
+            curl_setopt($curl, CURLOPT_HTTPHEADER, array("Content-Type: application/json"));
+            $result = json_decode(curl_exec($curl));
+            curl_close($curl);
+
+            $registros = count($result);
+
+        } catch (Exception $e) {
+            mtrace('Excepción capturada: ',  $e->getMessage());
+        }
+
+        if ($registros > 0) break;
+
     }
-	
-	// Check the version to use the corrects functions
-	if(PHP_MAJOR_VERSION < 7){
-		$coursesids = array();
-		foreach ($result as $course){
-			$coursesids[] = $course->SeccionId;
-		}
-	}else{
-		// Needs the academic period to record the history of sync
-		$coursesids = array_column($result, 'SeccionId');
-	}
-	
-	$academicdbycourseid = sync_getacademicbycourseids($coursesids);
-	if ($options) {
-		mtrace("#### Adding Enrollments ####");
-	}
-	$users = array();
-	$metausers = array();
-	foreach($result as $user) {
-		if($user->Email !== "" && $user->Email !== NULL){
-			$insertdata = new stdClass();
-			$academicid = $user->PeriodoAcademicoId;
-			if(!isset($academicdbycourseid[$user->SeccionId]) || empty($academicdbycourseid[$user->SeccionId])){
-				$insertdata->course = NULL;
-			}else{
-				$insertdata->course = $academicdbycourseid[$user->SeccionId];
-			}
-			$insertdata->user = ($CFG->sync_emailexplode) ? explode("@", $user->Email)[0] : $user->Email;
-			
-			switch ($user->Tipo) {
-				case 'EditingTeacher':
-					$insertdata->role = $CFG->sync_teachername;
-					break;
-				case 'NonEditingTeacher':
-					$insertdata->role = $CFG->sync_noneditingteachername;
-					break;
-				case 'Student':
-					$insertdata->role = $CFG->sync_studentname;
-					break;
-				default:
-					$insertdata->role = $CFG->sync_studentname;
-					break;
-			};
-		
-			if($insertdata->course != NULL){
-				$users[] = $insertdata;
-				$syncinfo[$academicid]["enrol"] += 1;
-				if ($options) {
-					mtrace("USER: ".$insertdata->user." TYPE: ".$insertdata->role." COURSE: ".$insertdata->course);
-				}
-			}
-			
-			$generalcoursedata = new stdClass();
-			$generalcoursedata->course = ($insertdata->role == $CFG->sync_teachername) ? $academicid."-PROFESORES" : $academicid."-ALUMNOS";
-			$generalcoursedata->user = $insertdata->user;
-			$generalcoursedata->role = $CFG->sync_studentname;
-			
-			if($insertdata->role != $CFG->sync_noneditingteachername){
-				if(!in_array($generalcoursedata, $metausers)) {
-					$metausers[] = $generalcoursedata;
-					$syncinfo[$academicid]["enrol"] += 1;
-					if ($options) {
-						mtrace("USER: ".$insertdata->user." TYPE: ".$generalcoursedata->role." COURSE: ".$generalcoursedata->course);
-					}
-				}
-			}
-		}elseif($options){
-			mtrace("Skipping empty..");
-		}
-	}
+
+    $users = array();
+    $metausers = array();
+
+    if ($registros > 0) {
+        // Check the version to use the corrects functions
+        if(PHP_MAJOR_VERSION < 7){
+            $coursesids = array();
+            foreach ($result as $course){
+                $coursesids[] = $course->SeccionId;
+            }
+        }else{
+            // Needs the academic period to record the history of sync
+            $coursesids = array_column($result, 'SeccionId');
+        }
+
+        $academicdbycourseid = sync_getacademicbycourseids($coursesids);
+        if ($options) {
+            mtrace("#### Adding Enrollments ####");
+        }
+
+        foreach($result as $user) {
+            if($user->Email !== "" && $user->Email !== NULL){
+                $insertdata = new stdClass();
+                $academicid = $user->PeriodoAcademicoId;
+                if(!isset($academicdbycourseid[$user->SeccionId]) || empty($academicdbycourseid[$user->SeccionId])){
+                    $insertdata->course = NULL;
+                }else{
+                    $insertdata->course = $academicdbycourseid[$user->SeccionId];
+                }
+                $insertdata->user = ($CFG->sync_emailexplode) ? explode("@", $user->Email)[0] : $user->Email;
+
+                switch ($user->Tipo) {
+                    case 'EditingTeacher':
+                        $insertdata->role = $CFG->sync_teachername;
+                        break;
+                    case 'NonEditingTeacher':
+                        $insertdata->role = $CFG->sync_noneditingteachername;
+                        break;
+                    case 'Student':
+                        $insertdata->role = $CFG->sync_studentname;
+                        break;
+                    default:
+                        $insertdata->role = $CFG->sync_studentname;
+                        break;
+                };
+
+                if($insertdata->course != NULL){
+                    $users[] = $insertdata;
+                    $syncinfo[$academicid]["enrol"] += 1;
+                    if ($options) {
+                        mtrace("USER: ".$insertdata->user." TYPE: ".$insertdata->role." COURSE: ".$insertdata->course);
+                    }
+                }
+
+                $generalcoursedata = new stdClass();
+                $generalcoursedata->course = ($insertdata->role == $CFG->sync_teachername) ? $academicid."-PROFESORES" : $academicid."-ALUMNOS";
+                $generalcoursedata->user = $insertdata->user;
+                $generalcoursedata->role = $CFG->sync_studentname;
+
+                if($insertdata->role != $CFG->sync_noneditingteachername){
+                    if(!in_array($generalcoursedata, $metausers)) {
+                        $metausers[] = $generalcoursedata;
+                        $syncinfo[$academicid]["enrol"] += 1;
+                        if ($options) {
+                            mtrace("USER: ".$insertdata->user." TYPE: ".$generalcoursedata->role." COURSE: ".$generalcoursedata->course);
+                        }
+                    }
+                }
+            }elseif($options){
+                mtrace("Skipping empty..");
+            }
+        }
+    } else {
+        mtrace ("No users obtained");
+    }
+
 	return array($users,$metausers, $syncinfo);
 }
 
 function sync_getcourses_fromomega($academicids, $syncinfo, $options = null){
 	global $CFG;
 
-	$curl = curl_init();
+	$registros = 0;
 	$url = $CFG->sync_urlgetcursos;
 	$token = $CFG->sync_token;
-	$fields = array(
+    $fields = array(
 			"token" => $token,
 			"PeriodosAcademicos" => array($academicids)
 	);
@@ -143,65 +201,81 @@ function sync_getcourses_fromomega($academicids, $syncinfo, $options = null){
 	for ($i = 1; $i<=3; $i++){
 
         mtrace("Intento de comunicacion {$i}");
+        $registros = 0;
 
-	curl_setopt($curl, CURLOPT_URL, $url);
-	curl_setopt($curl, CURLOPT_RETURNTRANSFER, TRUE);
-	curl_setopt($curl, CURLOPT_POST, TRUE);
-	curl_setopt($curl, CURLOPT_POSTFIELDS,json_encode($fields));
-	curl_setopt($curl, CURLOPT_HTTPHEADER, array("Content-Type: application/json"));
-	$result = json_decode(curl_exec($curl));
-	curl_close($curl);
+        try {
 
-        if (count($result) > 0) break;
+            $curl = curl_init();
+            curl_setopt($curl, CURLOPT_URL, $url);
+            curl_setopt($curl, CURLOPT_RETURNTRANSFER, TRUE);
+            curl_setopt($curl, CURLOPT_POST, TRUE);
+            curl_setopt($curl, CURLOPT_POSTFIELDS,json_encode($fields));
+            curl_setopt($curl, CURLOPT_HTTPHEADER, array("Content-Type: application/json"));
+            $result = json_decode(curl_exec($curl));
+            curl_close($curl);
+            $registros = count($result);
+
+        } catch (Exception $e) {
+            mtrace('Excepción capturada: ',  $e->getMessage());
+        }
+
+        if ($registros > 0) break;
     }
 
 	if ($options) {
 		mtrace("#### Adding Courses ####");
 	}
-	$courses = array();
-	foreach($result as $course) {
-		$insertdata = new stdClass();
-		$insertdata->dataid = $syncinfo[$course->PeriodoAcademicoId]["dataid"];
-		// Format ISO-8859-1 Fullname
-		$insertdata->fullname = $course->FullName;
-		// Validate encode Fullname
-		//mtrace(mb_detect_encoding($course->FullName,"ISO-8859-1, GBK, UTF-8"));		
-		$insertdata->shortname = $course->ShortName;
-		$insertdata->idnumber = $course->SeccionId;
-		$insertdata->categoryid = $syncinfo[$course->PeriodoAcademicoId]["categoryid"];
-		if($insertdata->fullname != NULL && $insertdata->shortname != NULL && $insertdata->idnumber != NULL){
-			$courses[] = $insertdata;		
-			$syncinfo[$course->PeriodoAcademicoId]["course"] += 1;
-			if ($options) {
-				mtrace("COURSE: ".$insertdata->shortname." IDNUMBER: ".$insertdata->idnumber." CATEGORY: ".$insertdata->categoryid);
-			}
-		}
-	}	
-	
-	// Build the academic period's general students course
-	$studentscourse = new StdClass();
-	$studentscourse->dataid = $syncinfo[$academicids]["dataid"];
-	$studentscourse->fullname = "Alumnos ".$syncinfo[$academicids]["periodname"];
-	$studentscourse->shortname = $academicids."-ALUMNOS";
-	$studentscourse->idnumber = NULL;
-	$studentscourse->categoryid = $syncinfo[$academicids]["categoryid"];
-	
-	// Build the academic period's general teachers course
-	$teacherscourse = new StdClass();
-	$teacherscourse->dataid = $syncinfo[$academicids]["dataid"];
-	$teacherscourse->fullname = "Profesores ".$syncinfo[$academicids]["periodname"];
-	$teacherscourse->shortname = $academicids."-PROFESORES";
-	$teacherscourse->idnumber = NULL;
-	$teacherscourse->categoryid = $syncinfo[$academicids]["categoryid"];
-	if ($options) {
-		mtrace("COURSE: ".$studentscourse->shortname." CATEGORY: ".$studentscourse->categoryid);
-		mtrace("COURSE: ".$teacherscourse->shortname." CATEGORY: ".$teacherscourse->categoryid);
-	}
-	$courses[] = $studentscourse;
-	$syncinfo[$course->PeriodoAcademicoId]["course"] += 1;
-	$courses[] = $teacherscourse;
-	$syncinfo[$course->PeriodoAcademicoId]["course"] += 1;
-	
+
+    $courses = array();
+	if ($registros > 0) {
+
+        foreach($result as $course) {
+            $insertdata = new stdClass();
+            $insertdata->dataid = $syncinfo[$course->PeriodoAcademicoId]["dataid"];
+            // Format ISO-8859-1 Fullname
+            $insertdata->fullname = $course->FullName;
+            // Validate encode Fullname
+            //mtrace(mb_detect_encoding($course->FullName,"ISO-8859-1, GBK, UTF-8"));
+            $insertdata->shortname = $course->ShortName;
+            $insertdata->idnumber = $course->SeccionId;
+            $insertdata->categoryid = $syncinfo[$course->PeriodoAcademicoId]["categoryid"];
+            if($insertdata->fullname != NULL && $insertdata->shortname != NULL && $insertdata->idnumber != NULL){
+                $courses[] = $insertdata;
+                $syncinfo[$course->PeriodoAcademicoId]["course"] += 1;
+                if ($options) {
+                    mtrace("COURSE: ".$insertdata->shortname." IDNUMBER: ".$insertdata->idnumber." CATEGORY: ".$insertdata->categoryid);
+                }
+            }
+        }
+
+        // Build the academic period's general students course
+        $studentscourse = new StdClass();
+        $studentscourse->dataid = $syncinfo[$academicids]["dataid"];
+        $studentscourse->fullname = "Alumnos ".$syncinfo[$academicids]["periodname"];
+        $studentscourse->shortname = $academicids."-ALUMNOS";
+        $studentscourse->idnumber = NULL;
+        $studentscourse->categoryid = $syncinfo[$academicids]["categoryid"];
+
+        // Build the academic period's general teachers course
+        $teacherscourse = new StdClass();
+        $teacherscourse->dataid = $syncinfo[$academicids]["dataid"];
+        $teacherscourse->fullname = "Profesores ".$syncinfo[$academicids]["periodname"];
+        $teacherscourse->shortname = $academicids."-PROFESORES";
+        $teacherscourse->idnumber = NULL;
+        $teacherscourse->categoryid = $syncinfo[$academicids]["categoryid"];
+        if ($options) {
+            mtrace("COURSE: ".$studentscourse->shortname." CATEGORY: ".$studentscourse->categoryid);
+            mtrace("COURSE: ".$teacherscourse->shortname." CATEGORY: ".$teacherscourse->categoryid);
+        }
+        $courses[] = $studentscourse;
+        $syncinfo[$course->PeriodoAcademicoId]["course"] += 1;
+        $courses[] = $teacherscourse;
+        $syncinfo[$course->PeriodoAcademicoId]["course"] += 1;
+
+    } else {
+	    mtrace("No courses obtained");
+    }
+
 	return array($courses, $syncinfo);
 }
 
@@ -261,7 +335,7 @@ function sync_getacademicbycourseids($coursesids){
 
 function sync_getacademicperiodids_fromomega() {
 	global $CFG;
-	
+
 	$curl = curl_init();
 	$url = $CFG->sync_urlgetacademicperiods;
 	$token = $CFG->sync_token;	
@@ -478,7 +552,7 @@ function sync_records_tabs() {
 	return $tabs;
 }
 
-function sync_sendmail($userlist, $syncFail) {
+function sync_sendmail($userlist, $syncFail, $courseproblems, $error) {
     GLOBAL $CFG, $USER, $DB;
     $userfrom = core_user::get_noreply_user();
     $userfrom->maildisplay = true;
@@ -491,29 +565,49 @@ function sync_sendmail($userlist, $syncFail) {
         $messagehtml = "<html>".
             "<p>Estimado: usuario,</p>".
             "<p>Se ha completado la tarea de sincronización: " . date('d/m/Y h:i:s a', time()). "</p>".
-            "#DATAHERE#".
+            "<p><b>Errores de Sincronización:</b></p>".
+            "<p>#DATAHERE#</p>".
+            "<p><b>Errores de Emarking:</b></p>".
+            "<p>#DATAHERECOURSES#</p>".
             "<p>Atentamente,</p>".
             "<p>Equipo de WebCursos</p>".
         "</html>";
 
-        $messagetext = "Estimado usuario,\n".
-            "Se ha completado la tarea de sincronización: ". date('d/m/Y h:i:s a', time()). "\n\n".
-            "#DATAHERE#\n\n".
-            "Atentamente,\n".
-            "Equipo de WebCursos\n";
+        $messagetext = "<p>Estimado: usuario,</p>".
+            "<p>Se ha completado la tarea de sincronización: " . date('d/m/Y h:i:s a', time()). "</p>".
+            "<p><b>Errores de Sincronización:</b></p>".
+            "<p>#DATAHERE#</p>".
+            "<p><b>Errores de Emarking:</b></p>".
+            "<p>#DATAHERECOURSES#</p>".
+            "<p>Atentamente,</p>".
+            "<p>Equipo de WebCursos</p>";
 
-        $messagehtml = str_replace("#DATAHERE#", sync_htmldata($syncFail), $messagehtml);
-        $messagetext = str_replace("#DATAHERE#", sync_htmldata($syncFail), $messagetext);
+        if ($error == 1) {
+            $messagehtml = str_replace("#DATAHERE#", sync_htmldata($syncFail), $messagehtml);
+            $messagetext = str_replace("#DATAHERE#", sync_htmldata($syncFail), $messagetext);
+
+            $messagehtml = str_replace("#DATAHERECOURSES#", sync_htmldatacourses($courseproblems), $messagehtml);
+            $messagetext = str_replace("#DATAHERECOURSES#", sync_htmldatacourses($courseproblems), $messagetext);
+        }
+        else {
+            $messagehtml = str_replace("#DATAHERE#", "", $messagehtml);
+            $messagetext = str_replace("#DATAHERE#", "", $messagetext);
+
+            $messagehtml = str_replace("#DATAHERECOURSES#", "", $messagehtml);
+            $messagetext = str_replace("#DATAHERECOURSES#", "", $messagetext);
+        }
+
+
 
         $eventdata->component = "local_sync"; // your component name
         $eventdata->name = "sync_notification"; // this is the message name from messages.php
         $eventdata->userfrom = $userfrom;
         $eventdata->userto = $user;
-        $eventdata->subject = "Sync Error";
+        $eventdata->subject = "Sync Notification";
         $eventdata->fullmessage = $messagetext;
         $eventdata->fullmessageformat = FORMAT_HTML;
         $eventdata->fullmessagehtml = $messagehtml;
-        $eventdata->smallmessage = "Sync error";
+        $eventdata->smallmessage = "Sync Notification";
         $eventdata->notification = 1; // this is only set to 0 for personal messages between users
 
         $eventdata->contexturl = 'http://www.webcursos.uai.cl';
@@ -531,9 +625,73 @@ function sync_sendmail($userlist, $syncFail) {
 function sync_htmldata ($syncFail) {
     $table = "";
 
-    foreach ($syncFail as $fails){
-        $table .= "<p><b>Periodo Académico:</b> {$fails[0]} - <b>Cursos Sincronizados:</b> {$fails[1]} - <b>Enrols Totales:</b> {$fails[2]}</p>";
+    if (count($syncFail) > 0) {
+        foreach ($syncFail as $fails) {
+            $table .= "<p><b>Periodo Académico:</b> {$fails[0]} - <b>Cursos Sincronizados:</b> {$fails[1]} - <b>Enrols Totales:</b> {$fails[2]}</p>";
+        }
     }
 
     return $table;
+}
+
+function sync_htmldatacourses($courseproblems) {
+    $table = "";
+
+    if (count($courseproblems) > 0) {
+        foreach ($courseproblems as $problem){
+            $table .= "<p><b>CourseId:</b> {$problem[0]} - <b>Shortname:</b> {$problem[1]} - <b>Emarking:</b> {$problem[2]} - <b>FechaCreación:</b> {$problem[3]}</p>";
+        }
+    }
+
+    return $table;
+}
+
+function validateEmarkingError () {
+
+    global $OUTPUT, $DB;
+
+    mtrace("\n\n## Validando errores de Emarking ##\n");
+    $moduleid = 0;
+
+    $sqlmodule = "select id from {modules} where name = ?";
+    $modules = $DB->get_records_sql($sqlmodule, array('emarking'));
+    foreach($modules as $module){
+        $moduleid = $module->id;
+    }
+    //mtrace ("moduleid = " . $moduleid);
+
+    $sql = "SELECT c.id, c.shortname, ema.name, from_unixtime(ema.timecreated) AS fechacreacion, ct.id AS contextid, ct.instanceid, ema.type
+    FROM {context} AS ct
+    INNER JOIN {course_modules} AS cm ON (cm.id = ct.instanceid AND module=?)
+    INNER JOIN {modules} AS m ON (m.id=cm.module)
+    INNER JOIN {course} AS c ON (c.id = cm.course)
+    INNER JOIN {emarking} AS ema ON (ema.id = cm.instance)
+    WHERE
+        ct.contextlevel=?
+        AND NOT EXISTS (
+            SELECT 1 FROM {grading_areas} x
+            WHERE
+                x.contextid = ct.id
+                AND x.component = 'mod_emarking'
+                AND x.areaname = 'attempt'
+        )
+        AND EXISTS (
+            SELECT 1 FROM {sync_enrol}
+            WHERE course = c.shortname
+        )
+        AND ema.type != ?
+    ORDER BY c.shortname";
+
+    //mtrace ($sql);
+    $result = $DB->get_records_sql($sql, array($moduleid, 70, 0));
+
+    $courseproblems = array();
+    if(count($result) > 0){
+        foreach($result as $res) {
+            array_push($courseproblems,array($res->id, $res->shortname, $res->name, $res->fechacreacion, $res->contextid, $res->instanceid, $res->type));
+        }
+    }
+
+    return $courseproblems;
+
 }

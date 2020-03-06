@@ -111,4 +111,15 @@ if ($hassiteconfig) {
             'joaquin.cerda@uai.cl',
             PARAM_TEXT
         ));
+
+    // Url Validate Services Omega
+    $settings->add(
+        new admin_setting_configtext(
+            'sync_urlvalidateserviceomega',
+            get_string('urlvalidateomega', 'local_sync'),
+            get_string('urlvalidateomegadesc', 'local_sync'),
+            'http://webapitest.uai.cl/Webcursos/GetAliveServer',
+            PARAM_TEXT
+        ));
+
 }

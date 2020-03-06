@@ -29,7 +29,7 @@
 define('CLI_SCRIPT', true); // Comment this line to execute on web
 require_once(dirname(dirname(dirname(dirname(__FILE__)))) . "/config.php");
 require_once($CFG->dirroot . "/local/sync/locallib.php");
-require_once ($CFG->libdir . '/clilib.php');
+require_once($CFG->libdir . '/clilib.php');
 
 global $DB, $CFG;
 
@@ -44,12 +44,12 @@ list($options, $unrecognized) = cli_get_params(array(
         'a' => 'academicperiodid'
 ));
 
-if($unrecognized) {
+if ($unrecognized) {
 	$unrecognized = implode("\n  ", $unrecognized);
 	cli_error(get_string('cliunknowoption', 'admin', $unrecognized));
 }
 // Text to the sync console
-if($options['help']) {
+if ($options['help']) {
 	$help =
 	// Todo: localize - to be translated later when everything is finished
 	"Sync Omega to get the courses and users (students and teachers).
@@ -64,36 +64,44 @@ if($options['help']) {
 cli_heading('Omega Sync'); // TODO: localize
 echo "\nStarting at ".date("F j, Y, G:i:s")."\n";
 
+// Validate Omega Services
+/*
+$result = sync_validateomega_services($options["debug"]);
+if ($result == false) {
+    mtrace("Error Validate Omega Services");
+    die();
+}
+mtrace("Validation complete, continue... \n");
+*/
+
 // Get all ID from each academic period with status is active
 list($academicids, $syncinfo) = sync_getacademicperiod($options['academicperiodid']);
 
 // Check we have
-if($academicids) {
+if ($academicids) {
 
     // If we get a academic period parameter, we only process that period
     if ($options['academicperiodid'] > 0) {
-	// Delete previous courses
-        if(!$DB->execute("DELETE FROM {sync_course} where shortname like '".$options['academicperiodid']."-%'")) mtrace("DELETE Table sync_course academicperiodid = ".$options['academicperiodid'].": Failed");
+	    // Delete previous courses
+        if (!$DB->execute("DELETE FROM {sync_course} where shortname like '".$options['academicperiodid']."-%'")) mtrace("DELETE Table sync_course academicperiodid = ".$options['academicperiodid'].": Failed");
         else mtrace("DELETE Table sync_course academicperiodid = ".$options['academicperiodid'].": Success");
 
         // Delete previous enrol
-        if(!$DB->execute("DELETE FROM {sync_enrol} where course like '".$options['academicperiodid']."-%'")) mtrace("DELETE Table sync_enrol academicperiodid = ".$options['academicperiodid'].": Failed");
+        if (!$DB->execute("DELETE FROM {sync_enrol} where course like '".$options['academicperiodid']."-%'")) mtrace("DELETE Table sync_enrol academicperiodid = ".$options['academicperiodid'].": Failed");
         else mtrace("DELETE Table sync_enrol academicperiodid = ".$options['academicperiodid'].": Success");
 	}
     else {
         // Delete previous courses
-        if(!$DB->execute("TRUNCATE TABLE {sync_course}")) mtrace("Truncate Table sync_course: Failed");
+        if (!$DB->execute("TRUNCATE TABLE {sync_course}")) mtrace("Truncate Table sync_course: Failed");
         else mtrace("Truncate Table sync_course: Success");
 
-	// Delete previous enrol
-        if(!$DB->execute("TRUNCATE TABLE {sync_enrol}")) mtrace("Truncate Table sync_enrol: Failed");
+	    // Delete previous enrol
+        if (!$DB->execute("TRUNCATE TABLE {sync_enrol}")) mtrace("Truncate Table sync_enrol: Failed");
         else mtrace("Truncate Table sync_enrol: Success");
 	}
 
-
-	
 	foreach ($academicids as $academicid) {
-        mtrace("\n\nSincronizando periodo academico: {$academicid}");
+        mtrace("\n\nSincronizando periodo academico: {$academicid} - " . date("F j, Y, G:i:s"));
 		// Courses from Omega
 		list($courses, $syncinfo) = sync_getcourses_fromomega($academicid, $syncinfo, $options["debug"]);
 		// Insert the  courses
@@ -108,11 +116,12 @@ if($academicids) {
 		mtrace("Forcing exit");
 		exit(0);*/
 	}
+
 	// insert records in sync_history
 	$historyrecords = array();
 	$syncfail = array();
 	$time = time();
-	foreach ($syncinfo as $academic => $rowinfo){
+	foreach ($syncinfo as $academic => $rowinfo) {
 		$insert = new stdClass();
 		$insert->dataid = $rowinfo["dataid"];
 		$insert->executiondate = $time;
@@ -127,51 +136,64 @@ if($academicids) {
 		mtrace("Academic Period ".$academic.", Total courses ".$rowinfo["course"].", Total enrol ".$rowinfo["enrol"]."\n");
 	}
 	$DB->insert_records("sync_history", $historyrecords);
-}else{
+}
+else {
 	mtrace("No se encontraron Periodos académicos activos para sincronizar.");
 
     if ($options['academicperiodid'] > 0) {
 
         // Delete Only the param academic period
-        if(!$DB->execute("DELETE FROM {sync_course} where shortname like '".$options['academicperiodid']."-%'")) mtrace("DELETE Table sync_course academicperiodid = ".$options['academicperiodid'].": Failed");
+        if (!$DB->execute("DELETE FROM {sync_course} where shortname like '".$options['academicperiodid']."-%'")) mtrace("DELETE Table sync_course academicperiodid = ".$options['academicperiodid'].": Failed");
         else mtrace("DELETE Table sync_course academicperiodid = ".$options['academicperiodid'].": Success");
 
         // Delete previous enrol
-        if(!$DB->execute("DELETE FROM {sync_enrol} where course like '".$options['academicperiodid']."-%'")) mtrace("DELETE Table sync_enrol academicperiodid = ".$options['academicperiodid'].": Failed");
+        if (!$DB->execute("DELETE FROM {sync_enrol} where course like '".$options['academicperiodid']."-%'")) mtrace("DELETE Table sync_enrol academicperiodid = ".$options['academicperiodid'].": Failed");
         else mtrace("DELETE Table sync_enrol academicperiodid = ".$options['academicperiodid'].": Success");
 
     }
 	else {
-        if(!$DB->execute("TRUNCATE TABLE {sync_course}")) mtrace("Truncate Table sync_course Failed");
+        if (!$DB->execute("TRUNCATE TABLE {sync_course}")) mtrace("Truncate Table sync_course Failed");
         else mtrace("Truncate Table sync_course Success");
 
-        if(!$DB->execute("TRUNCATE TABLE {sync_enrol}")) mtrace("Truncate Table sync_enrol Failed");
+        if (!$DB->execute("TRUNCATE TABLE {sync_enrol}")) mtrace("Truncate Table sync_enrol Failed");
         else mtrace("Truncate Table sync_enrol Success");
     }
 
 }
 
-// if we get at least one academic period with 0 courses or users, then we will send a mail to the users configured
-if (count($syncfail) > 0) {
-	
-	// Add Script to get list o users who will receive the mail
-	$mails = explode("," ,$CFG->sync_mailalert);
-	$userlist = array();
-	foreach ($mails as $mail){
-        $sqlmail = "Select id From {user} where username = ?";
-        $usercfg = $DB->get_records_sql($sqlmail,array($mail));
-        foreach ($usercfg as $user){
-            array_push($userlist, $user->id);
-	}
-	}
-	
-	mtrace("Enviando correos de error a usuarios");
-	sync_sendmail($userlist, $syncfail);
+// Validate emarking grading methods error
+$courseproblems = validateEmarkingError();
+if (count($courseproblems) > 0) {
+    mtrace ("Se encontraron " . count($courseproblems) . " errores de Emarking\n");
+} else {
+    mtrace ("No se encontraron errores de Emarking\n");
 }
+
+
+// send a mail to the users configured
+$error = 0;
+if (count($syncfail) > 0 || count($courseproblems) > 0) {
+    $error = 1;
+}
+
+// Add Script to get list o users who will receive the mail
+$mails = explode("," ,$CFG->sync_mailalert);
+$userlist = array();
+foreach ($mails as $mail) {
+    $sqlmail = "Select id From {user} where username = ?";
+    $usercfg = $DB->get_records_sql($sqlmail,array($mail));
+    foreach ($usercfg as $user) {
+        array_push($userlist, $user->id);
+    }
+}
+
+mtrace("Enviando correos de a usuarios");
+sync_sendmail($userlist, $syncfail, $courseproblems, $error);
+
 
 // exec("/Applications/MAMP/bin/php/php7.0.0/bin/php /Applications/MAMP/htdocs/moodle/enrol/database/cli/sync.php");
 // exec("/usr/bin/php /Datos/moodle/moodle/enrol/database/cli/sync.php");
-if($CFG->sync_execcommand != NULL){
+if ($CFG->sync_execcommand != NULL) {
 	exec($CFG->sync_execcommand);
 }
 exit(0);

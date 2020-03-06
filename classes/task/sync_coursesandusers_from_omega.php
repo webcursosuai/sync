@@ -32,9 +32,9 @@ class sync_coursesandusers_from_omega extends \core\task\scheduled_task {
 	
 	public function execute() {
 		global $DB, $CFG;
-		require_once($CFG->dirroot."/local/sync/locallib.php");	
-			
-		// Get all ID from each academic period with status is active
+        require_once($CFG->dirroot."/local/sync/locallib.php");
+
+        // Get all ID from each academic period with status is active
 		list($academicids, $syncinfo) = sync_getacademicperiod();
 		// Check we have 
 		if($academicids){
@@ -68,7 +68,7 @@ class sync_coursesandusers_from_omega extends \core\task\scheduled_task {
 			$historyrecords = array();
 			$time = time();
 			foreach ($syncinfo as $academic => $rowinfo){
-				$insert = new stdClass();
+				$insert = new \stdClass();
 				$insert->dataid = $rowinfo["dataid"];
 				$insert->executiondate = $time;
 				$insert->countcourses = $rowinfo["course"];
